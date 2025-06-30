@@ -17,7 +17,7 @@ public class NetworkConnector : MonoBehaviour
     public NetworkStream Stream => _stream;
 
     public static NetworkConnector Instance { get; private set; }
-
+    public string UserNickname { get; set; }
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -87,8 +87,38 @@ public class NetworkConnector : MonoBehaviour
 
     private void HandleServerMessage(string message)
     {
-        
+        // 메시지 끝에 줄바꿈(\n)이 붙어있을 수 있으니 Trim해서 제거
+        message = message.Trim();
+
+        // 메시지를 '|'로 구분해서 명령과 데이터를 분리
+        string[] parts = message.Split('|');
+        if (parts.Length < 1)
+        {
+            Debug.LogWarning("잘못된 서버 메시지 형식");
+            return;
+        }
+
+        string command = parts[0];
+        string data = parts.Length > 1 ? parts[1] : "";
+
+        switch (command)
+        {
+            case "JOIN_SUCCESS":
+                Debug.Log("서버로부터 JOIN 성공 메시지 수신");
+
+                // 필요한 후속 처리 (예: 씬 전환, UI 갱신 등)
+                // data가 비어있으므로 특별히 처리할 데이터는 없음
+
+                // 예시: 씬 이동
+                UnityEngine.SceneManagement.SceneManager.LoadScene("GameScene");
+                break;
+
+            default:
+                Debug.LogWarning("알 수 없는 서버 명령: " + command);
+                break;
+        }
     }
+
 
     private void OnApplicationQuit()
     {
