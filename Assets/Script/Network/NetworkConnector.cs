@@ -103,6 +103,28 @@ public class NetworkConnector : MonoBehaviour
 
         switch (command)
         {
+            case "LOGIN_SUCCESS":
+            case "WRONG_PASSWORD":
+            case "ID_NOT_FOUND":
+                LoginSystem loginSystem = FindObjectOfType<LoginSystem>();
+                if (loginSystem != null)
+                    loginSystem.HandleLoginMessage(message);
+                else
+                    Debug.LogWarning("LoginSystem을 찾을 수 없습니다.");
+                break;
+            case "REGISTER_SUCCESS":
+            case "DUPLICATE_ID":
+            case "DUPLICATE_NICK":
+            case "EMPTY_PASSWORD":
+            case "FILE_WRITE_ERROR":
+            case "REGISTER_ERROR":
+                RegisterSystem registerSystem = FindObjectOfType<RegisterSystem>();
+                if (registerSystem != null)
+                    registerSystem.HandleRegisterMessage(message);
+                else
+                    Debug.LogWarning("RegisterSystem을 찾을 수 없습니다.");
+                break;
+
             case "JOIN_SUCCESS":
                 Debug.Log("서버로부터 JOIN 성공 메시지 수신");
 

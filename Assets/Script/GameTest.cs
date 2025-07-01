@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 
 public class GameTest : MonoBehaviour
 {
-    public Button button1;
+    public GameObject[] modelPrefabs; // 0: 전사, 1: 마법사 등
+    private GameObject currentModel;
 
     void Start()
     {
@@ -28,7 +29,7 @@ public class GameTest : MonoBehaviour
             return;
         }
 
-        string requestMessage = $"1|{userNickname}\n";
+        string requestMessage = $"REQUEST_MODEL|{userNickname}\n";
         Debug.Log($"[Test] 보내는 메시지: {requestMessage.Trim()}");
 
         byte[] sendBytes = Encoding.UTF8.GetBytes(requestMessage);
@@ -42,5 +43,24 @@ public class GameTest : MonoBehaviour
         {
             Debug.LogError("서버로 메시지 전송 중 오류 발생: " + e.Message);
         }
+    }
+
+    public void ApplyModel(int modelType)
+    {
+        if (modelType < 0 || modelType >= modelPrefabs.Length)
+        {
+            Debug.LogWarning("잘못된 모델 타입: " + modelType);
+            return;
+        }
+
+        // 이전 모델 제거
+        if (currentModel != null)
+        {
+            Destroy(currentModel);
+        }
+
+        // 새 모델 생성
+        currentModel = Instantiate(modelPrefabs[modelType], transform.position, Quaternion.identity, transform);
+        Debug.Log("모델 적용 완료: " + modelType);
     }
 }
