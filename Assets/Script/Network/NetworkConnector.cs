@@ -87,7 +87,11 @@ public class NetworkConnector : MonoBehaviour
 
     private void HandleServerMessage(string message)
     {
-        
+        if (message.StartsWith("LOGIN_"))
+        {
+            LoginUI loginUI = FindObjectOfType<LoginUI>();
+            loginUI?.OnLoginResponse(message);
+        }
     }
 
     private void OnApplicationQuit()

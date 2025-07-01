@@ -25,12 +25,6 @@ public class JobSelect : MonoBehaviour
 
     private async void SendJobPacket(string nickname, int jobType)
     {
-        if (NetworkConnector.Instance == null)
-        {
-            Debug.LogError("NetworkConnector.Instance가 null입니다. 네트워크 매니저가 씬에 있는지 확인하세요.");
-            return;
-        }
-
         string packet = $"0|{nickname},{jobType}\n";
         byte[] bytes = Encoding.UTF8.GetBytes(packet);
         await NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);

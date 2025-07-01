@@ -4,5 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/CJU/Scenes/Login&JoinScene.unity
+    guid: f2661e569c3a54342b8268130dd1bd77
+  - enabled: 1
+    path: Assets/CJU/Scenes/JobSelectScene.unity
+    guid: 79b9af22bdf0937449552e0f50d5375d
   m_configObjects: {}
