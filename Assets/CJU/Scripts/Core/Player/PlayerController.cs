@@ -12,6 +12,8 @@ public class PlayerController : MonoBehaviour
 
     public GameObject bombPrefab;
 
+    private bool isWeaponMode = false;
+
     public void Awake()
     {
         rigid = GetComponent<Rigidbody>();
@@ -20,13 +22,15 @@ public class PlayerController : MonoBehaviour
     private void OnEnable()
     {
         InputManager.Instance.moveInput += HandleMoveInput;
-        InputManager.Instance.bombInput += HandleBombInput;
+        InputManager.Instance.bombInput += HandleBombOrAttack;
+        InputManager.Instance.changeModeInput += HandleModeChange;
     }
 
     private void OnDisable()
     {
         InputManager.Instance.moveInput -= HandleMoveInput;
-        InputManager.Instance.bombInput -= HandleBombInput;
+        InputManager.Instance.bombInput -= HandleBombOrAttack;
+        InputManager.Instance.changeModeInput -= HandleModeChange;
     }
 
     void HandleMoveInput(Vector2 input)
@@ -34,11 +38,26 @@ public class PlayerController : MonoBehaviour
         moveDirection = new Vector3(input.x, 0, input.y).normalized;
     }
 
-    void HandleBombInput()
+    void HandleModeChange(bool newMode)
     {
-        Debug.Log("ÆøÅº ¼³Ä¡");
-        Instantiate(bombPrefab, this.transform.position, Quaternion.identity);
+        isWeaponMode = newMode;
+        Debug.Log(isWeaponMode ? "¹«±â ¸ðµå·Î ÀüÈ¯" : "ÆøÅº ¸ðµå·Î ÀüÈ¯");
     }
+
+    void HandleBombOrAttack()
+    {
+        if (isWeaponMode)
+        {
+            Debug.Log("±âº» °ø°Ý ½ÇÇà");
+        }
+        else
+        {
+            Debug.Log("ÆøÅº ¼³Ä¡");
+            // ÆøÅº ¿ÀºêÁ§Æ® Ç®¿¡¼­ ²¨³¿
+            ObjectPoolManager.Instance.Get("Bomb", transform.position, Quaternion.identity);
+        }
+    }
+
 
     private void FixedUpdate()
     {
