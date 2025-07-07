@@ -130,48 +130,37 @@ public class NetworkConnector : MonoBehaviour
                 break;
 
             case "LOBBY_USER_LIST":
-                LobbySystem lobbySystem = FindObjectOfType<LobbySystem>();
-                if (lobbySystem != null)
-                    lobbySystem.HandleUserListMessage(message);
-                else
-                    Debug.LogWarning("LobbySystem을 찾을 수 없습니다.");
+                LobbyManager lobbyUserList = FindObjectOfType<LobbyManager>();
+                if (lobbyUserList != null)
+                {
+                    lobbyUserList.OnReceiveMessage(message);
+                    Debug.Log(message);
+                }
                 break;
             case "ROOM_LIST":
-                LobbySystem roomListManager = FindObjectOfType<LobbySystem>();
-                if (roomListManager != null)
+                LobbyManager lobbyRoomList = FindObjectOfType<LobbyManager>();
+                if (lobbyRoomList != null)
                 {
-                    roomListManager.HandleRoomListMessage(message);
+                    lobbyRoomList.OnReceiveMessage(message);
+                    Debug.Log(message);
                 }
                 break;
             case "USER_INFO":
-                LobbySystem roomUserInfoManager = FindObjectOfType<LobbySystem>();
-                if (roomUserInfoManager != null)
+                LobbyManager lobbyUserInfo = FindObjectOfType<LobbyManager>();
+                if (lobbyUserInfo != null)
                 {
-                    roomUserInfoManager.HandleUserInfoMessage(message);
+                    lobbyUserInfo.OnReceiveMessage(message);
                 }
                 break;
             case "CREATE_ROOM_SUCCESS":
-                LobbySystem lobbySystem1 = FindObjectOfType<LobbySystem>();
-                if (lobbySystem1 != null)
-                    lobbySystem1.HandleCreateRoomSuccess(message);
                 break;
             case "ROOM_CREATED":
-                LobbySystem lobbySystem2 = FindObjectOfType<LobbySystem>();
-                if (lobbySystem2 != null)
-                {
-                    string modified = message.Replace("ROOM_CREATED", "CREATE_ROOM_SUCCESS");
-                    lobbySystem2.HandleCreateRoomSuccess(modified);
-                }
                 break;
             case "LOBBY_CHAT":
-                LobbySystem lobbyChatSystem = FindObjectOfType<LobbySystem>();
-                if (lobbyChatSystem != null)
+                LobbyManager lobbyChat = FindObjectOfType<LobbyManager>();
+                if (lobbyChat != null)
                 {
-                    lobbyChatSystem.HandleLobbyChatMessage(message);
-                }
-                else
-                {
-                    Debug.LogWarning("LobbySystem을 찾을 수 없습니다.");
+                    lobbyChat.OnReceiveMessage(message);
                 }
                 break;
             default:
