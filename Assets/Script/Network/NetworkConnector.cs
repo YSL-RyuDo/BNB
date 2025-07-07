@@ -18,6 +18,10 @@ public class NetworkConnector : MonoBehaviour
 
     public static NetworkConnector Instance { get; private set; }
     public string UserNickname { get; set; }
+    public string SelectedMap { get; set; }
+    public string CurrentRoomName { get; set; }
+
+    public List<string> CurrentUserList = new List<string>();
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -98,7 +102,7 @@ public class NetworkConnector : MonoBehaviour
             return;
         }
 
-        string command = parts[0];
+        string command = parts[0].Trim();
         string data = parts.Length > 1 ? parts[1] : "";
 
         switch (command)
@@ -125,16 +129,51 @@ public class NetworkConnector : MonoBehaviour
                     Debug.LogWarning("RegisterSystem을 찾을 수 없습니다.");
                 break;
 
-            case "JOIN_SUCCESS":
-                Debug.Log("서버로부터 JOIN 성공 메시지 수신");
-
-                // 필요한 후속 처리 (예: 씬 전환, UI 갱신 등)
-                // data가 비어있으므로 특별히 처리할 데이터는 없음
-
-                // 예시: 씬 이동
-                UnityEngine.SceneManagement.SceneManager.LoadScene("GameScene");
+            case "LOBBY_USER_LIST":
+                LobbySystem lobbySystem = FindObjectOfType<LobbySystem>();
+                if (lobbySystem != null)
+                    lobbySystem.HandleUserListMessage(message);
+                else
+                    Debug.LogWarning("LobbySystem을 찾을 수 없습니다.");
                 break;
-
+            case "ROOM_LIST":
+                LobbySystem roomListManager = FindObjectOfType<LobbySystem>();
+                if (roomListManager != null)
+                {
+                    roomListManager.HandleRoomListMessage(message);
+                }
+                break;
+            case "USER_INFO":
+                LobbySystem roomUserInfoManager = FindObjectOfType<LobbySystem>();
+                if (roomUserInfoManager != null)
+                {
+                    roomUserInfoManager.HandleUserInfoMessage(message);
+                }
+                break;
+            case "CREATE_ROOM_SUCCESS":
+                LobbySystem lobbySystem1 = FindObjectOfType<LobbySystem>();
+                if (lobbySystem1 != null)
+                    lobbySystem1.HandleCreateRoomSuccess(message);
+                break;
+            case "ROOM_CREATED":
+                LobbySystem lobbySystem2 = FindObjectOfType<LobbySystem>();
+                if (lobbySystem2 != null)
+                {
+                    string modified = message.Replace("ROOM_CREATED", "CREATE_ROOM_SUCCESS");
+                    lobbySystem2.HandleCreateRoomSuccess(modified);
+                }
+                break;
+            case "LOBBY_CHAT":
+                LobbySystem lobbyChatSystem = FindObjectOfType<LobbySystem>();
+                if (lobbyChatSystem != null)
+                {
+                    lobbyChatSystem.HandleLobbyChatMessage(message);
+                }
+                else
+                {
+                    Debug.LogWarning("LobbySystem을 찾을 수 없습니다.");
+                }
+                break;
             default:
                 Debug.LogWarning("알 수 없는 서버 명령: " + command);
                 break;

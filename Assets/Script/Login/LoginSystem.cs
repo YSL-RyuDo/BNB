@@ -88,6 +88,7 @@ public class LoginSystem : MonoBehaviour
 
                     PlayerPrefs.SetString("nickname", userNick);
                     PlayerPrefs.Save();
+                    NetworkConnector.Instance.UserNickname = userNick;
                     SceneManager.LoadScene("LobbyScene");
                 }
                 else
