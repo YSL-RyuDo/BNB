@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TMPro;
@@ -23,7 +24,7 @@ public class LobbySystem : MonoBehaviour
 
     [Header("RoomList")]
     public Button[] roomButtons; // 버튼 6개
-    private bool[] isOccupied;
+    public bool[] isOccupied;
 
     [Header("CreateRoom")]
     public Image previewImage;
@@ -214,7 +215,7 @@ public class LobbySystem : MonoBehaviour
                 bool updated = false;
                 for (int i = 0; i < roomButtons.Length; i++)
                 {
-                    var roomNameText = roomButtons[i].transform.Find("RoomName")?.GetComponent<TextMeshProUGUI>();
+                    var roomNameText = roomButtons[i].transform.Find("RoomNameText")?.GetComponent<TextMeshProUGUI>();
                     if (isOccupied[i] && roomNameText != null && roomNameText.text == roomName)
                     {
                         roomPasswordMap[roomName] = hasPassword;
@@ -243,34 +244,42 @@ public class LobbySystem : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < roomButtons.Length; i++)
+        for (int i = 0; i < Mathf.Min(roomButtons.Length, isOccupied.Length); i++)
         {
             if (roomButtons[i] == null)
             {
-                Debug.LogError($"roomButtons[{i}]가 null입니다!");
+                Debug.LogError($"roomButtons[{i}] is null");
                 continue;
             }
 
             var roomNameTransform = roomButtons[i].transform.Find("RoomNameText");
             if (roomNameTransform == null)
             {
-                Debug.LogError($"roomButtons[{i}] 안에서 'RoomNameText' 오브젝트를 찾을 수 없습니다!");
+                Debug.LogError($"RoomNameText not found in roomButtons[{i}]");
                 continue;
             }
 
             var roomNameText = roomNameTransform.GetComponent<TextMeshProUGUI>();
             if (roomNameText == null)
             {
-                Debug.LogError($"roomButtons[{i}]의 RoomNameText에 TextMeshProUGUI 컴포넌트가 없습니다!");
+                Debug.LogError($"TextMeshProUGUI not found in roomButtons[{i}].RoomNameText");
                 continue;
             }
 
             if (isOccupied[i])
             {
                 string roomName = roomNameText.text;
+
+                if (incomingRoomNames == null)
+                {
+                    Debug.LogError("incomingRoomNames is null");
+                    continue;
+                }
+
                 if (!incomingRoomNames.Contains(roomName))
                 {
-                    ResetRoomButton(roomButtons[i]);
+                    Debug.Log($"[Reset] 방 이름 {roomName} 제거됨 (slot {i})");
+                    ResetRoomButton(roomButtons[i]);  // ← 이 함수도 내부 확인 필요
                     isOccupied[i] = false;
                 }
             }
@@ -332,9 +341,10 @@ public class LobbySystem : MonoBehaviour
         {
             NetworkConnector.Instance.CurrentRoomName = roomName;
             NetworkConnector.Instance.SelectedMap = mapName;
-            //SceneManager.LoadScene("RoomScene");
+            SceneManager.LoadScene("RoomScene");
         }
     }
+
 
     public void HandleLobbyChatMessage(string message)
     {
@@ -360,6 +370,25 @@ public class LobbySystem : MonoBehaviour
         {
             Debug.LogWarning("LOBBY_CHAT 메시지 포맷 오류: " + message);
         }
+    }
+
+    public void HandleEnterRoomSuccess(string message)
+    {
+        string[] parts = message.Split('|');
+        if (parts.Length < 3) return;
+
+        string roomName = parts[1];
+        string userListStr = parts[2];
+
+        NetworkConnector.Instance.CurrentRoomName = roomName;
+
+        List<string> userList = userListStr.Split(',').ToList();
+        NetworkConnector.Instance.CurrentUserList = userList;
+
+        Debug.Log($"[입장 성공] 방: {roomName}, 유저: {userListStr}");
+
+        // 방 씬으로 전환
+        SceneManager.LoadScene("RoomScene");
     }
 
     private void SetRoomButton(Button btn, string roomName, Sprite sprite)
@@ -400,7 +429,7 @@ public class LobbySystem : MonoBehaviour
 
     private void ResetRoomButton(Button btn)
     {
-        var roomNameText = btn.transform.Find("RoomName")?.GetComponent<TextMeshProUGUI>();
+        var roomNameText = btn.transform.Find("RoomNameText")?.GetComponent<TextMeshProUGUI>();
         if (roomNameText != null)
             roomNameText.text = "";
 
@@ -600,10 +629,14 @@ public class LobbySystem : MonoBehaviour
             await stream.WriteAsync(quitMsg, 0, quitMsg.Length);
             await stream.FlushAsync();
 
-            // 2. 유저 정보 초기화
+            if (NetworkConnector.Instance.CurrentUserList.Contains(nickname))
+            {
+                NetworkConnector.Instance.CurrentUserList.Remove(nickname);
+                Debug.Log($"[로그아웃] 유저 제거됨: {nickname}");
+            }
+
             NetworkConnector.Instance.UserNickname = null;
 
-            // 3. 로그인 화면으로 이동
             UnityEngine.SceneManagement.SceneManager.LoadScene("LoginScene");
         }
         catch (System.Exception ex)

@@ -89,6 +89,11 @@ public class LoginSystem : MonoBehaviour
                     PlayerPrefs.SetString("nickname", userNick);
                     PlayerPrefs.Save();
                     NetworkConnector.Instance.UserNickname = userNick;
+                    if (!NetworkConnector.Instance.CurrentUserList.Contains(userNick))
+                    {
+                        NetworkConnector.Instance.CurrentUserList.Add(userNick);
+                        Debug.Log($"[로그인] 유저 추가됨: {userNick}");
+                    }
                     SceneManager.LoadScene("LobbyScene");
                 }
                 else

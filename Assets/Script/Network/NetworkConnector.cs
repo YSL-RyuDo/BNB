@@ -21,6 +21,8 @@ public class NetworkConnector : MonoBehaviour
     public string SelectedMap { get; set; }
     public string CurrentRoomName { get; set; }
 
+    public string CurrentRoomLeader { get; set; }
+
     public List<string> CurrentUserList = new List<string>();
     private void Awake()
     {
@@ -150,19 +152,6 @@ public class NetworkConnector : MonoBehaviour
                     roomUserInfoManager.HandleUserInfoMessage(message);
                 }
                 break;
-            case "CREATE_ROOM_SUCCESS":
-                LobbySystem lobbySystem1 = FindObjectOfType<LobbySystem>();
-                if (lobbySystem1 != null)
-                    lobbySystem1.HandleCreateRoomSuccess(message);
-                break;
-            case "ROOM_CREATED":
-                LobbySystem lobbySystem2 = FindObjectOfType<LobbySystem>();
-                if (lobbySystem2 != null)
-                {
-                    string modified = message.Replace("ROOM_CREATED", "CREATE_ROOM_SUCCESS");
-                    lobbySystem2.HandleCreateRoomSuccess(modified);
-                }
-                break;
             case "LOBBY_CHAT":
                 LobbySystem lobbyChatSystem = FindObjectOfType<LobbySystem>();
                 if (lobbyChatSystem != null)
@@ -174,6 +163,76 @@ public class NetworkConnector : MonoBehaviour
                     Debug.LogWarning("LobbySystem을 찾을 수 없습니다.");
                 }
                 break;
+            case "CREATE_ROOM_SUCCESS":
+                LobbySystem lobbySystem1 = FindObjectOfType<LobbySystem>();
+                if (lobbySystem1 != null)
+                    lobbySystem1.HandleCreateRoomSuccess(message);
+                break;
+            case "ROOM_CREATED":
+                LobbySystem lobbySystem2 = FindObjectOfType<LobbySystem>();
+                if (lobbySystem2 != null)
+                {
+                    string modified = message.Replace("ROOM_CREATED", "CREATE_ROOM_SUCCESS");
+                    lobbySystem2.HandleCreateRoomSuccess(modified); // 별도의 처리 함수
+                }
+                break;
+            case "ENTER_ROOM_SUCCESS":
+                {
+                    string[] roomParts = message.Split('|');
+                    if (roomParts.Length >= 3)
+                    {
+                        string roomName = roomParts[1];
+                        string userListStr = roomParts[2];
+                        string leaderNick = roomParts.Length >= 4 ? roomParts[3] : "";
+
+                        NetworkConnector.Instance.CurrentRoomName = roomName;
+                        NetworkConnector.Instance.CurrentUserList = new List<string>(userListStr.Split(','));
+                        NetworkConnector.Instance.CurrentRoomLeader = leaderNick;
+
+                        SceneManager.LoadScene("RoomScene");
+                    }
+                    else
+                    {
+                        Debug.LogWarning("ENTER_ROOM_SUCCESS 메시지 포맷 오류: " + message);
+                    }
+                    break;
+                }
+            case "REFRESH_ROOM_SUCCESS":
+                RoomSystem roomSystem = FindObjectOfType<RoomSystem>();
+                if(roomSystem != null)
+                    roomSystem.HandleUserJoined(message);
+                break;
+            case "ROOM_CHAT":
+                {
+                    RoomChatManager roomChatManager = FindObjectOfType<RoomChatManager>();
+                    if (roomChatManager != null)
+                    {
+                        // 메시지 포맷: ROOM_CHAT|roomName|userNickname:chatMessage
+                        string[] parts2 = message.Split('|');
+                        if (parts.Length >= 3)
+                        {
+                            string roomName = parts2[1];
+                            string[] chatParts = parts2[2].Split(':');
+                            if (chatParts.Length >= 2)
+                            {
+                                string userNickname = chatParts[0];
+                                string chatMessage = string.Join(":", chatParts, 1, chatParts.Length - 1);
+
+                                roomChatManager.AddChatMessage(userNickname, chatMessage);
+                            }
+                            else
+                            {
+                                Debug.LogWarning("ROOM_CHAT 닉네임/메시지 파싱 오류: " + parts2[2]);
+                            }
+                        }
+                        else
+                        {
+                            Debug.LogWarning("ROOM_CHAT 메시지 포맷 오류: " + message);
+                        }
+                    }
+                    break;
+                }
+
             default:
                 Debug.LogWarning("알 수 없는 서버 명령: " + command);
                 break;
