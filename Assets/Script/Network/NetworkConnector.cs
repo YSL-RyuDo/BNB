@@ -169,13 +169,14 @@ public class NetworkConnector : MonoBehaviour
                     lobbySystem1.HandleCreateRoomSuccess(message);
                 break;
             case "ROOM_CREATED":
-                LobbySystem lobbySystem2 = FindObjectOfType<LobbySystem>();
-                if (lobbySystem2 != null)
                 {
-                    string modified = message.Replace("ROOM_CREATED", "CREATE_ROOM_SUCCESS");
-                    lobbySystem2.HandleCreateRoomSuccess(modified); // 별도의 처리 함수
+                    LobbySystem lobbySystem2 = FindObjectOfType<LobbySystem>();
+                    if (lobbySystem2 != null)
+                    {
+                        lobbySystem2.HandleRoomCreated(message); // 별도 함수로 분리하는 게 안전
+                    }
+                    break;
                 }
-                break;
             case "ENTER_ROOM_SUCCESS":
                 {
                     string[] roomParts = message.Split('|');

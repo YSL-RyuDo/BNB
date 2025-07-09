@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 public class LobbySystem : MonoBehaviour
@@ -86,12 +87,15 @@ public class LobbySystem : MonoBehaviour
         map3Button.onClick.AddListener(SelectMap3);
 
         passwordToggle.onValueChanged.AddListener(OnPasswordToggleChanged);
+        OnPasswordToggleChanged(passwordToggle.isOn);
 
-        passwordInputField.interactable = passwordToggle.isOn;
         createButton.onClick.AddListener(OnCreateButtonClicked);
 
         sendButton.onClick.AddListener(OnsendClicked);
         logoutButton.onClick.AddListener(OnLogoutClicked);
+
+        confirmPasswordButton.onClick.AddListener(OnConfirmPasswordClicked);
+
     }
 
     public void HandleUserListMessage(string message)
@@ -197,7 +201,7 @@ public class LobbySystem : MonoBehaviour
         string[] rooms = data.Split('|', StringSplitOptions.RemoveEmptyEntries);
 
         HashSet<string> incomingRoomNames = new HashSet<string>();
-        roomPasswordMap.Clear();
+        //roomPasswordMap.Clear();
 
         foreach (var roomData in rooms)
         {
@@ -292,8 +296,8 @@ public class LobbySystem : MonoBehaviour
         string[] parts = message.Split('|');
         if (parts.Length < 3) return;
 
-        string roomName = parts[1];
-        string mapName = parts[2];
+        string roomName = parts[1].Trim();
+        string mapName = parts[2].Trim();
         bool isCreator = parts.Length > 3 && parts[3] == "CREATOR";
 
         // 유저 리스트 파싱
@@ -301,17 +305,17 @@ public class LobbySystem : MonoBehaviour
         if (isCreator)
         {
             if (parts.Length > 4)
-                userListStr = parts[4];
+                userListStr = parts[4].Trim();
         }
         else
         {
             if (parts.Length > 3)
-                userListStr = parts[3];
+                userListStr = parts[3].Trim();
         }
 
         // [추가] 비밀번호 여부 파싱
         bool hasPassword = false;
-        if (parts.Length > 5 && parts[5] == "HAS_PASSWORD")
+        if (parts.Length > 5 && parts[5].Trim() == "HAS_PASSWORD")
         {
             hasPassword = true;
         }
@@ -320,7 +324,7 @@ public class LobbySystem : MonoBehaviour
         List<string> userList = new List<string>();
         if (!string.IsNullOrEmpty(userListStr))
         {
-            userList.AddRange(userListStr.Split(','));
+            userList.AddRange(userListStr.Split(',').Select(s => s.Trim()));
         }
         NetworkConnector.Instance.CurrentUserList = userList;
         Sprite sprite = GetSpriteForMap(mapName);
@@ -343,6 +347,35 @@ public class LobbySystem : MonoBehaviour
             NetworkConnector.Instance.SelectedMap = mapName;
             SceneManager.LoadScene("RoomScene");
         }
+    }
+
+    public void HandleRoomCreated(string message)
+    {
+        // 메시지 예: ROOM_CREATED|123|Map1|user1,user2|HAS_PASSWORD
+        string[] parts = message.Split('|');
+        if (parts.Length < 4) return;
+
+        string roomName = parts[1].Trim();
+        string mapName = parts[2].Trim();
+        string userListStr = parts[3].Trim();
+        bool hasPassword = parts.Length > 4 && parts[4].Trim() == "HAS_PASSWORD";
+
+        roomPasswordMap[roomName] = hasPassword;
+
+        List<string> userList = userListStr.Split(',').Select(u => u.Trim()).ToList();
+        Sprite sprite = GetSpriteForMap(mapName);
+
+        for (int i = 0; i < roomButtons.Length; i++)
+        {
+            if (!isOccupied[i])
+            {
+                SetRoomButton(roomButtons[i], roomName, sprite);
+                isOccupied[i] = true;
+                break;
+            }
+        }
+
+        Debug.Log($"[ROOM_CREATED] {roomName} | 비번 있음: {hasPassword} | 유저: {userListStr}");
     }
 
 
@@ -443,18 +476,42 @@ public class LobbySystem : MonoBehaviour
 
     private void OnRoomButtonClicked(string roomName)
     {
+        roomName = roomName.Trim(); 
+
         Debug.Log($"방 클릭됨: {roomName}");
 
-        if (roomPasswordMap.TryGetValue(roomName, out bool hasPassword) && hasPassword)
+        if (roomPasswordMap.TryGetValue(roomName, out bool hasPassword))
         {
-            pendingRoomName = roomName;
-            enterRoomPanel.SetActive(true);
+            Debug.Log($"roomPasswordMap[{roomName}] = {hasPassword}");
+            if (hasPassword)
+            {
+                pendingRoomName = roomName;
+                enterRoomPanel.SetActive(true);
+                return;
+            }
         }
         else
         {
-            SendEnterRoom(roomName, ""); // 비밀번호 없이 바로 입장 시도
+            Debug.LogWarning($"roomPasswordMap에 '{roomName}' 키가 없습니다.");
         }
+
+        SendEnterRoom(roomName, ""); // 비밀번호 없이 바로 입장 시도
     }
+
+    private void OnConfirmPasswordClicked()
+    {
+        string password = EnterpasswordInputField.text.Trim();
+
+        if (string.IsNullOrEmpty(pendingRoomName))
+        {
+            Debug.LogWarning("입장할 방 이름이 설정되지 않았습니다.");
+            return;
+        }
+
+        Debug.Log($"비밀번호 입력: {password}, 입장 시도할 방: {pendingRoomName}");
+        SendEnterRoom(pendingRoomName, password);
+    }
+
 
     private void SendEnterRoom(string roomName, string password)
     {
@@ -482,12 +539,24 @@ public class LobbySystem : MonoBehaviour
 
     private void OnPasswordToggleChanged(bool isOn)
     {
+        Debug.Log($"Toggle Changed: {isOn}");
+
         passwordInputField.interactable = isOn;
+        passwordInputField.readOnly = !isOn;
 
         if (!isOn)
         {
             passwordInputField.text = "";
+            passwordInputField.DeactivateInputField();
+            EventSystem.current.SetSelectedGameObject(null);
         }
+
+        if (passwordInputField.textComponent != null)
+            passwordInputField.textComponent.raycastTarget = isOn;
+
+        var image = passwordInputField.GetComponent<Image>();
+        if (image != null)
+            image.color = isOn ? Color.white : new Color(0.85f, 0.85f, 0.85f);
     }
 
     private async void OnCreateButtonClicked()
