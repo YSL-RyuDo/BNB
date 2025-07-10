@@ -322,11 +322,43 @@ public class LobbySystem : MonoBehaviour
         roomPasswordMap[roomName] = hasPassword;
 
         List<string> userList = new List<string>();
+        Dictionary<string, int> characterIndexMap = new Dictionary<string, int>();
+
         if (!string.IsNullOrEmpty(userListStr))
         {
-            userList.AddRange(userListStr.Split(',').Select(s => s.Trim()));
+            var userEntries = userListStr.Split(',');
+            foreach (var entry in userEntries)
+            {
+                var userParts = entry.Split(':');
+                if (userParts.Length == 2)
+                {
+                    string nick = userParts[0].Trim();
+                    if (int.TryParse(userParts[1].Trim(), out int charIndex))
+                    {
+                        userList.Add(nick);
+                        characterIndexMap[nick] = charIndex;
+                    }
+                    else
+                    {
+                        userList.Add(nick);
+                        characterIndexMap[nick] = 0; // 기본값
+                        Debug.LogWarning($"캐릭터 인덱스 파싱 실패: {userParts[1]}");
+                    }
+                }
+                else
+                {
+                    string nick = entry.Trim();
+                    userList.Add(nick);
+                    characterIndexMap[nick] = 0; // 기본값
+                }
+            }
         }
+
         NetworkConnector.Instance.CurrentUserList = userList;
+
+        // 따로 캐릭터 인덱스 맵을 저장할 필드가 있다면 여기에 저장
+        NetworkConnector.Instance.CurrentUserCharacterIndices = characterIndexMap;
+
         Sprite sprite = GetSpriteForMap(mapName);
 
         for (int i = 0; i < roomButtons.Length; i++)

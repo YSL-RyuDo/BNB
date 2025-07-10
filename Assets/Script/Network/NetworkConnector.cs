@@ -24,6 +24,8 @@ public class NetworkConnector : MonoBehaviour
     public string CurrentRoomLeader { get; set; }
 
     public List<string> CurrentUserList = new List<string>();
+
+    public Dictionary<string, int> CurrentUserCharacterIndices = new Dictionary<string, int>();
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -178,26 +180,10 @@ public class NetworkConnector : MonoBehaviour
                     break;
                 }
             case "ENTER_ROOM_SUCCESS":
-                {
-                    string[] roomParts = message.Split('|');
-                    if (roomParts.Length >= 3)
-                    {
-                        string roomName = roomParts[1];
-                        string userListStr = roomParts[2];
-                        string leaderNick = roomParts.Length >= 4 ? roomParts[3] : "";
-
-                        NetworkConnector.Instance.CurrentRoomName = roomName;
-                        NetworkConnector.Instance.CurrentUserList = new List<string>(userListStr.Split(','));
-                        NetworkConnector.Instance.CurrentRoomLeader = leaderNick;
-
-                        SceneManager.LoadScene("RoomScene");
-                    }
-                    else
-                    {
-                        Debug.LogWarning("ENTER_ROOM_SUCCESS 메시지 포맷 오류: " + message);
-                    }
+            {
+                    SceneManager.LoadScene("RoomScene");
                     break;
-                }
+            }
             case "REFRESH_ROOM_SUCCESS":
                 RoomSystem roomSystem = FindObjectOfType<RoomSystem>();
                 if(roomSystem != null)
@@ -233,6 +219,37 @@ public class NetworkConnector : MonoBehaviour
                     }
                     break;
                 }
+                case "UPDATE_CHARACTER":
+                    {
+                        // 메시지 포맷: UPDATE_CHARACTER|닉네임|캐릭터인덱스
+                        string[] parts3 = message.Split('|');
+                        if (parts3.Length >= 3)
+                        {
+                            string userNickname = parts3[1];
+                            if (int.TryParse(parts3[2], out int characterIndex))
+                            {
+                                RoomSystem roomSystem2 = FindObjectOfType<RoomSystem>();
+                                if (roomSystem2 != null)
+                                {
+                                    roomSystem2.UpdateCharacterChoice(userNickname, characterIndex);
+                                }
+                                else
+                                {
+                                    Debug.LogWarning("RoomSystem 컴포넌트를 찾을 수 없습니다.");
+                                }
+                            }
+                            else
+                            {
+                                Debug.LogWarning("UPDATE_CHARACTER 캐릭터 인덱스 파싱 실패: " + parts3[2]);
+                            }
+                        }
+                        else
+                        {
+                            Debug.LogWarning("UPDATE_CHARACTER 메시지 포맷 오류: " + message);
+                        }
+                        break;
+                    }
+
 
             default:
                 Debug.LogWarning("알 수 없는 서버 명령: " + command);

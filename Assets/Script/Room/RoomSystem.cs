@@ -8,8 +8,14 @@ public class RoomSystem : MonoBehaviour
 {
     public TextMeshProUGUI roomNameText;
     public GameObject[] roomPlayerInfos;
+
+    public Button[] characterChooseButton;
+    public Sprite[] characterSprites;
+    private int myPlayerIndex = -1;
+
     public Button startGameButton;
     public Button exitButton;
+    private Dictionary<string, int> characterIndexMap = new Dictionary<string, int>();
 
     private void Start()
     {
@@ -17,33 +23,86 @@ public class RoomSystem : MonoBehaviour
         if (roomNameText != null)
             roomNameText.text = client.CurrentRoomName;
 
-        UpdatePlayerInfoUI(client.CurrentUserList);
+        characterIndexMap = new Dictionary<string, int>(client.CurrentUserCharacterIndices);
+
         OnEnterRoomSuccess(client.CurrentRoomName, string.Join(",", client.CurrentUserList));
         startGameButton.onClick.AddListener(OnClickStartGame);
         exitButton.onClick.AddListener(OnExitRoomClicked);
+
+        string myNick = PlayerPrefs.GetString("nickname")?.Trim();
+        for (int i = 0; i < client.CurrentUserList.Count; i++)
+        {
+            if (client.CurrentUserList[i].Trim() == myNick)
+            {
+                myPlayerIndex = i;
+                break;
+            }
+        }
+
+        // 캐릭터 버튼 연결
+        for (int i = 0; i < characterChooseButton.Length; i++)
+        {
+            int idx = i; // 캡처 방지용 복사
+            characterChooseButton[i].onClick.AddListener(() => OnClickChooseCharacter(idx));
+        }
+        UpdatePlayerInfoUI(client.CurrentUserList);
     }
     public void HandleUserJoined(string message)
     {
-        var client = NetworkConnector.Instance;
+        // 예: "ENTER_ROOM_SUCCESS|방이름|userA:2,userB:0,userC:1"
         string[] parts = message.Split('|');
-        if (parts.Length >= 3)
+        if (parts.Length < 3)
         {
-            string roomName = parts[1];
-            string userList = parts[2];
+            Debug.LogWarning("ENTER_ROOM_SUCCESS 파싱 실패");
+            return;
+        }
 
-            client.CurrentRoomName = roomName;
-            client.CurrentUserList = new List<string>(userList.Split(','));
+        string roomName = parts[1];
+        string[] userTokens = parts[2].Split(',');
 
-            // UI 갱신 호출
-            RoomSystem roomSceneManager = FindObjectOfType<RoomSystem>();
-            if (roomSceneManager != null)
+        List<string> nicknames = new List<string>();
+        Dictionary<string, int> characterChoices = new Dictionary<string, int>();
+
+        foreach (string token in userTokens)
+        {
+            if (token.Contains(":"))
             {
-                roomSceneManager.RefreshRoomUI(client.CurrentUserList, roomName);
+                string[] pair = token.Split(':');
+                string nickname = pair[0];
+                if (int.TryParse(pair[1], out int charIndex))
+                {
+                    nicknames.Add(nickname);
+                    characterChoices[nickname] = charIndex;
+                }
+                else
+                {
+                    nicknames.Add(nickname);
+                    characterChoices[nickname] = -1;
+                    Debug.LogWarning($"캐릭터 인덱스 파싱 실패: {pair[1]}");
+                }
             }
             else
             {
-                Debug.LogWarning("RoomSceneManager를 찾을 수 없습니다.");
+                nicknames.Add(token);
+                characterChoices[token] = -1;
             }
+        }
+
+
+        // 닉네임 리스트 저장
+        NetworkConnector.Instance.CurrentRoomName = roomName;
+        NetworkConnector.Instance.CurrentUserList = nicknames;
+
+        // 캐릭터 선택 정보 반영
+        var roomSystem = FindObjectOfType<RoomSystem>();
+        if (roomSystem != null)
+        {
+            foreach (var kvp in characterChoices)
+            {
+                roomSystem.UpdateCharacterChoice(kvp.Key, kvp.Value);
+            }
+
+            roomSystem.RefreshRoomUI(nicknames, roomName);
         }
     }
 
@@ -54,31 +113,53 @@ public class RoomSystem : MonoBehaviour
         for (int i = 0; i < roomPlayerInfos.Length; i++)
         {
             var nameTextTransform = roomPlayerInfos[i].transform.Find("Image/NameText");
-            if (nameTextTransform == null)
-            {
-                Debug.LogWarning($"roomPlayerInfos[{i}]에 'Image/NameText'가 없습니다.");
+            var characterImageTransform = roomPlayerInfos[i].transform.Find("PlayerCharacterImage");
+
+            if (nameTextTransform == null || characterImageTransform == null)
                 continue;
-            }
 
             var nameText = nameTextTransform.GetComponent<TextMeshProUGUI>();
-            if (nameText == null)
-            {
-                Debug.LogWarning($"roomPlayerInfos[{i}] 'Image/NameText'에 TextMeshProUGUI가 없습니다.");
+            var imageComponent = characterImageTransform.GetComponent<Image>();
+
+            if (nameText == null || imageComponent == null)
                 continue;
-            }
 
             if (i < userList.Count)
             {
-                nameText.text = userList[i];
-                Debug.Log($"roomPlayerInfos[{i}]에 유저 이름 설정: {userList[i]}");
+                string nickname = userList[i];
+                nameText.text = nickname;
+
+                if (characterIndexMap.TryGetValue(nickname, out int characterIndex))
+                {
+                    Debug.Log($"[{i}] 캐릭터 인덱스: {characterIndex}");
+                    if (characterIndex >= 0 && characterIndex < characterSprites.Length)
+                    {
+                        imageComponent.sprite = characterSprites[characterIndex];
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"캐릭터 인덱스가 스프라이트 배열 범위를 벗어남: {characterIndex}");
+                        imageComponent.sprite = null;
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"characterIndexMap에 {nickname} 키 없음");
+                    imageComponent.sprite = null;
+                }
+
+
+                Debug.Log($"roomPlayerInfos[{i}]에 유저 이름/캐릭터 설정: {nickname} / {characterIndex}");
             }
             else
             {
                 nameText.text = "";
-                Debug.Log($"roomPlayerInfos[{i}]에 빈 문자열 설정");
+                imageComponent.sprite = null; // 슬롯 비우기
+                Debug.Log($"roomPlayerInfos[{i}]에 빈 슬롯 초기화");
             }
         }
     }
+
 
     // 서버에서 유저 리스트 갱신 메시지를 받을 때 호출할 메서드
     public void RefreshRoomUI(List<string> updatedUserList, string updatedRoomName = null)
@@ -102,13 +183,44 @@ public class RoomSystem : MonoBehaviour
             Debug.Log($"[방장 지정] 리더는 {updatedUserList[0]}");
         }
 
+        // 누락된 유저 닉네임에 해당하는 캐릭터 정보 제거
+        var currentUsers = new HashSet<string>(updatedUserList);
+        var keysToRemove = new List<string>();
+
+        foreach (var kvp in characterIndexMap)
+        {
+            if (!currentUsers.Contains(kvp.Key))
+                keysToRemove.Add(kvp.Key);
+        }
+
+        foreach (var key in keysToRemove)
+            characterIndexMap.Remove(key);
+
+
         NetworkConnector.Instance.CurrentUserList = updatedUserList;
         UpdatePlayerInfoUI(updatedUserList);
 
         OnEnterRoomSuccess(NetworkConnector.Instance.CurrentRoomName, string.Join(",", updatedUserList));
     }
 
+    private async void OnClickChooseCharacter(int characterIndex)
+    {
+        if (myPlayerIndex < 0 || myPlayerIndex >= roomPlayerInfos.Length)
+        {
+            Debug.LogWarning("내 슬롯 인덱스가 올바르지 않습니다.");
+            return;
+        }
 
+        string nickname = PlayerPrefs.GetString("nickname")?.Trim();
+        string roomName = NetworkConnector.Instance.CurrentRoomName;
+        string msg = $"CHOOSE_CHARACTER|{roomName}|{nickname}|{characterIndex}\n";
+
+        var stream = NetworkConnector.Instance.Stream;
+        byte[] sendBytes = Encoding.UTF8.GetBytes(msg);
+        await stream.WriteAsync(sendBytes, 0, sendBytes.Length);
+
+        Debug.Log($"캐릭터 선택 전송: {msg.Trim()}");
+    }
 
     void OnEnterRoomSuccess(string roomName, string userList)
     {
@@ -131,8 +243,6 @@ public class RoomSystem : MonoBehaviour
         }
     }
 
-
-
     public async void OnClickStartGame()
     {
         string roomName = NetworkConnector.Instance.CurrentRoomName;
@@ -154,5 +264,14 @@ public class RoomSystem : MonoBehaviour
         await stream.WriteAsync(sendBytes, 0, sendBytes.Length);
 
         UnityEngine.SceneManagement.SceneManager.LoadScene("LobbyScene");
+    }
+
+
+    public void UpdateCharacterChoice(string userNickname, int characterIndex)
+    {
+        characterIndexMap[userNickname] = characterIndex;
+
+        // 바로 UI 반영도 가능하지만, 전체 UI 재갱신 시 자동 반영되도록 해도 됨
+        UpdatePlayerInfoUI(NetworkConnector.Instance.CurrentUserList);
     }
 }
