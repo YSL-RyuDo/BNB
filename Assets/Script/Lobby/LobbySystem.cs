@@ -25,8 +25,8 @@ public class LobbySystem : MonoBehaviour
 
     [Header("RoomList")]
     public Button[] roomButtons; // 버튼 6개
+    //public bool[] isOccupied;
     public bool[] isOccupied;
-
     [Header("CreateRoom")]
     public Image previewImage;
     public Button map1Button;
@@ -51,7 +51,6 @@ public class LobbySystem : MonoBehaviour
     public TMP_InputField EnterpasswordInputField;
     public Button confirmPasswordButton;
     private string pendingRoomName = "";
-
     [Header("LobbyChat")]
     public GameObject userChatPrefab;
     public Transform contentParent;
@@ -61,10 +60,16 @@ public class LobbySystem : MonoBehaviour
 
     private Dictionary<string, bool> roomPasswordMap = new Dictionary<string, bool>();
     // Start is called before the first frame update
+    private void Awake()
+    {
+        isOccupied = new bool[roomButtons.Length];
+    }
+
     private async void Start()
     {
         if (NetworkConnector.Instance != null)
         {
+            //isOccupied = new bool[roomButtons.Length];
             var stream = NetworkConnector.Instance.Stream;
             string sendUserStr = "GET_LOBBY_USER_LIST|\n";
             byte[] sendUserBytes = Encoding.UTF8.GetBytes(sendUserStr);
@@ -74,7 +79,6 @@ public class LobbySystem : MonoBehaviour
             byte[] sendRoomBytes = Encoding.UTF8.GetBytes(sendRoomStr);
             await stream.WriteAsync(sendRoomBytes, 0, sendRoomBytes.Length);
 
-            isOccupied = new bool[roomButtons.Length];
             userExpBar.interactable = false;
             string sendUserInfoStr = $"GET_USER_INFO|{NetworkConnector.Instance.UserNickname}\n";
             byte[] sendUserInfoBytes = Encoding.UTF8.GetBytes(sendUserInfoStr);
@@ -187,9 +191,132 @@ public class LobbySystem : MonoBehaviour
         userExpText.text = $"{currentExp:0.0}";
     }
 
+    //public void HandleRoomListMessage(string message)
+    //{
+    //    Debug.Log("HandleRoomListMessage 호출: " + message);
+
+    //    if (!message.StartsWith("ROOM_LIST|"))
+    //    {
+    //        Debug.LogError("ROOM_LIST 메시지 포맷 오류");
+    //        return;
+    //    }
+
+    //    string data = message.Substring("ROOM_LIST|".Length);
+    //    string[] rooms = data.Split('|', StringSplitOptions.RemoveEmptyEntries);
+
+    //    HashSet<string> incomingRoomNames = new HashSet<string>();
+
+    //    foreach (var roomData in rooms)
+    //    {
+    //        string[] parts = roomData.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+    //        if (parts.Length >= 3)
+    //        {
+    //            string roomName = parts[0].Trim();
+    //            string mapName = parts[1].Trim();
+    //            bool hasPassword = parts[2].Trim() == "1";
+
+    //            incomingRoomNames.Add(roomName);
+    //            roomPasswordMap[roomName] = hasPassword;
+
+    //            bool updated = false;
+    //            for (int i = 0; i < roomButtons.Length; i++)
+    //            {
+    //                var roomNameText = roomButtons[i].transform.Find("RoomNameText")?.GetComponent<TextMeshProUGUI>();
+    //                if (isOccupied[i] && roomNameText != null && roomNameText.text == roomName)
+    //                {
+    //                    roomPasswordMap[roomName] = hasPassword;
+    //                    SetRoomButton(roomButtons[i], roomName, GetSpriteForMap(mapName));
+    //                    updated = true;
+    //                    break;
+    //                }
+    //            }
+
+    //            if (!updated)
+    //            {
+    //                for (int i = 0; i < roomButtons.Length; i++)
+    //                {
+    //                    if (!isOccupied[i])
+    //                    {
+    //                        SetRoomButton(roomButtons[i], roomName, GetSpriteForMap(mapName));
+    //                        isOccupied[i] = true;
+    //                        break;
+    //                    }
+    //                }
+    //            }
+    //        }
+    //        else
+    //        {
+    //            Debug.LogWarning("방 정보 포맷 오류: " + roomData);
+    //        }
+    //    }
+
+    //    for (int i = 0; i < Mathf.Min(roomButtons.Length, isOccupied.Length); i++)
+    //    {
+    //        if (roomButtons[i] == null)
+    //        {
+    //            Debug.LogError($"roomButtons[{i}] is null");
+    //            continue;
+    //        }
+
+    //        var roomNameTransform = roomButtons[i].transform.Find("RoomNameText");
+    //        if (roomNameTransform == null)
+    //        {
+    //            Debug.LogError($"RoomNameText not found in roomButtons[{i}]");
+    //            continue;
+    //        }
+
+    //        var roomNameText = roomNameTransform.GetComponent<TextMeshProUGUI>();
+    //        if (roomNameText == null)
+    //        {
+    //            Debug.LogError($"TextMeshProUGUI not found in roomButtons[{i}].RoomNameText");
+    //            continue;
+    //        }
+
+    //        if (isOccupied[i])
+    //        {
+    //            string roomName = roomNameText.text;
+
+    //            if (incomingRoomNames == null)
+    //            {
+    //                Debug.LogError("incomingRoomNames is null");
+    //                continue;
+    //            }
+
+    //            if (!incomingRoomNames.Contains(roomName))
+    //            {
+    //                Debug.Log($"[Reset] 방 이름 {roomName} 제거됨 (slot {i})");
+    //                ResetRoomButton(roomButtons[i]);
+    //                isOccupied[i] = false;
+    //            }
+    //        }
+    //    }
+
+    //}
+
     public void HandleRoomListMessage(string message)
     {
         Debug.Log("HandleRoomListMessage 호출: " + message);
+
+        Debug.Log($"roomButtons.Length = {roomButtons?.Length ?? -1}");
+        Debug.Log($"isOccupied.Length = {isOccupied?.Length ?? -1}");
+
+        for (int i = 0; i < roomButtons.Length; i++)
+        {
+            Debug.Log($"roomButtons[{i}] is {(roomButtons[i] == null ? "null" : "not null")}");
+        }
+
+        if (isOccupied == null)
+        {
+            Debug.LogError("isOccupied 배열이 null입니다!");
+        }
+        else
+        {
+            for (int i = 0; i < isOccupied.Length; i++)
+            {
+                Debug.Log($"isOccupied[{i}] = {isOccupied[i]}");
+            }
+        }
 
         if (!message.StartsWith("ROOM_LIST|"))
         {
@@ -200,95 +327,36 @@ public class LobbySystem : MonoBehaviour
         string data = message.Substring("ROOM_LIST|".Length);
         string[] rooms = data.Split('|', StringSplitOptions.RemoveEmptyEntries);
 
-        HashSet<string> incomingRoomNames = new HashSet<string>();
-        //roomPasswordMap.Clear();
+        Debug.Log($"서버로부터 받은 방 개수: {rooms.Length}");
 
-        foreach (var roomData in rooms)
+        // 1) UI 슬롯 모두 초기화
+        for (int i = 0; i < roomButtons.Length; i++)
         {
-            string[] parts = roomData.Split(',', StringSplitOptions.RemoveEmptyEntries);
-
-            if (parts.Length >= 3)
-            {
-                string roomName = parts[0].Trim();
-                string mapName = parts[1].Trim();
-                bool hasPassword = parts[2].Trim() == "1";
-
-                incomingRoomNames.Add(roomName);
-                roomPasswordMap[roomName] = hasPassword;
-
-                bool updated = false;
-                for (int i = 0; i < roomButtons.Length; i++)
-                {
-                    var roomNameText = roomButtons[i].transform.Find("RoomNameText")?.GetComponent<TextMeshProUGUI>();
-                    if (isOccupied[i] && roomNameText != null && roomNameText.text == roomName)
-                    {
-                        roomPasswordMap[roomName] = hasPassword;
-                        SetRoomButton(roomButtons[i], roomName, GetSpriteForMap(mapName));
-                        updated = true;
-                        break;
-                    }
-                }
-
-                if (!updated)
-                {
-                    for (int i = 0; i < roomButtons.Length; i++)
-                    {
-                        if (!isOccupied[i])
-                        {
-                            SetRoomButton(roomButtons[i], roomName, GetSpriteForMap(mapName));
-                            isOccupied[i] = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                Debug.LogWarning("방 정보 포맷 오류: " + roomData);
-            }
+            ResetRoomButton(roomButtons[i]);
+            isOccupied[i] = false;
         }
 
-        for (int i = 0; i < Mathf.Min(roomButtons.Length, isOccupied.Length); i++)
+        // 2) 받은 방 리스트를 0번 슬롯부터 순서대로 UI에 세팅
+        for (int i = 0; i < rooms.Length && i < roomButtons.Length; i++)
         {
-            if (roomButtons[i] == null)
+            string[] parts = rooms[i].Split(',', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length < 3)
             {
-                Debug.LogError($"roomButtons[{i}] is null");
+                Debug.LogWarning("방 정보 포맷 오류: " + rooms[i]);
                 continue;
             }
 
-            var roomNameTransform = roomButtons[i].transform.Find("RoomNameText");
-            if (roomNameTransform == null)
-            {
-                Debug.LogError($"RoomNameText not found in roomButtons[{i}]");
-                continue;
-            }
+            string roomName = parts[0].Trim();
+            string mapName = parts[1].Trim();
+            bool hasPassword = parts[2].Trim() == "1";
 
-            var roomNameText = roomNameTransform.GetComponent<TextMeshProUGUI>();
-            if (roomNameText == null)
-            {
-                Debug.LogError($"TextMeshProUGUI not found in roomButtons[{i}].RoomNameText");
-                continue;
-            }
+            roomPasswordMap[roomName] = hasPassword;
 
-            if (isOccupied[i])
-            {
-                string roomName = roomNameText.text;
+            SetRoomButton(roomButtons[i], roomName, GetSpriteForMap(mapName));
+            isOccupied[i] = true;
 
-                if (incomingRoomNames == null)
-                {
-                    Debug.LogError("incomingRoomNames is null");
-                    continue;
-                }
-
-                if (!incomingRoomNames.Contains(roomName))
-                {
-                    Debug.Log($"[Reset] 방 이름 {roomName} 제거됨 (slot {i})");
-                    ResetRoomButton(roomButtons[i]);  // ← 이 함수도 내부 확인 필요
-                    isOccupied[i] = false;
-                }
-            }
+            Debug.Log($"roomButtons[{i}]에 방 '{roomName}' 세팅 완료");
         }
-
     }
 
     public void HandleCreateRoomSuccess(string message)
@@ -503,7 +571,6 @@ public class LobbySystem : MonoBehaviour
             roomImage.sprite = null;
 
         btn.onClick.RemoveAllListeners();
-        // SetActive(false) 제거 → 덧씌우기 방식에서는 필요 없음
     }
 
     private void OnRoomButtonClicked(string roomName)
