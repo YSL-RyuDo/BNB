@@ -61,13 +61,10 @@ public class LobbyManager : MonoBehaviour
             string data = message.Substring("LOBBY_USER_LIST|".Length);
             string[] users = data.Split('|');
 
-            // 기존 버튼 제거
             foreach (Transform child in userList)
             {
                 Destroy(child.gameObject);
             }
-
-            // 새 버튼 생성
             foreach (string userInfo in users)
             {
                 string[] tokens = userInfo.Split(',');
