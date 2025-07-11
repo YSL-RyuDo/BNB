@@ -26,6 +26,8 @@ public class NetworkConnector : MonoBehaviour
     public List<string> CurrentUserList = new List<string>();
 
     public Dictionary<string, int> CurrentUserCharacterIndices = new Dictionary<string, int>();
+
+    public string PendingRoomEnterMessage { get; set; }
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -180,13 +182,17 @@ public class NetworkConnector : MonoBehaviour
                     break;
                 }
             case "ENTER_ROOM_SUCCESS":
-            {
+                {
+                    PendingRoomEnterMessage = message;
+
+                    // 씬 로드 완료 후 실행될 콜백 등록
+                    SceneManager.sceneLoaded += OnRoomSceneLoaded;
                     SceneManager.LoadScene("RoomScene");
                     break;
-            }
+                }
             case "REFRESH_ROOM_SUCCESS":
                 RoomSystem roomSystem = FindObjectOfType<RoomSystem>();
-                if(roomSystem != null)
+                if (roomSystem != null)
                     roomSystem.HandleUserJoined(message);
                 break;
             case "ROOM_CHAT":
@@ -256,6 +262,58 @@ public class NetworkConnector : MonoBehaviour
                 break;
         }
     }
+
+    private void OnRoomSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "RoomScene")
+        {
+            RoomSystem roomSystem = FindObjectOfType<RoomSystem>();
+            if (roomSystem != null && !string.IsNullOrEmpty(PendingRoomEnterMessage))
+            {
+                // 파싱: ENTER_ROOM_SUCCESS|roomName|qwe:2,asd:1,zxc:0
+                string[] parts = PendingRoomEnterMessage.Split('|');
+                if (parts.Length >= 3)
+                {
+                    string[] userTokens = parts[2].Split(',');
+                    foreach (string token in userTokens)
+                    {
+                        if (token.Contains(":"))
+                        {
+                            string[] pair = token.Split(':');
+                            string nickname = pair[0].Trim();
+                            if (int.TryParse(pair[1], out int charIndex))
+                            {
+                                NetworkConnector.Instance.CurrentUserCharacterIndices[nickname] = charIndex;
+                                Debug.Log($"[초기화] {nickname} → 캐릭터 인덱스 {charIndex}");
+                            }
+                            else
+                            {
+                                NetworkConnector.Instance.CurrentUserCharacterIndices[nickname] = 0;
+                                Debug.LogWarning($"[파싱 실패: 기본값] {nickname} → 캐릭터 인덱스 0");
+                            }
+                        }
+                        else
+                        {
+                            // 캐릭터 인덱스 없는 경우 기본값 0
+                            string nickname = token.Trim();
+                            NetworkConnector.Instance.CurrentUserCharacterIndices[nickname] = 0;
+                            Debug.Log($"[기본값 설정] {nickname} → 캐릭터 인덱스 0");
+                        }
+                    }
+                }
+
+                roomSystem.HandleUserJoined(PendingRoomEnterMessage);
+                PendingRoomEnterMessage = null;
+            }
+            else
+            {
+                Debug.LogWarning("RoomSystem을 찾을 수 없거나 PendingRoomEnterMessage가 비어 있음");
+            }
+
+            SceneManager.sceneLoaded -= OnRoomSceneLoaded;
+        }
+    }
+
 
 
     private void OnApplicationQuit()

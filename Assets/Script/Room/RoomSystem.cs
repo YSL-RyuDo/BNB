@@ -29,7 +29,12 @@ public class RoomSystem : MonoBehaviour
         startGameButton.onClick.AddListener(OnClickStartGame);
         exitButton.onClick.AddListener(OnExitRoomClicked);
 
-        string myNick = PlayerPrefs.GetString("nickname")?.Trim();
+        foreach (var kvp in client.CurrentUserCharacterIndices)
+        {
+            characterIndexMap[kvp.Key] = kvp.Value;
+        }
+
+        string myNick = NetworkConnector.Instance.UserNickname; //PlayerPrefs.GetString("nickname")?.Trim();
         for (int i = 0; i < client.CurrentUserList.Count; i++)
         {
             if (client.CurrentUserList[i].Trim() == myNick)
@@ -47,13 +52,14 @@ public class RoomSystem : MonoBehaviour
         }
         UpdatePlayerInfoUI(client.CurrentUserList);
     }
+
     public void HandleUserJoined(string message)
     {
-        // 예: "ENTER_ROOM_SUCCESS|방이름|userA:2,userB:0,userC:1"
+        // 예: "REFRESH_ROOM_SUCCESS|방이름|userA:1,userB:2,userC:0"
         string[] parts = message.Split('|');
         if (parts.Length < 3)
         {
-            Debug.LogWarning("ENTER_ROOM_SUCCESS 파싱 실패");
+            Debug.LogWarning("REFRESH_ROOM_SUCCESS 파싱 실패");
             return;
         }
 
@@ -61,50 +67,49 @@ public class RoomSystem : MonoBehaviour
         string[] userTokens = parts[2].Split(',');
 
         List<string> nicknames = new List<string>();
-        Dictionary<string, int> characterChoices = new Dictionary<string, int>();
 
         foreach (string token in userTokens)
         {
             if (token.Contains(":"))
             {
                 string[] pair = token.Split(':');
-                string nickname = pair[0];
-                if (int.TryParse(pair[1], out int charIndex))
+                string nickname = pair[0].Trim();
+                if (!string.IsNullOrEmpty(nickname))
                 {
                     nicknames.Add(nickname);
-                    characterChoices[nickname] = charIndex;
-                }
-                else
-                {
-                    nicknames.Add(nickname);
-                    characterChoices[nickname] = -1;
-                    Debug.LogWarning($"캐릭터 인덱스 파싱 실패: {pair[1]}");
+
+                    if (int.TryParse(pair[1], out int charIndex))
+                    {
+                        characterIndexMap[nickname] = charIndex;
+                        NetworkConnector.Instance.CurrentUserCharacterIndices[nickname] = charIndex;
+                    }
+                    else
+                    {
+                        characterIndexMap[nickname] = 0;
+                        NetworkConnector.Instance.CurrentUserCharacterIndices[nickname] = 0;
+                        Debug.LogWarning($"캐릭터 인덱스 파싱 실패: {token}");
+                    }
                 }
             }
             else
             {
-                nicknames.Add(token);
-                characterChoices[token] = -1;
+                string nickname = token.Trim();
+                if (!string.IsNullOrEmpty(nickname))
+                {
+                    nicknames.Add(nickname);
+                    characterIndexMap[nickname] = 0;
+                    NetworkConnector.Instance.CurrentUserCharacterIndices[nickname] = 0;
+                }
             }
         }
 
-
-        // 닉네임 리스트 저장
+        // 저장
         NetworkConnector.Instance.CurrentRoomName = roomName;
         NetworkConnector.Instance.CurrentUserList = nicknames;
 
-        // 캐릭터 선택 정보 반영
-        var roomSystem = FindObjectOfType<RoomSystem>();
-        if (roomSystem != null)
-        {
-            foreach (var kvp in characterChoices)
-            {
-                roomSystem.UpdateCharacterChoice(kvp.Key, kvp.Value);
-            }
-
-            roomSystem.RefreshRoomUI(nicknames, roomName);
-        }
+        RefreshRoomUI(nicknames, roomName);
     }
+
 
 
     public void UpdatePlayerInfoUI(List<string> userList)
@@ -144,8 +149,9 @@ public class RoomSystem : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogWarning($"characterIndexMap에 {nickname} 키 없음");
-                    imageComponent.sprite = null;
+                    Debug.LogWarning($"characterIndexMap에 {nickname} 키 없음 -> 기본값 지정");
+                    characterIndex = 0;
+                    characterIndexMap[nickname] = 0;
                 }
 
 
@@ -211,7 +217,7 @@ public class RoomSystem : MonoBehaviour
             return;
         }
 
-        string nickname = PlayerPrefs.GetString("nickname")?.Trim();
+        string nickname = NetworkConnector.Instance.UserNickname;//PlayerPrefs.GetString("nickname")?.Trim();
         string roomName = NetworkConnector.Instance.CurrentRoomName;
         string msg = $"CHOOSE_CHARACTER|{roomName}|{nickname}|{characterIndex}\n";
 
@@ -225,7 +231,7 @@ public class RoomSystem : MonoBehaviour
     void OnEnterRoomSuccess(string roomName, string userList)
     {
         string[] users = userList.Split(',');
-        string myNick = PlayerPrefs.GetString("nickname")?.Trim();
+        string myNick = NetworkConnector.Instance.UserNickname;//PlayerPrefs.GetString("nickname")?.Trim();
         string leaderNick = NetworkConnector.Instance.CurrentRoomLeader?.Trim();
 
         Debug.Log($"내 닉네임: '{myNick}', 방장 닉네임: '{leaderNick}'");
@@ -256,7 +262,7 @@ public class RoomSystem : MonoBehaviour
     public async void OnExitRoomClicked()
     {
         string roomName = NetworkConnector.Instance.CurrentRoomName;
-        string myNickname = PlayerPrefs.GetString("nickname");
+        string myNickname = NetworkConnector.Instance.UserNickname;
         string msg = $"EXIT_ROOM|{roomName}|{myNickname}\n";
 
         var stream = NetworkConnector.Instance.Stream;
