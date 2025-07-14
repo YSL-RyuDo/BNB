@@ -184,8 +184,6 @@ public class NetworkConnector : MonoBehaviour
             case "ENTER_ROOM_SUCCESS":
                 {
                     PendingRoomEnterMessage = message;
-
-                    // 씬 로드 완료 후 실행될 콜백 등록
                     SceneManager.sceneLoaded += OnRoomSceneLoaded;
                     SceneManager.LoadScene("RoomScene");
                     break;
@@ -225,38 +223,64 @@ public class NetworkConnector : MonoBehaviour
                     }
                     break;
                 }
-                case "UPDATE_CHARACTER":
+            case "UPDATE_CHARACTER":
+                {
+                    // 메시지 포맷: UPDATE_CHARACTER|닉네임|캐릭터인덱스
+                    string[] parts3 = message.Split('|');
+                    if (parts3.Length >= 3)
                     {
-                        // 메시지 포맷: UPDATE_CHARACTER|닉네임|캐릭터인덱스
-                        string[] parts3 = message.Split('|');
-                        if (parts3.Length >= 3)
+                        string userNickname = parts3[1];
+                        if (int.TryParse(parts3[2], out int characterIndex))
                         {
-                            string userNickname = parts3[1];
-                            if (int.TryParse(parts3[2], out int characterIndex))
+                            RoomSystem roomSystem2 = FindObjectOfType<RoomSystem>();
+                            if (roomSystem2 != null)
                             {
-                                RoomSystem roomSystem2 = FindObjectOfType<RoomSystem>();
-                                if (roomSystem2 != null)
-                                {
-                                    roomSystem2.UpdateCharacterChoice(userNickname, characterIndex);
-                                }
-                                else
-                                {
-                                    Debug.LogWarning("RoomSystem 컴포넌트를 찾을 수 없습니다.");
-                                }
+                                roomSystem2.UpdateCharacterChoice(userNickname, characterIndex);
                             }
                             else
                             {
-                                Debug.LogWarning("UPDATE_CHARACTER 캐릭터 인덱스 파싱 실패: " + parts3[2]);
+                                Debug.LogWarning("RoomSystem 컴포넌트를 찾을 수 없습니다.");
                             }
                         }
                         else
                         {
-                            Debug.LogWarning("UPDATE_CHARACTER 메시지 포맷 오류: " + message);
+                            Debug.LogWarning("UPDATE_CHARACTER 캐릭터 인덱스 파싱 실패: " + parts3[2]);
                         }
+                    }
+                    else
+                    {
+                        Debug.LogWarning("UPDATE_CHARACTER 메시지 포맷 오류: " + message);
+                    }
+                    break;
+                }
+            case "START_GAME_SUCCESS":
+                Debug.Log("게임 시작 조건 충족! 씬 전환...");
+                UnityEngine.SceneManagement.SceneManager.LoadScene("GameScene");
+                break;
+            case "START_GAME_FAIL":
+                Debug.LogWarning("게임 시작 실패: " + message);
+                break;
+            case "GAME_START":
+                Debug.Log("게임 시작 메시지 수신, 씬 전환");
+                UnityEngine.SceneManagement.SceneManager.LoadScene("GameScene");
+                break;
+            case "MAP_DATA":
+                {
+                    if (parts.Length < 3)
+                    {
+                        Debug.LogWarning("MAP_DATA 메시지 파싱 실패");
                         break;
                     }
 
+                    string mapName = parts[1];
+                    string mapRawData = parts[2];
 
+                    Debug.Log($"[MAP_DATA 수신] mapName: {mapName}");
+
+                    MapSystem.Instance.LoadMap(mapName, mapRawData);
+
+                    break;
+                }
             default:
                 Debug.LogWarning("알 수 없는 서버 명령: " + command);
                 break;

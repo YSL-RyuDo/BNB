@@ -69,8 +69,14 @@ public class LobbySystem : MonoBehaviour
     {
         if (NetworkConnector.Instance != null)
         {
-            //isOccupied = new bool[roomButtons.Length];
+
             var stream = NetworkConnector.Instance.Stream;
+
+            userExpBar.interactable = false;
+            string sendUserInfoStr = $"GET_USER_INFO|{NetworkConnector.Instance.UserNickname}\n";
+            byte[] sendUserInfoBytes = Encoding.UTF8.GetBytes(sendUserInfoStr);
+            await stream.WriteAsync(sendUserInfoBytes, 0, sendUserInfoBytes.Length);
+
             string sendUserStr = "GET_LOBBY_USER_LIST|\n";
             byte[] sendUserBytes = Encoding.UTF8.GetBytes(sendUserStr);
             await stream.WriteAsync(sendUserBytes, 0, sendUserBytes.Length);
@@ -79,10 +85,7 @@ public class LobbySystem : MonoBehaviour
             byte[] sendRoomBytes = Encoding.UTF8.GetBytes(sendRoomStr);
             await stream.WriteAsync(sendRoomBytes, 0, sendRoomBytes.Length);
 
-            userExpBar.interactable = false;
-            string sendUserInfoStr = $"GET_USER_INFO|{NetworkConnector.Instance.UserNickname}\n";
-            byte[] sendUserInfoBytes = Encoding.UTF8.GetBytes(sendUserInfoStr);
-            await stream.WriteAsync(sendUserInfoBytes, 0, sendUserInfoBytes.Length);
+            
 
         }
 
@@ -190,109 +193,6 @@ public class LobbySystem : MonoBehaviour
 
         userExpText.text = $"{currentExp:0.0}";
     }
-
-    //public void HandleRoomListMessage(string message)
-    //{
-    //    Debug.Log("HandleRoomListMessage 호출: " + message);
-
-    //    if (!message.StartsWith("ROOM_LIST|"))
-    //    {
-    //        Debug.LogError("ROOM_LIST 메시지 포맷 오류");
-    //        return;
-    //    }
-
-    //    string data = message.Substring("ROOM_LIST|".Length);
-    //    string[] rooms = data.Split('|', StringSplitOptions.RemoveEmptyEntries);
-
-    //    HashSet<string> incomingRoomNames = new HashSet<string>();
-
-    //    foreach (var roomData in rooms)
-    //    {
-    //        string[] parts = roomData.Split(',', StringSplitOptions.RemoveEmptyEntries);
-
-    //        if (parts.Length >= 3)
-    //        {
-    //            string roomName = parts[0].Trim();
-    //            string mapName = parts[1].Trim();
-    //            bool hasPassword = parts[2].Trim() == "1";
-
-    //            incomingRoomNames.Add(roomName);
-    //            roomPasswordMap[roomName] = hasPassword;
-
-    //            bool updated = false;
-    //            for (int i = 0; i < roomButtons.Length; i++)
-    //            {
-    //                var roomNameText = roomButtons[i].transform.Find("RoomNameText")?.GetComponent<TextMeshProUGUI>();
-    //                if (isOccupied[i] && roomNameText != null && roomNameText.text == roomName)
-    //                {
-    //                    roomPasswordMap[roomName] = hasPassword;
-    //                    SetRoomButton(roomButtons[i], roomName, GetSpriteForMap(mapName));
-    //                    updated = true;
-    //                    break;
-    //                }
-    //            }
-
-    //            if (!updated)
-    //            {
-    //                for (int i = 0; i < roomButtons.Length; i++)
-    //                {
-    //                    if (!isOccupied[i])
-    //                    {
-    //                        SetRoomButton(roomButtons[i], roomName, GetSpriteForMap(mapName));
-    //                        isOccupied[i] = true;
-    //                        break;
-    //                    }
-    //                }
-    //            }
-    //        }
-    //        else
-    //        {
-    //            Debug.LogWarning("방 정보 포맷 오류: " + roomData);
-    //        }
-    //    }
-
-    //    for (int i = 0; i < Mathf.Min(roomButtons.Length, isOccupied.Length); i++)
-    //    {
-    //        if (roomButtons[i] == null)
-    //        {
-    //            Debug.LogError($"roomButtons[{i}] is null");
-    //            continue;
-    //        }
-
-    //        var roomNameTransform = roomButtons[i].transform.Find("RoomNameText");
-    //        if (roomNameTransform == null)
-    //        {
-    //            Debug.LogError($"RoomNameText not found in roomButtons[{i}]");
-    //            continue;
-    //        }
-
-    //        var roomNameText = roomNameTransform.GetComponent<TextMeshProUGUI>();
-    //        if (roomNameText == null)
-    //        {
-    //            Debug.LogError($"TextMeshProUGUI not found in roomButtons[{i}].RoomNameText");
-    //            continue;
-    //        }
-
-    //        if (isOccupied[i])
-    //        {
-    //            string roomName = roomNameText.text;
-
-    //            if (incomingRoomNames == null)
-    //            {
-    //                Debug.LogError("incomingRoomNames is null");
-    //                continue;
-    //            }
-
-    //            if (!incomingRoomNames.Contains(roomName))
-    //            {
-    //                Debug.Log($"[Reset] 방 이름 {roomName} 제거됨 (slot {i})");
-    //                ResetRoomButton(roomButtons[i]);
-    //                isOccupied[i] = false;
-    //            }
-    //        }
-    //    }
-
-    //}
 
     public void HandleRoomListMessage(string message)
     {
@@ -424,7 +324,6 @@ public class LobbySystem : MonoBehaviour
 
         NetworkConnector.Instance.CurrentUserList = userList;
 
-        // 따로 캐릭터 인덱스 맵을 저장할 필드가 있다면 여기에 저장
         NetworkConnector.Instance.CurrentUserCharacterIndices = characterIndexMap;
 
         Sprite sprite = GetSpriteForMap(mapName);
