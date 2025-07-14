@@ -18,6 +18,14 @@ public class LobbyManager : MonoBehaviour
     public GameObject roomButtonPrefab;
 
     public Button logoutButton;
+    public Button createRoomButton;
+
+    public GameObject roomCreatePanel;
+
+    private Dictionary<string, bool> roomPasswordMap = new Dictionary<string, bool>();
+
+    public GameObject enterRoomPanel;
+    public RoomButtonUI[] roomSlots;
 
     // Start is called before the first frame update
     void Awake()
@@ -31,6 +39,7 @@ public class LobbyManager : MonoBehaviour
     private void Start()
     {
         logoutButton.onClick.AddListener(OnLogoutClicked);
+        createRoomButton.onClick.AddListener(OpenCreateRoomPanel);
     }
 
     // Update is called once per frame
@@ -90,34 +99,83 @@ public class LobbyManager : MonoBehaviour
         else if (message.StartsWith("ROOM_LIST|"))
         {
             string data = message.Substring("ROOM_LIST|".Length);
-            string[] rooms = data.Split('|');
+            string[] rooms = string.IsNullOrWhiteSpace(data) ? new string[0] : data.Split('|');
 
-            // 기존 방 리스트 초기화
-            foreach (Transform child in roomList)
+            roomPasswordMap.Clear();
+
+            // Step 1: 6개 슬롯 전부 초기화
+            for (int i = 0; i < roomSlots.Length; i++)
             {
-                Destroy(child.gameObject);
+                roomSlots[i].Clear();
             }
 
-            // 최대 6개까지만 생성
-            int count = Mathf.Min(rooms.Length, 6);
+            // Step 2: 받아온 방 수만큼 0번부터 덮어쓰기
+            int count = Mathf.Min(rooms.Length, roomSlots.Length);
             for (int i = 0; i < count; i++)
             {
-                string[] tokens = rooms[i].Split(',');
-                if (tokens.Length < 3) continue;
+                string[] parts = rooms[i].Split(',');
+                if (parts.Length < 3) continue;
 
-                string roomName = tokens[0];
-                string mapName = tokens[1];
-                bool hasPassword = bool.Parse(tokens[2]);
+                string roomName = parts[0];
+                string mapName = parts[1];
+                bool hasPassword = parts[2].Trim() == "1";
 
-                // 방 버튼 생성
-                GameObject btn = Instantiate(roomButtonPrefab, roomList);
-                RoomButtonUI roomUI = btn.GetComponent<RoomButtonUI>();
+                roomPasswordMap[roomName] = hasPassword;
+
+                int index = i;
+                roomSlots[i].SetInfo(roomName, () =>
+                {
+                    NetworkConnector.Instance.CurrentRoomName = roomName;
+                    if (roomPasswordMap.TryGetValue(roomName, out bool isLocked) && isLocked)
+                    {
+                        enterRoomPanel.SetActive(true);
+                    }
+                    else
+                    { 
+                        string enterMsg = $"ENTER_ROOM|{roomName}|\n";
+                        SendToServer(enterMsg);
+                    }
+                });
             }
         }
         else if (message.StartsWith("LOBBY_CHAT|"))
         {
             string chat = message.Substring("LOBBY_CHAT|".Length);
             lobbyChatUI.AddChatMessage(chat);
+        }
+        else if (message.StartsWith("CREATE_ROOM_SUCCESS|"))
+        {
+            string[] parts = message.Split('|');
+            string roomName = parts[1];
+            string mapName = parts[2];
+            string role = parts[3]; // CREATOR
+            string userListStr = parts[4];
+            string hasPasswordStr = parts[5];
+
+            // 유저 정보 저장
+            NetworkConnector.Instance.CurrentRoomName = roomName;
+            NetworkConnector.Instance.CurrentMap = mapName;
+            NetworkConnector.Instance.IsRoomOwner = true;
+            NetworkConnector.Instance.IsRoomPassworded = hasPasswordStr == "1";
+            List<string> userList = new List<string>(userListStr.Split(','));
+            NetworkConnector.Instance.CurrentUserList = userList;
+            // 씬 이동
+            SceneManager.LoadScene("RoomScene");
+        }
+        else if (message.StartsWith("ROOM_CREATED|"))
+        {
+            Debug.Log($"{message}");
+        }
+        else if (message.StartsWith("ENTER_ROOM_SUCCESS|"))
+        {
+            string[] parts = message.Split('|');
+            string roomName = parts[1];
+            string userListStr = parts[2];
+
+            NetworkConnector.Instance.CurrentRoomName = roomName;
+            NetworkConnector.Instance.CurrentUserList = new List<string>(userListStr.Split(','));
+
+            SceneManager.LoadScene("RoomScene");
         }
     }
 
@@ -139,6 +197,11 @@ public class LobbyManager : MonoBehaviour
         await NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
         Debug.Log("유저 정보 요청" + msg);
 
+    }
+
+    private void OpenCreateRoomPanel()
+    {
+        roomCreatePanel.SetActive(true);
     }
 
 }

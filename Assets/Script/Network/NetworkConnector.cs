@@ -20,6 +20,9 @@ public class NetworkConnector : MonoBehaviour
     public string UserNickname { get; set; }
     public string SelectedMap { get; set; }
     public string CurrentRoomName { get; set; }
+    public string CurrentMap { get; set; }
+    public bool IsRoomOwner { get; set; }
+    public bool IsRoomPassworded { get; set; }
 
     public List<string> CurrentUserList = new List<string>();
     private void Awake()
@@ -153,8 +156,14 @@ public class NetworkConnector : MonoBehaviour
                 }
                 break;
             case "CREATE_ROOM_SUCCESS":
+                LobbyManager lobby = FindObjectOfType<LobbyManager>();
+                if (lobby != null)
+                    lobby.OnReceiveMessage(message);
                 break;
             case "ROOM_CREATED":
+                LobbyManager lobbyRoom = FindObjectOfType<LobbyManager>();
+                if (lobbyRoom != null)
+                    lobbyRoom.OnReceiveMessage(message);
                 break;
             case "LOBBY_CHAT":
                 LobbyManager lobbyChat = FindObjectOfType<LobbyManager>();
@@ -163,6 +172,15 @@ public class NetworkConnector : MonoBehaviour
                     lobbyChat.OnReceiveMessage(message);
                 }
                 break;
+            case "ENTER_ROOM_SUCCESS":
+                {
+                    LobbyManager lobbyEnterRoom = FindObjectOfType<LobbyManager>();
+                    if (lobbyEnterRoom != null)
+                    {
+                        lobbyEnterRoom.OnReceiveMessage(message);
+                    }
+                    break;
+                }
             default:
                 Debug.LogWarning("알 수 없는 서버 명령: " + command);
                 break;
