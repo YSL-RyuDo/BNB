@@ -266,7 +266,7 @@ public class NetworkConnector : MonoBehaviour
                 break;
             case "MAP_DATA":
                 {
-                    if (parts.Length < 3)
+                    if (parts.Length < 4)
                     {
                         Debug.LogWarning("MAP_DATA 메시지 파싱 실패");
                         break;
@@ -274,13 +274,61 @@ public class NetworkConnector : MonoBehaviour
 
                     string mapName = parts[1];
                     string mapRawData = parts[2];
+                    string spawnRawData = parts[3];
 
                     Debug.Log($"[MAP_DATA 수신] mapName: {mapName}");
 
+                    // 맵 로드
                     MapSystem.Instance.LoadMap(mapName, mapRawData);
+
+                    // 스폰 데이터 파싱 및 캐릭터 생성 위치 처리
+                    string[] spawnEntries = spawnRawData.Split(',');
+
+                    foreach (var entry in spawnEntries)
+                    {
+                        if (string.IsNullOrEmpty(entry))
+                            continue;
+
+                        string[] tokens = entry.Split(':');
+                        if (tokens.Length != 4)
+                        {
+                            Debug.LogWarning($"잘못된 스폰 데이터 형식: {entry}");
+                            continue;
+                        }
+
+                        string playerId = tokens[0];
+
+                        if (!int.TryParse(tokens[1], out int x) ||
+                            !int.TryParse(tokens[2], out int y) ||
+                            !int.TryParse(tokens[3], out int charIndex))
+                        {
+                            Debug.LogWarning($"좌표 또는 캐릭터 인덱스 파싱 실패: {entry}");
+                            continue;
+                        }
+
+                        int layer = (y >= 13) ? 1 : 0;
+                        int localY = (layer == 1) ? y - 13 : y;
+
+                        // 캐릭터 인덱스 가져오기
+                        NetworkConnector.Instance.CurrentUserCharacterIndices[playerId] = charIndex;
+
+                        CharacterSystem.Instance.SpawnCharacterAt(playerId, charIndex, x, localY, layer);
+                    }
 
                     break;
                 }
+            case "MOVE_RESULT":
+                {
+                    GameSystem gameMoveSystem = FindObjectOfType<GameSystem>();
+                    if (gameMoveSystem != null)
+                    {
+                        gameMoveSystem.HandleMoveResult(message);
+                    }
+                    break;
+                }
+
+
+
             default:
                 Debug.LogWarning("알 수 없는 서버 명령: " + command);
                 break;

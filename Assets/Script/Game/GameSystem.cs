@@ -5,21 +5,69 @@ using UnityEngine;
 
 public class GameSystem : MonoBehaviour
 {
+    public CharacterSystem playerManager;
+
     // Start is called before the first frame update
     async void Start()
     {
         string roomName = NetworkConnector.Instance.CurrentRoomName;
         string selectedMap = NetworkConnector.Instance.SelectedMap;
-        string getMapMsg = $"GET_MAP|{selectedMap}\n";
+        string getMapMsg = $"GET_MAP|{roomName}|{selectedMap}\n";
         byte[] getMapBytes = Encoding.UTF8.GetBytes(getMapMsg);
         await NetworkConnector.Instance.Stream.WriteAsync(getMapBytes, 0, getMapBytes.Length);
         Debug.Log(getMapMsg);
         Debug.Log("[GameSceneInitializer] 서버에 GET_MAP 요청 보냄");
     }
-
-    // Update is called once per frame
-    void Update()
+    public void HandleMoveResult(string message)
     {
-        
+        // 메시지 포맷: MOVE_RESULT|username,x,z
+        var parts = message.Split('|');
+        if (parts.Length < 2)
+        {
+            Debug.LogWarning("MOVE_RESULT 메시지 파싱 실패");
+            return;
+        }
+
+        string data = parts[1]; // username,x,z
+        string[] subParts = data.Split(',');
+
+        if (subParts.Length < 3)
+        {
+            Debug.LogWarning("MOVE_RESULT 좌표 파싱 실패");
+            return;
+        }
+
+        string username = subParts[0];
+        if (!float.TryParse(subParts[1], out float x) || !float.TryParse(subParts[2], out float z))
+        {
+            Debug.LogWarning("MOVE_RESULT 좌표 파싱 실패");
+            return;
+        }
+
+        string objectName = $"Character_{username}";
+        GameObject playerObj = GameObject.Find(objectName);
+        if (playerObj != null)
+        {
+            Vector3 currentPos = playerObj.transform.position;
+            Vector3 newPos = new Vector3(x, currentPos.y, z);
+
+            // 이동 방향 벡터 (현재 위치에서 새 위치로)
+            Vector3 direction = newPos - currentPos;
+
+            if (direction.sqrMagnitude > 0.001f) // 방향이 유효할 때만 회전
+            {
+                // Y축 기준으로만 회전 (평면상 회전)
+                Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up);
+                playerObj.transform.rotation = targetRotation;
+            }
+
+            // 위치 갱신
+            playerObj.transform.position = newPos;
+        }
+        else
+        {
+            Debug.LogWarning($"플레이어 오브젝트를 찾을 수 없음: {objectName}");
+        }
     }
+
 }

@@ -15,7 +15,7 @@ public class RoomSystem : MonoBehaviour
 
     public Button startGameButton;
     public Button exitButton;
-    private Dictionary<string, int> characterIndexMap = new Dictionary<string, int>();
+    public Dictionary<string, int> characterIndexMap = new Dictionary<string, int>();
 
     private void Start()
     {
@@ -111,7 +111,6 @@ public class RoomSystem : MonoBehaviour
     }
 
 
-
     public void UpdatePlayerInfoUI(List<string> userList)
     {
         Debug.Log($"UpdatePlayerInfoUI 호출 - userList.Count: {userList.Count}");
@@ -165,7 +164,6 @@ public class RoomSystem : MonoBehaviour
             }
         }
     }
-
 
     // 서버에서 유저 리스트 갱신 메시지를 받을 때 호출할 메서드
     public void RefreshRoomUI(List<string> updatedUserList, string updatedRoomName = null)
@@ -251,6 +249,12 @@ public class RoomSystem : MonoBehaviour
 
     public async void OnClickStartGame()
     {
+        NetworkConnector.Instance.CurrentUserCharacterIndices.Clear();
+        foreach (var kvp in characterIndexMap)
+        {
+            NetworkConnector.Instance.CurrentUserCharacterIndices[kvp.Key] = kvp.Value;
+        }
+
         string roomName = NetworkConnector.Instance.CurrentRoomName;
         string msg = $"START_GAME|{roomName}\n";
 
