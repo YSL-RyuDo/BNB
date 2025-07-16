@@ -78,13 +78,11 @@ public class LoginSystem : MonoBehaviour
             {
                 string[] userParts = parts[1].Split(',');
 
-                if (userParts.Length == 5)
+                if (userParts.Length == 3)
                 {
                     string userId = userParts[0];
                     string userPw = userParts[1];
                     string userNick = userParts[2];
-                    int level = int.Parse(userParts[3]);
-                    float exp = float.Parse(userParts[4]);
 
                     PlayerPrefs.SetString("nickname", userNick);
                     PlayerPrefs.Save();

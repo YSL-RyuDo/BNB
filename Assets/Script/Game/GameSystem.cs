@@ -5,9 +5,17 @@ using UnityEngine;
 
 public class GameSystem : MonoBehaviour
 {
-    public CharacterSystem playerManager;
+    public static GameSystem Instance;
 
-    // Start is called before the first frame update
+    public CharacterSystem playerManager;
+    public Transform userInfoContent;
+    public GameObject userInfo;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     async void Start()
     {
         string roomName = NetworkConnector.Instance.CurrentRoomName;
@@ -18,6 +26,7 @@ public class GameSystem : MonoBehaviour
         Debug.Log(getMapMsg);
         Debug.Log("[GameSceneInitializer] 서버에 GET_MAP 요청 보냄");
     }
+
     public void HandleMoveResult(string message)
     {
         // 메시지 포맷: MOVE_RESULT|username,x,z
@@ -70,4 +79,31 @@ public class GameSystem : MonoBehaviour
         }
     }
 
+    public void CreateUserInfoUI(string playerId, int charIndex, int health)
+    {
+        if (userInfo == null || userInfoContent == null)
+        {
+            Debug.LogWarning("userInfo 또는 userInfoContent가 null입니다.");
+            return;
+        }
+
+        GameObject uiObj = Instantiate(userInfo, userInfoContent);
+        uiObj.name = $"UserInfo_{playerId}";
+
+        TMPro.TextMeshProUGUI nameText = uiObj.transform.Find("UserNameText")?.GetComponent<TMPro.TextMeshProUGUI>();
+        TMPro.TextMeshProUGUI healthText = uiObj.transform.Find("UserHealthText")?.GetComponent<TMPro.TextMeshProUGUI>();
+        UnityEngine.UI.Slider userHealthBar = uiObj.transform.Find("UserHealthBar")?.GetComponent<UnityEngine.UI.Slider>();
+
+        if (nameText != null)
+            nameText.text = playerId;
+
+        if (healthText != null)
+            healthText.text = $"HP: {health}";
+
+        if (userHealthBar != null)
+        {
+            userHealthBar.maxValue = health;  // 최대 체력을 셋팅 (필요시)
+            userHealthBar.value = health;     // 현재 체력 표시
+        }
+    }
 }

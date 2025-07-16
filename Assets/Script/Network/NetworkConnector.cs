@@ -193,6 +193,7 @@ public class NetworkConnector : MonoBehaviour
                 if (roomSystem != null)
                     roomSystem.HandleUserJoined(message);
                 break;
+
             case "ROOM_CHAT":
                 {
                     RoomChatManager roomChatManager = FindObjectOfType<RoomChatManager>();
@@ -264,6 +265,7 @@ public class NetworkConnector : MonoBehaviour
                 Debug.Log("게임 시작 메시지 수신, 씬 전환");
                 UnityEngine.SceneManagement.SceneManager.LoadScene("GameScene");
                 break;
+
             case "MAP_DATA":
                 {
                     if (parts.Length < 4)
@@ -278,10 +280,8 @@ public class NetworkConnector : MonoBehaviour
 
                     Debug.Log($"[MAP_DATA 수신] mapName: {mapName}");
 
-                    // 맵 로드
                     MapSystem.Instance.LoadMap(mapName, mapRawData);
 
-                    // 스폰 데이터 파싱 및 캐릭터 생성 위치 처리
                     string[] spawnEntries = spawnRawData.Split(',');
 
                     foreach (var entry in spawnEntries)
@@ -313,6 +313,45 @@ public class NetworkConnector : MonoBehaviour
                         NetworkConnector.Instance.CurrentUserCharacterIndices[playerId] = charIndex;
 
                         CharacterSystem.Instance.SpawnCharacterAt(playerId, charIndex, x, localY, layer);
+                    }
+
+                    break;
+                }
+            case "CHAR_INFO":
+                {
+                    if (parts.Length < 2)
+                    {
+                        Debug.LogWarning("CHAR_INFO 메시지 파싱 실패");
+                        break;
+                    }
+
+                    // parts[1], parts[2], ..., parts[n] 모두 각각 한 명의 플레이어 정보임
+                    for (int i = 1; i < parts.Length; i++)
+                    {
+                        string playerInfo = parts[i];
+
+                        if (string.IsNullOrEmpty(playerInfo))
+                            continue;
+
+                        string[] tokens = playerInfo.Split(',');
+                        if (tokens.Length != 4)
+                        {
+                            Debug.LogWarning($"잘못된 CHAR_INFO 데이터 형식: {playerInfo}");
+                            continue;
+                        }
+
+                        string playerId = tokens[0];
+                        if (!int.TryParse(tokens[1], out int charIndex) ||
+                            !int.TryParse(tokens[2], out int health) ||
+                            !int.TryParse(tokens[3], out int attack))
+                        {
+                            Debug.LogWarning($"CHAR_INFO 파싱 실패: {playerInfo}");
+                            continue;
+                        }
+
+                        Debug.Log($"CHAR_INFO - 플레이어: {playerId}, 캐릭터 인덱스: {charIndex}, 체력: {health}");
+
+                        GameSystem.Instance.CreateUserInfoUI(playerId, charIndex, health);
                     }
 
                     break;
