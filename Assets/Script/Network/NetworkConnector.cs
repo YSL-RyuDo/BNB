@@ -356,6 +356,24 @@ public class NetworkConnector : MonoBehaviour
 
                     break;
                 }
+            case "EMO_LIST":
+                {
+                    EmoticonSystem.Instance.HandleEmoticonMessage(message);
+                    break;
+                }
+            case "EMO_CLICK":
+                {
+                    // 메시지 예시: EMO_CLICK|nickname|3
+                    string[] parts7 = message.Split('|');
+                    if (parts7.Length < 3) break;
+
+                    string senderNickname = parts7[1];
+                    if (!int.TryParse(parts7[2], out int emoIndex)) break;
+
+                    EmoticonSystem.Instance.ShowUserEmoticon(senderNickname, emoIndex);
+                    break;
+                }
+
             case "MOVE_RESULT":
                 {
                     GameSystem gameMoveSystem = FindObjectOfType<GameSystem>();
