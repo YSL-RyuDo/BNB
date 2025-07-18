@@ -6,6 +6,9 @@ using System.Text;
 
 public class RoomSystem : MonoBehaviour
 {
+    public static RoomSystem Instance;
+
+
     public TextMeshProUGUI roomNameText;
     public GameObject[] roomPlayerInfos;
 
@@ -17,7 +20,12 @@ public class RoomSystem : MonoBehaviour
     public Button exitButton;
     public Dictionary<string, int> characterIndexMap = new Dictionary<string, int>();
 
-    private void Start()
+    private void Awake()
+    {
+        Instance = this;
+    }
+
+    private async void Start()
     {
         var client = NetworkConnector.Instance;
         if (roomNameText != null)
@@ -51,6 +59,15 @@ public class RoomSystem : MonoBehaviour
             characterChooseButton[i].onClick.AddListener(() => OnClickChooseCharacter(idx));
         }
         UpdatePlayerInfoUI(client.CurrentUserList);
+
+        string getCharacterMsg = $"GET_CHARACTER|{myNick}\n";
+        byte[] getCharacterBytes = Encoding.UTF8.GetBytes(getCharacterMsg);
+
+        var stream = NetworkConnector.Instance.Stream;
+        if (stream != null && stream.CanWrite)
+        {
+            await stream.WriteAsync(getCharacterBytes, 0, getCharacterBytes.Length);
+        }
     }
 
     public void HandleUserJoined(string message)
@@ -110,6 +127,48 @@ public class RoomSystem : MonoBehaviour
         RefreshRoomUI(nicknames, roomName);
     }
 
+    public void HandleCharacterList(string message)
+    {
+        // 예: CHARACTER_LIST|1,0,1,1,0,0,1
+        string[] parts = message.Split('|');
+        if (parts.Length < 2)
+        {
+            Debug.LogWarning("[RoomSystem] CHARACTER_LIST 메시지 형식 오류");
+            return;
+        }
+
+        string[] tokens = parts[1].Split(',');
+        if (tokens.Length != characterChooseButton.Length)
+        {
+            Debug.LogWarning($"[RoomSystem] 캐릭터 개수 불일치: 버튼={characterChooseButton.Length}, 데이터={tokens.Length}");
+            return;
+        }
+
+        for (int i = 0; i < tokens.Length; i++)
+        {
+            bool hasCharacter = int.TryParse(tokens[i], out int hasChar) && hasChar == 1;
+
+            // 캐릭터 버튼 클릭 가능 여부
+            characterChooseButton[i].interactable = hasCharacter;
+
+            // 잠금 이미지 처리
+            Transform lockImage = characterChooseButton[i].transform.Find("LockImage");
+            if (lockImage != null)
+            {
+                lockImage.gameObject.SetActive(!hasCharacter); // 보유 안 하면 잠금 이미지 켜기
+            }
+
+            // 필요하면 투명도 조정도 가능
+            var buttonImage = characterChooseButton[i].GetComponent<Image>();
+            if (buttonImage != null)
+            {
+                buttonImage.color = hasCharacter ? Color.white : new Color(1f, 1f, 1f, 0.5f);
+            }
+        }
+
+
+        Debug.Log("[RoomSystem] 캐릭터 보유 여부 UI 및 잠금 반영 완료");
+    }
 
     public void UpdatePlayerInfoUI(List<string> userList)
     {

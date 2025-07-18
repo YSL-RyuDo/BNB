@@ -33,6 +33,10 @@ public class GameSystem : MonoBehaviour
         await NetworkConnector.Instance.Stream.WriteAsync(getEmoBytes, 0, getEmoBytes.Length);
         Debug.Log("[GameSceneInitializer] 서버에 GET_EMO 요청 보냄");
 
+        string getBalloonMsg = $"GET_BALLOON|{nickName}\n";
+        byte[] getBalloonBytes = Encoding.UTF8.GetBytes(getBalloonMsg);
+        await NetworkConnector.Instance.Stream.WriteAsync(getBalloonBytes, 0, getBalloonBytes.Length);
+
     }
 
     public void HandleMoveResult(string message)

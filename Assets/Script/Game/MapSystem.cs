@@ -59,7 +59,8 @@ public class MapSystem : MonoBehaviour
                         if (tileIndex == 5) continue; // 특정 타일 무시
 
                         Vector3 pos = new Vector3(x, yOffset, localZ);
-                        GameObject tile = Instantiate(tilePrefabs[tileIndex], pos, Quaternion.identity);
+                        Quaternion rotation = Quaternion.Euler(90, 0, 180); // X축으로 90도 회전
+                        GameObject tile = Instantiate(tilePrefabs[tileIndex], pos, rotation);
                         tile.transform.SetParent(mapParent.transform);
                     }
                     else

@@ -265,6 +265,11 @@ public class NetworkConnector : MonoBehaviour
                 Debug.Log("게임 시작 메시지 수신, 씬 전환");
                 UnityEngine.SceneManagement.SceneManager.LoadScene("GameScene");
                 break;
+            case "CHARACTER_LIST":
+                {
+                    RoomSystem.Instance.HandleCharacterList(message);
+                    break;
+                }
 
             case "MAP_DATA":
                 {
@@ -354,6 +359,11 @@ public class NetworkConnector : MonoBehaviour
                         GameSystem.Instance.CreateUserInfoUI(playerId, charIndex, health);
                     }
 
+                    break;
+                }
+            case "BALLOON_LIST":
+                {
+                    BalloonSystem.Instance.HandleBalloonMessage(message);
                     break;
                 }
             case "EMO_LIST":
