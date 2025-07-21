@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Text;
 using System.Collections.Generic;
+using System.Linq;
 
 public class BalloonSystem : MonoBehaviour
 {
@@ -22,7 +23,6 @@ public class BalloonSystem : MonoBehaviour
         else
             Destroy(gameObject);
     }
-
     public int GetCurrentBalloonType()
     {
         return currentBalloonType;
@@ -94,7 +94,7 @@ public class BalloonSystem : MonoBehaviour
             return;
         }
 
-        Vector3 spawnPos = new Vector3(Mathf.Round(x), 1f, Mathf.Round(z));
+        Vector3 spawnPos = new Vector3(Mathf.Round(x), 0.7f, Mathf.Round(z));
         if (type < 0 || type >= balloonPrefabs.Length || balloonPrefabs[type] == null)
         {
             Debug.LogWarning($"[BalloonSystem] 풍선 타입 {type} 잘못됨");
@@ -205,7 +205,6 @@ public class BalloonSystem : MonoBehaviour
             Physics.IgnoreCollision(playerCol, balloonCol, false);
     }
 
-
     private bool IsOverlapping(Collider colA, Collider colB)
     {
         return Physics.ComputePenetration(
@@ -214,21 +213,11 @@ public class BalloonSystem : MonoBehaviour
             out Vector3 direction, out float distance);
     }
 
-
-    private IEnumerator EnableCollisionAfterDelay(Collider col1, Collider col2, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (col1 != null && col2 != null)
-        {
-            Physics.IgnoreCollision(col1, col2, false);
-        }
-    }
-
     private IEnumerator RemoveBalloonAfterDelay(GameObject balloon, Vector3 pos, string username, float delay, int type)
     {
         yield return new WaitForSeconds(delay);
         // 본인 풍선만 서버에 제거 요청 전송
-        if (username == NetworkConnector.Instance.UserNickname)
+        if (NetworkConnector.Instance.CurrentRoomLeader == NetworkConnector.Instance.UserNickname)
         {
             string msg = $"REMOVE_BALLOON|{username}|{pos.x:F2},{pos.z:F2}|{type}\n";
             byte[] bytes = System.Text.Encoding.UTF8.GetBytes(msg);
@@ -243,7 +232,6 @@ public class BalloonSystem : MonoBehaviour
             }
         }
     }
-
 
     public void HandleRemoveBalloon(string message)
     {
@@ -283,7 +271,6 @@ public class BalloonSystem : MonoBehaviour
 
     public void HandleWaterSpread(string message)
     {
-        // 메시지 포맷 체크
         string[] parts = message.Split('|');
         if (parts.Length < 5)
         {
@@ -292,6 +279,7 @@ public class BalloonSystem : MonoBehaviour
         }
 
         string nickname = parts[1];
+        string centerStr = parts[2];
         string typeStr = parts[3];
         string positionsStr = parts[4];
 
@@ -301,26 +289,131 @@ public class BalloonSystem : MonoBehaviour
             return;
         }
 
-        List<Vector3> waterPositions = new List<Vector3>();
+        // 중심 좌표 파싱
+        string[] centerCoord = centerStr.Split(',');
+        if (centerCoord.Length != 2 ||
+            !int.TryParse(centerCoord[0], out int cx) ||
+            !int.TryParse(centerCoord[1], out int cz))
+        {
+            Debug.LogWarning("[BalloonSystem] 중심 좌표 파싱 실패");
+            return;
+        }
 
+        Vector2Int center = new Vector2Int(cx, cz);
+
+        // 방향별 리스트 초기화
+        Dictionary<Vector2Int, List<Vector2Int>> spreadByDir = new Dictionary<Vector2Int, List<Vector2Int>>()
+    {
+        { Vector2Int.left, new List<Vector2Int>() },
+        { Vector2Int.right, new List<Vector2Int>() },
+        { Vector2Int.up, new List<Vector2Int>() },
+        { Vector2Int.down, new List<Vector2Int>() },
+        { Vector2Int.zero, new List<Vector2Int>() }
+    };
+
+        // 좌표 파싱 및 방향 분류
         string[] positions = positionsStr.Split(';');
         foreach (var posStr in positions)
         {
             string[] coord = posStr.Split(',');
             if (coord.Length != 2) continue;
 
-            if (float.TryParse(coord[0], out float x) && float.TryParse(coord[1], out float z))
+            if (int.TryParse(coord[0], out int x) && int.TryParse(coord[1], out int z))
             {
-                Vector3 spawnPos = new Vector3(Mathf.Round(x), 1f, Mathf.Round(z));
-                waterPositions.Add(spawnPos);
+                Vector2Int pos = new Vector2Int(x, z);
+                Vector2Int dir = pos - center;
 
-                // 이펙트 생성
-                if (waterPrefabs != null && waterType >= 0 && waterType < waterPrefabs.Length && waterPrefabs[waterType] != null)
+                Vector2Int normDir = Vector2Int.zero;
+                if (dir == Vector2Int.zero)
+                    normDir = Vector2Int.zero;
+                else if (Mathf.Abs(dir.x) > 0 && dir.y == 0)
+                    normDir = dir.x > 0 ? Vector2Int.right : Vector2Int.left;
+                else if (Mathf.Abs(dir.y) > 0 && dir.x == 0)
+                    normDir = dir.y > 0 ? Vector2Int.up : Vector2Int.down;
+                else
+                    continue; // 대각선 무시
+
+                if (spreadByDir.ContainsKey(normDir))
+                    spreadByDir[normDir].Add(pos);
+            }
+        }
+
+        // 중복 제거 및 거리 기준 정렬
+        var directions = spreadByDir.Keys.ToList();
+        foreach (var direction in directions)
+        {
+            spreadByDir[direction] = spreadByDir[direction].Distinct().ToList();
+            spreadByDir[direction].Sort((a, b) => (a - center).sqrMagnitude.CompareTo((b - center).sqrMagnitude));
+        }
+
+        // 물 생성 및 충돌 검사
+        foreach (var direction in directions)
+        {
+            List<Vector2Int> dirPositions = spreadByDir[direction];
+            Debug.Log($"[WATER] 방향 {direction} 시작 - 타일 수: {dirPositions.Count}");
+
+            bool directionBlocked = false;
+
+            foreach (var pos in dirPositions)
+            {
+                if (directionBlocked)
+                    break;
+
+                int x = pos.x;
+                int z = pos.y;
+
+                if (x < 0 || x >= 15 || z < 0 || z >= 13)
                 {
-                    GameObject waterEffect = Instantiate(waterPrefabs[waterType], spawnPos, Quaternion.identity);
-                    Destroy(waterEffect, 2f);
+                    Debug.LogWarning($"[WATER] 범위 초과: ({x},{z})");
+                    directionBlocked = true;
+                    break;
+                }
+
+                Vector3 spawnPos = new Vector3(x, 1f, z);
+                int layerMask = LayerMask.GetMask("Block", "Wall");
+                Collider[] hits = Physics.OverlapBox(spawnPos, Vector3.one * 0.4f, Quaternion.identity, layerMask);
+
+                Debug.Log($"[WATER] 체크 중: ({x},{z}) 히트 {hits.Length}개");
+
+                bool blocked = false;
+
+                foreach (var hit in hits)
+                {
+                    Debug.Log($"[WATER] 충돌체: {hit.name}, Tag: {hit.tag}, Layer: {LayerMask.LayerToName(hit.gameObject.layer)}");
+
+                    if (hit.CompareTag("Wall") || hit.gameObject.layer == LayerMask.NameToLayer("Wall"))
+                    {
+                        Debug.Log($"[WATER] 벽 발견 at ({x},{z}) → 퍼짐 종료");
+                        blocked = true;
+                        break;
+                    }
+
+                    if (hit.CompareTag("Block") || hit.gameObject.layer == LayerMask.NameToLayer("Block"))
+                    {
+                        Debug.Log($"[WATER] 블록 발견 at ({x},{z}) → 제거 및 퍼짐 종료");
+                        Destroy(hit.gameObject);
+                        blocked = true;
+                        break;
+                    }
+
+                    
+                }
+
+                if (blocked)
+                {
+                    directionBlocked = true;
+                    break;
+                }
+
+                if (waterPrefabs != null && waterType >= 0 && waterType < waterPrefabs.Length)
+                {
+                    Debug.Log($"[WATER] 물 생성: ({x},{z})");
+                    GameObject water = Instantiate(waterPrefabs[waterType], spawnPos, Quaternion.identity);
+                    Destroy(water, 2f);
                 }
             }
+
+            Debug.Log($"[WATER] 방향 {direction} 완료");
         }
     }
 

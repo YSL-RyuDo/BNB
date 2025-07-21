@@ -19,14 +19,18 @@ public class GameSystem : MonoBehaviour
     async void Start()
     {
         string nickName = NetworkConnector.Instance.UserNickname;
+        string currentRoomLeader = NetworkConnector.Instance.CurrentRoomLeader;
         string roomName = NetworkConnector.Instance.CurrentRoomName;
         string selectedMap = NetworkConnector.Instance.SelectedMap;
 
-        string getMapMsg = $"GET_MAP|{roomName}|{selectedMap}\n";
-        byte[] getMapBytes = Encoding.UTF8.GetBytes(getMapMsg);
-        await NetworkConnector.Instance.Stream.WriteAsync(getMapBytes, 0, getMapBytes.Length);
-        Debug.Log(getMapMsg);
-        Debug.Log("[GameSceneInitializer] 서버에 GET_MAP 요청 보냄");
+        if(nickName == currentRoomLeader)
+        {
+            string getMapMsg = $"GET_MAP|{roomName}|{selectedMap}\n";
+            byte[] getMapBytes = Encoding.UTF8.GetBytes(getMapMsg);
+            await NetworkConnector.Instance.Stream.WriteAsync(getMapBytes, 0, getMapBytes.Length);
+            Debug.Log(getMapMsg);
+            Debug.Log("[GameSceneInitializer] 서버에 GET_MAP 요청 보냄");
+        }
 
         string getEmoMsg = $"GET_EMO|{nickName}\n";
         byte[] getEmoBytes = Encoding.UTF8.GetBytes(getEmoMsg);
@@ -36,7 +40,6 @@ public class GameSystem : MonoBehaviour
         string getBalloonMsg = $"GET_BALLOON|{nickName}\n";
         byte[] getBalloonBytes = Encoding.UTF8.GetBytes(getBalloonMsg);
         await NetworkConnector.Instance.Stream.WriteAsync(getBalloonBytes, 0, getBalloonBytes.Length);
-
     }
 
     public void HandleMoveResult(string message)

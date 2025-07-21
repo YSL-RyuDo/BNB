@@ -12,51 +12,48 @@ public class LocalPlayerController : MonoBehaviour
 
     private string myNick;
     private bool hasSentWaterHit = false;
+    private Vector3 lastBalloonPos = Vector3.positiveInfinity;
 
     void Start()
     {
         myNick = NetworkConnector.Instance.UserNickname;
         string characterObjectName = $"Character_{myNick}";
 
-        localCharacter = GameObject.Find(characterObjectName);
-
-        if (localCharacter == null)
+        // 이 스크립트가 붙은 게임오브젝트 이름이 내 캐릭터 이름이 아니면 꺼버림
+        if (gameObject.name != characterObjectName)
         {
-            Debug.LogError($"내 캐릭터를 찾을 수 없음: {characterObjectName}");
+            this.enabled = false;
             return;
         }
+
+        localCharacter = gameObject;  // 내 캐릭터 오브젝트
 
         rb = localCharacter.GetComponent<Rigidbody>();
         if (rb == null)
         {
             Debug.LogError($"Rigidbody 컴포넌트가 없음: {characterObjectName}");
+            this.enabled = false;
             return;
         }
 
         lastSentPosition = localCharacter.transform.position;
     }
 
+
     Vector3 inputDirection = Vector3.zero;
 
     void Update()
     {
-        if (localCharacter == null)
-            return;
-
         // 입력만 받고, 이동은 FixedUpdate에서 처리
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
 
         inputDirection = new Vector3(h, 0, v).normalized;
 
-        // 물풍선 설치 처리
         if (Input.GetKeyDown(KeyCode.Space))
         {
             if (!BalloonSystem.Instance.CanPlaceBalloon())
-            {
-                Debug.Log("[LocalPlayerController] 풍선 쿨타임 중이라 설치 불가");
                 return;
-            }
 
             Vector3 pos = localCharacter.transform.position;
             float cellSize = 1.0f;
@@ -64,7 +61,16 @@ public class LocalPlayerController : MonoBehaviour
             float snappedZ = Mathf.Round(pos.z / cellSize) * cellSize;
             Vector3 snappedPos = new Vector3(snappedX, 0, snappedZ);
 
-            int balloonType = BalloonSystem.Instance != null ? BalloonSystem.Instance.GetCurrentBalloonType() : 0;
+            // 중복 위치 설치 방지
+            if ((snappedPos - lastBalloonPos).sqrMagnitude < 0.01f)
+            {
+                Debug.Log("[LocalPlayerController] 같은 위치에 중복 설치 방지");
+                return;
+            }
+
+            lastBalloonPos = snappedPos;
+
+            int balloonType = BalloonSystem.Instance.GetCurrentBalloonType();
 
             string balloonMsg = $"PLACE_BALLOON|{myNick}|{snappedX:F2},{snappedZ:F2}|{balloonType}\n";
             byte[] bytes = Encoding.UTF8.GetBytes(balloonMsg);
@@ -79,6 +85,7 @@ public class LocalPlayerController : MonoBehaviour
                 Debug.LogError($"[PlayerInput] 물풍선 설치 요청 실패: {ex.Message}");
             }
         }
+
     }
 
     void FixedUpdate()
