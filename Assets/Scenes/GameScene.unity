@@ -2771,6 +2771,10 @@ MonoBehaviour:
   - {fileID: 3592658087376646490, guid: e781f2158dbe38541af3613964c98fc4, type: 3}
   - {fileID: 3592658087376646490, guid: c5c561798ea497e489dcf4ae885de3d7, type: 3}
   - {fileID: 3592658087376646490, guid: 436c8a7446855204887764db9ca95aa8, type: 3}
+  waterPrefabs:
+  - {fileID: 863330603906094049, guid: 9beae2b5df805104d9812dee757837a8, type: 3}
+  - {fileID: 863330603906094049, guid: f3af337dc90b39e4da98ac02b8cc155a, type: 3}
+  - {fileID: 863330603906094049, guid: bab7a434326833649b4339078200aa65, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -10,7 +10,7 @@ public class GameSystem : MonoBehaviour
     public CharacterSystem playerManager;
     public Transform userInfoContent;
     public GameObject userInfo;
-
+    private HashSet<string> deadPlayers = new HashSet<string>(); // 중복 방지용
     private void Awake()
     {
         Instance = this;
@@ -116,6 +116,45 @@ public class GameSystem : MonoBehaviour
         {
             userHealthBar.maxValue = health;  // 최대 체력을 셋팅 (필요시)
             userHealthBar.value = health;     // 현재 체력 표시
+        }
+    }
+
+    public void DamagePlayer(string nickname, int damage)
+    {
+        GameObject uiObj = GameObject.Find($"UserInfo_{nickname}");
+        if (uiObj == null) return;
+
+        TMPro.TextMeshProUGUI healthText = uiObj.transform.Find("UserHealthText")?.GetComponent<TMPro.TextMeshProUGUI>();
+        UnityEngine.UI.Slider healthBar = uiObj.transform.Find("UserHealthBar")?.GetComponent<UnityEngine.UI.Slider>();
+
+        if (healthText == null || healthBar == null) return;
+
+        int currentHp = Mathf.RoundToInt(healthBar.value);
+        int newHp = Mathf.Max(currentHp - damage, 0);
+        healthBar.value = newHp;
+        healthText.text = $"HP: {newHp}";
+
+        if (newHp <= 0 && !deadPlayers.Contains(nickname))
+        {
+            deadPlayers.Add(nickname);
+            Debug.Log($"[GameSystem] {nickname} 캐릭터 체력 0, 서버에 사망 패킷 전송");
+            SendDeathPacket(nickname);
+        }
+    }
+
+    private async void SendDeathPacket(string nickname)
+    {
+        string msg = $"DEAD|{nickname}\n";
+        byte[] bytes = Encoding.UTF8.GetBytes(msg);
+
+        try
+        {
+            await NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
+            Debug.Log($"[GameSystem] 사망 패킷 전송 완료: {msg.Trim()}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[GameSystem] 사망 패킷 전송 실패: {ex.Message}");
         }
     }
 }

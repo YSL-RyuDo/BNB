@@ -393,8 +393,43 @@ public class NetworkConnector : MonoBehaviour
                     }
                     break;
                 }
+            case "PLACE_BALLOON_RESULT":
+                {
+                    BalloonSystem.Instance.HandleBalloonResult(message);
+                    break;
+                }
+            case "REMOVE_BALLOON":
+                {
+                    BalloonSystem.Instance.HandleRemoveBalloon(message);
+                    break;
+                }
+            case "WATER_SPREAD":
+                {
+                    BalloonSystem.Instance.HandleWaterSpread(message);
+                    break;
 
+                }
+            case "PLAYER_HIT":
+                {
+                    // 예시 메시지: PLAYER_HIT|nickname|10
+                    string[] parts1 = message.Split('|');
+                    if (parts1.Length < 3)
+                    {
+                        Debug.LogWarning("[GameSystem] PLAYER_HIT 메시지 형식 오류");
+                        break;
+                    }
 
+                    string hitPlayer = parts1[1];
+                    if (!int.TryParse(parts1[2], out int damage))
+                    {
+                        Debug.LogWarning("[GameSystem] PLAYER_HIT 데미지 파싱 실패");
+                        break;
+                    }
+
+                    GameSystem.Instance.DamagePlayer(hitPlayer, damage);
+                    Debug.Log($"[GameSystem] {hitPlayer}가 {damage}만큼 피해를 입었습니다");
+                    break;
+                }
 
             default:
                 Debug.LogWarning("알 수 없는 서버 명령: " + command);

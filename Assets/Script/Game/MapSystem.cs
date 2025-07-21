@@ -9,7 +9,7 @@ public class MapSystem : MonoBehaviour
     public GameObject[] map1Prefabs; // 0,1,2 프리팹
     //public GameObject[] map2Prefabs;
     // ...
-
+    int wallHeight = 5;
     private void Awake()
     {
         Instance = this;
@@ -88,7 +88,12 @@ public class MapSystem : MonoBehaviour
 
                         if (isBorder)
                         {
-                            tileIndex = 5; // 테두리 타일 (벽돌 등)
+                            for (int height = 1; height <= wallHeight; height++)
+                            {
+                                Vector3 pos = new Vector3(x, height, z);
+                                GameObject tile = Instantiate(tilePrefabs[5], pos, Quaternion.identity);
+                                tile.transform.SetParent(mapParent.transform);
+                            }
                         }
                         else
                         {
