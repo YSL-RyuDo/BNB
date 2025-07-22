@@ -1,7 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 using System.Text;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using System.Threading.Tasks;
+
+//using UnityEngine.UIElements;
+
 
 public class GameSystem : MonoBehaviour
 {
@@ -11,6 +18,15 @@ public class GameSystem : MonoBehaviour
     public Transform userInfoContent;
     public GameObject userInfo;
     private HashSet<string> deadPlayers = new HashSet<string>(); // 중복 방지용
+
+    public GameObject gameResultPanel;           // 인스펙터에서 할당
+    public TextMeshProUGUI winnerText;           // WinnerText 오브젝트
+    public GameObject userResultPrefab;          // UserResult 프리팹
+    public Transform userResultParent;
+    public Button lobbyButton;
+    private string winnerNickname = "";
+    private Dictionary<string, RewardData> rewardMap = new Dictionary<string, RewardData>();
+    
     private void Awake()
     {
         Instance = this;
@@ -18,6 +34,7 @@ public class GameSystem : MonoBehaviour
 
     async void Start()
     {
+        gameResultPanel.SetActive(false);
         string nickName = NetworkConnector.Instance.UserNickname;
         string currentRoomLeader = NetworkConnector.Instance.CurrentRoomLeader;
         string roomName = NetworkConnector.Instance.CurrentRoomName;
@@ -40,6 +57,8 @@ public class GameSystem : MonoBehaviour
         string getBalloonMsg = $"GET_BALLOON|{nickName}\n";
         byte[] getBalloonBytes = Encoding.UTF8.GetBytes(getBalloonMsg);
         await NetworkConnector.Instance.Stream.WriteAsync(getBalloonBytes, 0, getBalloonBytes.Length);
+
+        lobbyButton.onClick.AddListener(() => OnLobbyButtonClicked(nickName));
     }
 
     public void HandleMoveResult(string message)
@@ -102,6 +121,8 @@ public class GameSystem : MonoBehaviour
             return;
         }
 
+
+
         GameObject uiObj = Instantiate(userInfo, userInfoContent);
         uiObj.name = $"UserInfo_{playerId}";
 
@@ -137,12 +158,12 @@ public class GameSystem : MonoBehaviour
         healthBar.value = newHp;
         healthText.text = $"HP: {newHp}";
 
-        if (newHp <= 0 && !deadPlayers.Contains(nickname))
+        if (newHp <= 0)
         {
-            deadPlayers.Add(nickname);
             Debug.Log($"[GameSystem] {nickname} 캐릭터 체력 0, 서버에 사망 패킷 전송");
             SendDeathPacket(nickname);
         }
+
     }
 
     private async void SendDeathPacket(string nickname)
@@ -160,4 +181,178 @@ public class GameSystem : MonoBehaviour
             Debug.LogError($"[GameSystem] 사망 패킷 전송 실패: {ex.Message}");
         }
     }
+
+    public void HandlePlayerDeath(string nickname)
+    {
+        deadPlayers.Add(nickname);
+
+        // 체력 텍스트를 "패배"로 변경
+        GameObject uiObj = GameObject.Find($"UserInfo_{nickname}");
+        if (uiObj != null)
+        {
+            TMPro.TextMeshProUGUI healthText = uiObj.transform.Find("UserHealthText")?.GetComponent<TMPro.TextMeshProUGUI>();
+            if (healthText != null)
+            {
+                healthText.text = "패배";
+            }
+        }
+
+        // 캐릭터 비활성화
+        GameObject target = GameObject.Find($"Character_{nickname}");
+        if (target != null)
+        {
+            target.SetActive(false);
+        }
+    }
+    public void HandleGameResult(string winnerNickname)
+    {
+        GameObject uiObj = GameObject.Find($"UserInfo_{winnerNickname}");
+        if (uiObj != null)
+        {
+            TMPro.TextMeshProUGUI healthText = uiObj.transform.Find("UserHealthText")?.GetComponent<TMPro.TextMeshProUGUI>();
+            if (healthText != null)
+            {
+                healthText.text = "승리";
+            }
+        }
+    }
+
+    public void SetRewardMap(Dictionary<string, RewardData> map)
+    {
+        rewardMap = map;
+    }
+
+    public void SetWinner(string winner)
+    {
+        winnerNickname = winner;
+    }
+
+    public void OpenResultPanel()
+    {
+        gameResultPanel.SetActive(true);
+        winnerText.text = $"Winner {winnerNickname}";
+
+        foreach (Transform child in userResultParent)
+        {
+            Destroy(child.gameObject);
+        }
+
+        foreach (string nick in NetworkConnector.Instance.CurrentUserList)
+        {
+            GameObject obj = Instantiate(userResultPrefab, userResultParent);
+            obj.name = $"UserResult_{nick}";
+
+            var nameText = obj.transform.Find("NameText")?.GetComponent<TextMeshProUGUI>();
+            var levelText = obj.transform.Find("LevelText")?.GetComponent<TextMeshProUGUI>();
+            var expText = obj.transform.Find("EXPText")?.GetComponent<TextMeshProUGUI>();
+            var coin1Text = obj.transform.Find("Coin1Text")?.GetComponent<TextMeshProUGUI>();
+            var coin2Text = obj.transform.Find("Coin2Text")?.GetComponent<TextMeshProUGUI>();
+            var lobbyToggle = obj.transform.Find("LobbyToggle")?.GetComponent<Toggle>();
+            var lobbyButton = obj.transform.Find("LobbyButton")?.GetComponent<Button>();
+            if (nameText != null)
+            {
+                nameText.text = nick;
+                nameText.color = (nick == winnerNickname) ? UnityEngine.Color.yellow : UnityEngine.Color.black;
+            }
+
+            if (lobbyToggle != null)
+            {
+                lobbyToggle.isOn = false;
+                lobbyToggle.interactable = true;
+
+                lobbyToggle.onValueChanged.AddListener(isOn =>
+                {
+                    if (isOn)
+                    {
+                        _ = SendReadyToExitAsync(nick);
+                    }
+                });
+            }
+
+
+            if (rewardMap != null && rewardMap.TryGetValue(nick, out RewardData data))
+            {
+                if (levelText != null) levelText.text = $"Lv {data.level}";
+                if (expText != null) expText.text = $"EXP {data.exp}";
+                if (coin1Text != null) coin1Text.text = $"Coins {data.coin0:N0}";
+                if (coin2Text != null) coin2Text.text = $"Medals {data.coin1:N0}";
+            }
+            else
+            {
+                if (levelText != null) levelText.text = "Lv 1";
+                if (expText != null) expText.text = "EXP 0";
+                if (coin1Text != null) coin1Text.text = "Coins 0";
+                if (coin2Text != null) coin2Text.text = "Medals 0";
+            }
+        }
+    }
+
+    public void OnLobbyButtonClicked(string targetNickname)
+    {
+        string targetName = $"UserResult_{targetNickname}";
+        Transform targetUserResult = userResultParent.Find(targetName);
+
+        if (targetUserResult != null)
+        {
+            var toggle = targetUserResult.Find("LobbyToggle")?.GetComponent<Toggle>();
+            if (toggle != null)
+            {
+                toggle.isOn = true;
+                toggle.interactable = false;
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"UserResult_{targetNickname}를 찾을 수 없습니다.");
+        }
+    }
+
+
+    private async Task SendReadyToExitAsync(string nickname)
+    {
+        string readyMsg = $"READY_TO_EXIT|{nickname}\n";
+        byte[] readyBytes = Encoding.UTF8.GetBytes(readyMsg);
+
+        var stream = NetworkConnector.Instance.Stream;
+        if (stream != null && stream.CanWrite)
+        {
+            await stream.WriteAsync(readyBytes, 0, readyBytes.Length);
+        }
+    }
+
+    public void HandleReadyToExitMessage(string message)
+    {
+        if (this == null || gameObject == null || userResultParent == null)
+        {
+            Debug.Log("HandleReadyToExitMessage 호출 시 오브젝트가 이미 파괴됨");
+            return;
+        }
+
+        // 메시지 포맷: READY_TO_EXIT|nickname
+        var parts = message.Split('|');
+        if (parts.Length < 2)
+        {
+            Debug.LogWarning("READY_TO_EXIT 메시지 파싱 실패");
+            return;
+        }
+
+        string nickname = parts[1];
+
+        // userResultParent는 UserResult UI가 붙는 부모 Transform
+        Transform targetUserResult = userResultParent.Find($"UserResult_{nickname}");
+        if (targetUserResult != null)
+        {
+            Toggle lobbyToggle = targetUserResult.Find("LobbyToggle")?.GetComponent<Toggle>();
+            if (lobbyToggle != null)
+            {
+                lobbyToggle.isOn = true;         // 토글 켜기
+                lobbyToggle.interactable = false; // 유저가 직접 조작 못하게 막기
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"UserResult_{nickname} UI를 찾을 수 없습니다.");
+        }
+    }
+
 }

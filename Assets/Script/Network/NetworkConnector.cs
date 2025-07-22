@@ -8,6 +8,7 @@ using System.Text;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using System.IO;
+using System.Linq;
 public class NetworkConnector : MonoBehaviour
 {
     private TcpClient _client;
@@ -17,17 +18,33 @@ public class NetworkConnector : MonoBehaviour
     public NetworkStream Stream => _stream;
 
     public static NetworkConnector Instance { get; private set; }
-    public string UserNickname { get; set; }
-    public string SelectedMap { get; set; }
-    public string CurrentRoomName { get; set; }
+    [Header("Room Info")]
+    [SerializeField] private string userNickname;
+    [SerializeField] private string selectedMap;
+    [SerializeField] private string currentRoomName;
+    [SerializeField] private string currentRoomLeader;
+    [SerializeField] private string pendingRoomEnterMessage;
 
-    public string CurrentRoomLeader { get; set; }
+    [Header("User Lists")]
+    [SerializeField] private List<string> currentUserList = new List<string>();
+    [SerializeField] private List<UserCharacterEntry> userCharacterEntries = new List<UserCharacterEntry>();
 
-    public List<string> CurrentUserList = new List<string>();
+    public string UserNickname { get => userNickname; set => userNickname = value; }
+    public string SelectedMap { get => selectedMap; set => selectedMap = value; }
+    public string CurrentRoomName { get => currentRoomName; set => currentRoomName = value; }
+    public string CurrentRoomLeader { get => currentRoomLeader; set => currentRoomLeader = value; }
+    public string PendingRoomEnterMessage { get => pendingRoomEnterMessage; set => pendingRoomEnterMessage = value; }
 
-    public Dictionary<string, int> CurrentUserCharacterIndices = new Dictionary<string, int>();
+    public List<string> CurrentUserList { get => currentUserList; set => currentUserList = value; }
+    public Dictionary<string, int> CurrentUserCharacterIndices =>
+        userCharacterEntries.ToDictionary(e => e.nickname, e => e.characterIndex);
 
-    public string PendingRoomEnterMessage { get; set; }
+    [Serializable]
+    public class UserCharacterEntry
+    {
+        public string nickname;
+        public int characterIndex;
+    }
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -93,7 +110,6 @@ public class NetworkConnector : MonoBehaviour
             completeMessage.Append(splitMessages[splitMessages.Length - 1]);
         }
     }
-
 
     private void HandleServerMessage(string message)
     {
@@ -430,11 +446,81 @@ public class NetworkConnector : MonoBehaviour
                     Debug.Log($"[GameSystem] {hitPlayer}가 {damage}만큼 피해를 입었습니다");
                     break;
                 }
+            case "PLAYER_DEAD":
+                {
+                    string nickname = parts[1];
+                    Debug.Log($"[Game] 플레이어 사망 처리: {nickname}");
 
+                    GameSystem.Instance.HandlePlayerDeath(nickname);
+                    break;
+                }
+            case "WIN":
+                {
+                    string winnerNickname = parts[1].Trim();
+                    Debug.Log($"[Game] 승리자: {winnerNickname}");
+                    GameSystem.Instance.SetWinner(winnerNickname);
+                    GameSystem.Instance.HandleGameResult(winnerNickname);
+                    break;
+                }
+            case "REWARD_RESULT":
+                {
+                    string[] rewards = message.Substring("REWARD_RESULT|".Length).Split('|');
+
+                    // 유저별 보상 메시지를 저장할 Dictionary
+                    Dictionary<string, RewardData> rewardMap = new Dictionary<string, RewardData>();
+
+                    foreach (string reward in rewards)
+                    {
+                        string[] resultToken = reward.Split(',');
+                        string nick = resultToken[0];
+
+                        int level = 1, exp = 0, coin0 = 0, coin1 = 0;
+
+                        foreach (string kvStr in resultToken.Skip(1))
+                        {
+                            var kv = kvStr.Split(':');
+                            if (kv.Length != 2) continue;
+
+                            switch (kv[0])
+                            {
+                                case "level": level = int.Parse(kv[1]); break;
+                                case "exp": exp = int.Parse(kv[1]); break;
+                                case "money0": coin0 = int.Parse(kv[1]); break;
+                                case "money1": coin1 = int.Parse(kv[1]); break;
+                            }
+                        }
+
+                        rewardMap[nick] = new RewardData(level, exp, coin0, coin1);
+                    }
+
+                    // GameSystem에 rewardMap 전달
+                    GameSystem.Instance.SetRewardMap(rewardMap);
+
+                    // 결과 패널 열기
+                    GameSystem.Instance.OpenResultPanel();
+
+                    break;
+                }
+            case "READY_TO_EXIT":
+                {
+                    GameSystem.Instance.HandleReadyToExitMessage(message);
+                    break;
+                }
+            case "GAME_END":
+                {
+                    HandleGameEndAsync();
+                    break;
+                }
             default:
                 Debug.LogWarning("알 수 없는 서버 명령: " + command);
                 break;
         }
+    }
+
+    private async void HandleGameEndAsync()
+    {
+        await Task.Delay(1000); // 1초 대기
+        UnityEngine.SceneManagement.SceneManager.LoadScene("RoomScene");
     }
 
     private void OnRoomSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -488,7 +574,27 @@ public class NetworkConnector : MonoBehaviour
         }
     }
 
+    public void SetUserCharacterIndices(Dictionary<string, int> dict)
+    {
+        userCharacterEntries = dict.Select(pair => new UserCharacterEntry
+        {
+            nickname = pair.Key,
+            characterIndex = pair.Value
+        }).ToList();
+    }
 
+    public void SetOrUpdateUserCharacter(string nickname, int characterIndex)
+    {
+        var entry = userCharacterEntries.Find(e => e.nickname == nickname);
+        if (entry != null)
+        {
+            entry.characterIndex = characterIndex;
+        }
+        else
+        {
+            userCharacterEntries.Add(new UserCharacterEntry() { nickname = nickname, characterIndex = characterIndex });
+        }
+    }
 
     private void OnApplicationQuit()
     {

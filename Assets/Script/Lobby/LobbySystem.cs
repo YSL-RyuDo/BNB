@@ -186,12 +186,13 @@ public class LobbySystem : MonoBehaviour
 
         userNameText.text = nickname;
         userLevelText.text = $"Level {level}";
-
+        maxExp = level * 100;
         float currentExp = Mathf.Clamp(exp, 0f, maxExp);
+        float percent = (maxExp > 0f) ? (currentExp / maxExp) * 100f : 0f;
         userExpBar.maxValue = maxExp;
         userExpBar.value = currentExp;
 
-        userExpText.text = $"{currentExp:0.0}";
+        userExpText.text = $"{percent:0.0}%";
     }
 
     public void HandleRoomListMessage(string message)
@@ -324,7 +325,8 @@ public class LobbySystem : MonoBehaviour
 
         NetworkConnector.Instance.CurrentUserList = userList;
 
-        NetworkConnector.Instance.CurrentUserCharacterIndices = characterIndexMap;
+        //NetworkConnector.Instance.CurrentUserCharacterIndices = characterIndexMap;
+        NetworkConnector.Instance.SetUserCharacterIndices(characterIndexMap);
 
         Sprite sprite = GetSpriteForMap(mapName);
 

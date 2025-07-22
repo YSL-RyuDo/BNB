@@ -13,7 +13,7 @@ public class LocalPlayerController : MonoBehaviour
     private string myNick;
     private bool hasSentWaterHit = false;
     private Vector3 lastBalloonPos = Vector3.positiveInfinity;
-
+    public bool isDead = false;
     void Start()
     {
         myNick = NetworkConnector.Instance.UserNickname;

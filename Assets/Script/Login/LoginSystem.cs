@@ -66,7 +66,6 @@ public class LoginSystem : MonoBehaviour
 #endif
     }
 
-
     public void HandleLoginMessage(string message)
     {
         LoginSystem loginManager = GameObject.FindObjectOfType<LoginSystem>();
