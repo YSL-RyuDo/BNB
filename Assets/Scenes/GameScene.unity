@@ -1409,7 +1409,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 1, g: 1, b: 1, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -1423,7 +1423,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 727566319}
   m_OnClick:
     m_PersistentCalls:
@@ -1888,7 +1888,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 1, g: 1, b: 1, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -1902,7 +1902,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 1212058471}
   m_OnClick:
     m_PersistentCalls:
@@ -2888,7 +2888,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 983
+    m_Bits: 2007
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -3391,6 +3391,7 @@ GameObject:
   - component: {fileID: 2119840885}
   - component: {fileID: 2119840886}
   - component: {fileID: 2119840887}
+  - component: {fileID: 2119840888}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -3472,6 +3473,30 @@ MonoBehaviour:
   - {fileID: 5352958571798197664, guid: c18b0be8daba89f418afc4ca77e534e1, type: 3}
   - {fileID: 5352958571798197664, guid: 08e7c1cd1a88a824993e6c8e06786677, type: 3}
   - {fileID: 5352958571798197664, guid: 1507ec202fc7dde4a9ff954a2a2d2754, type: 3}
+  characterAliveImage:
+  - {fileID: 21300000, guid: ede82c12df98e2a49aade8a6e17ba4d4, type: 3}
+  - {fileID: 21300000, guid: 08d66caf983108d4e9dd981725123009, type: 3}
+  - {fileID: 21300000, guid: 7ee18a2ddaedb6942890929a5384e747, type: 3}
+  - {fileID: 21300000, guid: 6786f5317d17c2d4e9c99013d86d28a0, type: 3}
+  - {fileID: 21300000, guid: 8529bbd34e1ed394ba23393c6bd0cc67, type: 3}
+  - {fileID: 21300000, guid: 23ab34c335d605140b76d225892df00c, type: 3}
+  - {fileID: 21300000, guid: b3f77e15026b06f47a903feb94bfb0ad, type: 3}
+  characterDeathImage:
+  - {fileID: 21300000, guid: 3855ec74dc8e9714885dd03b6da9068c, type: 3}
+  - {fileID: 21300000, guid: 537d2d3f935eebf49a6c2c49dd9ba801, type: 3}
+  - {fileID: 21300000, guid: a83c8507c5a63904f8aa3d00030eb494, type: 3}
+  - {fileID: 21300000, guid: 45c6b553fc7f4194fa1777af054437a3, type: 3}
+  - {fileID: 21300000, guid: 623c2c4ac9af24e40ae7ea218c8e5710, type: 3}
+  - {fileID: 21300000, guid: 6ba463369a95d5c4592ad64083e654e8, type: 3}
+  - {fileID: 21300000, guid: ff1f112aba7dc8c489ca5bf26d1a6b32, type: 3}
+  characterWinImage:
+  - {fileID: 21300000, guid: 7f2b662bcaedaa547b40d67840eb1dd9, type: 3}
+  - {fileID: 21300000, guid: 103a0de51848c8d42bbaa946655d6bef, type: 3}
+  - {fileID: 21300000, guid: 09dc2db8a3ea4514fa50fa9ed2f94cdd, type: 3}
+  - {fileID: 21300000, guid: 5195125c6a1e5ec4a96a800f5df57b1d, type: 3}
+  - {fileID: 21300000, guid: e01a14bf2576c924f9498d4a3bf72f25, type: 3}
+  - {fileID: 21300000, guid: 989b50715e3c4734c90a7388c23329c7, type: 3}
+  - {fileID: 21300000, guid: 1200e7c864e00db48ad92d8c9ae52f47, type: 3}
 --- !u!114 &2119840886
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3520,6 +3545,36 @@ MonoBehaviour:
   - {fileID: 863330603906094049, guid: 9beae2b5df805104d9812dee757837a8, type: 3}
   - {fileID: 863330603906094049, guid: f3af337dc90b39e4da98ac02b8cc155a, type: 3}
   - {fileID: 863330603906094049, guid: bab7a434326833649b4339078200aa65, type: 3}
+--- !u!114 &2119840888
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2119840881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2ae323e867221d4e90735d8af96f355, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponButton: {fileID: 1212058470}
+  weaponImageArray:
+  - {fileID: 21300000, guid: 5882147e94eef6741a2d0d5f3b9d5642, type: 3}
+  - {fileID: 21300000, guid: 71d870970880b414daf9e13fc931156b, type: 3}
+  - {fileID: 21300000, guid: f15eaf213d0434a40aa1897f3285fb19, type: 3}
+  - {fileID: 21300000, guid: 2c0a9e9f2b31fc6498faccc50a6a3d46, type: 3}
+  - {fileID: 21300000, guid: 3082a9e50a0789f46966f8154675b4a7, type: 3}
+  - {fileID: 21300000, guid: 0097b5b5200d28042901245bf470d4fe, type: 3}
+  - {fileID: 21300000, guid: 100d38074fb6e2944a41bc5d397ff61b, type: 3}
+  weaponPrefabs:
+  - {fileID: 5930707284331121015, guid: 0b3ce33617c22c24b91104966dbccef4, type: 3}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  isCooldown: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

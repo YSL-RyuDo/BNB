@@ -409,6 +409,50 @@ public class NetworkConnector : MonoBehaviour
                     }
                     break;
                 }
+
+            case "WEAPON_ATTACK":
+                {
+                    if (parts.Length < 5)
+                    {
+                        Debug.LogWarning("[WEAPON_ATTACK] 메시지 포맷 오류");
+                        break;
+                    }
+
+                    string attackerNick = parts[1];
+                    int charIndex = int.Parse(parts[2]);
+
+                    // 위치 파싱
+                    string[] posTokens = parts[3].Split(',');
+                    if (posTokens.Length != 3)
+                    {
+                        Debug.LogWarning("[WEAPON_ATTACK] 위치 파싱 오류");
+                        break;
+                    }
+                    Vector3 attackPos = new Vector3(
+                        float.Parse(posTokens[0]),
+                        float.Parse(posTokens[1]),
+                        float.Parse(posTokens[2])
+                    );
+
+                    // 회전 Y 파싱
+                    float rotY = float.Parse(parts[4]);
+                    Quaternion attackRot = Quaternion.Euler(0f, rotY, 0f);
+
+                    WeaponSystem.Instance.HandleRemoteWeaponAttack(attackerNick, charIndex, attackPos, attackRot);
+                    Debug.Log($"[WEAPON_ATTACK] {attackerNick} 캐릭터 {charIndex} 무기 공격 생성됨");
+
+                    break;
+                }
+            case "DAMAGE":
+                {
+                    string targetNick = parts[1];
+                    int damage = int.Parse(parts[2]);
+
+                    GameSystem.Instance.DamagePlayer(targetNick, damage);
+                    break;
+                }
+
+
             case "PLACE_BALLOON_RESULT":
                 {
                     BalloonSystem.Instance.HandleBalloonResult(message);

@@ -9,6 +9,8 @@ TagManager:
   - Wall
   - Balloon
   - Water
+  - Sword
+  - Weapon
   layers:
   - Default
   - TransparentFX
@@ -20,7 +22,7 @@ TagManager:
   - Ground
   - Wall
   - Block
-  - 
+  - Sword
   - 
   - 
   - 

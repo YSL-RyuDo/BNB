@@ -26,7 +26,8 @@ public class GameSystem : MonoBehaviour
     public Button lobbyButton;
     private string winnerNickname = "";
     private Dictionary<string, RewardData> rewardMap = new Dictionary<string, RewardData>();
-    
+    private Dictionary<string, float> lastHitTimes = new Dictionary<string, float>(); // 닉네임 → 마지막 피격 시간
+    private float hitCooldown = 1.0f; // 무적 시간 (초)
     private void Awake()
     {
         Instance = this;
@@ -121,14 +122,12 @@ public class GameSystem : MonoBehaviour
             return;
         }
 
-
-
         GameObject uiObj = Instantiate(userInfo, userInfoContent);
         uiObj.name = $"UserInfo_{playerId}";
-
-        TMPro.TextMeshProUGUI nameText = uiObj.transform.Find("UserNameText")?.GetComponent<TMPro.TextMeshProUGUI>();
-        TMPro.TextMeshProUGUI healthText = uiObj.transform.Find("UserHealthText")?.GetComponent<TMPro.TextMeshProUGUI>();
-        UnityEngine.UI.Slider userHealthBar = uiObj.transform.Find("UserHealthBar")?.GetComponent<UnityEngine.UI.Slider>();
+        Image characterImage = uiObj.transform.Find("CharacterImage")?.GetComponent<Image>();
+        TextMeshProUGUI nameText = uiObj.transform.Find("UserNameText")?.GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI healthText = uiObj.transform.Find("UserHealthText")?.GetComponent<TextMeshProUGUI>();
+        Slider userHealthBar = uiObj.transform.Find("UserHealthBar")?.GetComponent<Slider>();
 
         if (nameText != null)
             nameText.text = playerId;
@@ -141,10 +140,40 @@ public class GameSystem : MonoBehaviour
             userHealthBar.maxValue = health;  // 최대 체력을 셋팅 (필요시)
             userHealthBar.value = health;     // 현재 체력 표시
         }
+
+        if (characterImage != null && CharacterSystem.Instance != null)
+        {
+            Sprite[] aliveImages = CharacterSystem.Instance.characterAliveImage;
+
+            if (charIndex >= 0 && charIndex < aliveImages.Length)
+            {
+                characterImage.sprite = aliveImages[charIndex];
+            }
+            else
+            {
+                Debug.LogWarning($"charIndex {charIndex} 가 aliveImages 범위를 벗어남");
+            }
+        }
     }
+
 
     public void DamagePlayer(string nickname, int damage)
     {
+        float now = Time.time;
+
+        // 최근 피격 시간 확인
+        if (lastHitTimes.TryGetValue(nickname, out float lastTime))
+        {
+            if (now - lastTime < hitCooldown)
+            {
+                Debug.Log($"[GameSystem] {nickname} 피격 쿨타임 중 (무시)");
+                return; // 쿨타임 동안은 무시
+            }
+        }
+
+        // 피격 시간 갱신
+        lastHitTimes[nickname] = now;
+
         GameObject uiObj = GameObject.Find($"UserInfo_{nickname}");
         if (uiObj == null) return;
 
@@ -163,7 +192,6 @@ public class GameSystem : MonoBehaviour
             Debug.Log($"[GameSystem] {nickname} 캐릭터 체력 0, 서버에 사망 패킷 전송");
             SendDeathPacket(nickname);
         }
-
     }
 
     private async void SendDeathPacket(string nickname)
@@ -186,7 +214,6 @@ public class GameSystem : MonoBehaviour
     {
         deadPlayers.Add(nickname);
 
-        // 체력 텍스트를 "패배"로 변경
         GameObject uiObj = GameObject.Find($"UserInfo_{nickname}");
         if (uiObj != null)
         {
@@ -194,6 +221,28 @@ public class GameSystem : MonoBehaviour
             if (healthText != null)
             {
                 healthText.text = "패배";
+            }
+
+            Image characterImage = uiObj.transform.Find("CharacterImage")?.GetComponent<Image>();
+            if (characterImage != null && CharacterSystem.Instance != null)
+            {
+                int charIndex = 0;
+                if (NetworkConnector.Instance.CurrentUserCharacterIndices.TryGetValue(nickname, out int index))
+                {
+                    charIndex = index;
+                }
+
+                Sprite[] daathImages = CharacterSystem.Instance.characterDeathImage;
+
+                if (charIndex >= 0 && charIndex < daathImages.Length)
+                {
+                    characterImage.sprite = daathImages[charIndex];
+                }
+                else
+                {
+                    Debug.LogWarning($"charIndex {charIndex} 가 aliveImages 범위를 벗어남");
+
+                }
             }
         }
 
@@ -241,7 +290,7 @@ public class GameSystem : MonoBehaviour
         {
             GameObject obj = Instantiate(userResultPrefab, userResultParent);
             obj.name = $"UserResult_{nick}";
-
+            var characterImage = obj.transform.Find("CharacterImage")?.GetComponent<Image>();
             var nameText = obj.transform.Find("NameText")?.GetComponent<TextMeshProUGUI>();
             var levelText = obj.transform.Find("LevelText")?.GetComponent<TextMeshProUGUI>();
             var expText = obj.transform.Find("EXPText")?.GetComponent<TextMeshProUGUI>();
@@ -249,6 +298,37 @@ public class GameSystem : MonoBehaviour
             var coin2Text = obj.transform.Find("Coin2Text")?.GetComponent<TextMeshProUGUI>();
             var lobbyToggle = obj.transform.Find("LobbyToggle")?.GetComponent<Toggle>();
             var lobbyButton = obj.transform.Find("LobbyButton")?.GetComponent<Button>();
+
+            if (characterImage != null && CharacterSystem.Instance != null)
+            {
+                int charIndex = 0;
+                NetworkConnector.Instance.CurrentUserCharacterIndices.TryGetValue(nick, out charIndex);
+
+                if (nick == winnerNickname)
+                {
+                    if (charIndex >= 0 && charIndex < CharacterSystem.Instance.characterWinImage.Length)
+                    {
+                        characterImage.sprite = CharacterSystem.Instance.characterWinImage[charIndex];
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[결과 이미지] WinImage 범위 초과: {charIndex}");
+                    }
+                }
+                else
+                {
+                    if (charIndex >= 0 && charIndex < CharacterSystem.Instance.characterDeathImage.Length)
+                    {
+                        characterImage.sprite = CharacterSystem.Instance.characterDeathImage[charIndex];
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[결과 이미지] DeathImage 범위 초과: {charIndex}");
+                    }
+                }
+            }
+
+
             if (nameText != null)
             {
                 nameText.text = nick;

@@ -11,6 +11,9 @@ public class CharacterSystem : MonoBehaviour
     private Dictionary<string, GameObject> playerCharacters = new Dictionary<string, GameObject>();
     private Dictionary<string, Vector3> targetPositions = new Dictionary<string, Vector3>();
 
+    public Sprite[] characterAliveImage;
+    public Sprite[] characterDeathImage;
+    public Sprite[] characterWinImage;
     private void Awake()
     {
         Instance = this;

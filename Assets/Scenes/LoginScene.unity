@@ -2310,7 +2310,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 791efb2fb02ca6348957e5da7363efa2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrentUserList: []
+  userNickname: 
+  selectedMap: 
+  currentRoomName: 
+  currentRoomLeader: 
+  pendingRoomEnterMessage: 
+  currentUserList: []
+  userCharacterEntries: []
 --- !u!4 &861810029
 Transform:
   m_ObjectHideFlags: 0
