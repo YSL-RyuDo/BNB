@@ -156,7 +156,7 @@ public class GameSystem : MonoBehaviour
         }
     }
 
-
+    
     public void DamagePlayer(string nickname, int damage)
     {
         float now = Time.time;

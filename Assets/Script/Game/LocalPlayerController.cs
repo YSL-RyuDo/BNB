@@ -95,6 +95,122 @@ public class LocalPlayerController : MonoBehaviour
                                 Debug.Log("[Sword Attack] 캐릭터 인덱스 0번 → 검 휘두름");
                             }
                         }
+                        else if(idx == 1)
+                        {
+                            GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
+                            if (prefab != null)
+                            {
+                                Vector3 attackPosition = transform.position + transform.forward * 1.5f + Vector3.up * 0.5f;
+                                Quaternion attackRotation = transform.rotation;
+
+                                GameObject arrow = Instantiate(prefab, attackPosition, attackRotation);
+
+                                arrow.transform.parent = null;
+                                arrow.name = $"{myNick}_Arrow";
+
+                                string msg = $"WEAPON_ATTACK|{myNick}|{idx}|{attackPosition.x:F2},{attackPosition.y:F2},{attackPosition.z:F2}|{attackRotation.eulerAngles.y:F2}\n";
+                                byte[] bytes = Encoding.UTF8.GetBytes(msg);
+                                try
+                                {
+                                    NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
+                                    Debug.Log($"[Send] 공격 패킷 전송: {msg.Trim()}");
+                                }
+                                catch (System.Exception ex)
+                                {
+                                    Debug.LogError($"[Send] 공격 패킷 전송 실패: {ex.Message}");
+                                }
+
+                                WeaponSystem.Instance.StartCooldown(1.5f);
+                            }
+                        }
+                        else if(idx ==2)
+                        {
+                            GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
+                            if (prefab != null)
+                            {
+                                Vector3 attackPosition = transform.position + transform.forward * 1.5f + Vector3.up * 0.5f;
+                                Quaternion attackRotation = transform.rotation;
+
+                                GameObject spell = Instantiate(prefab, attackPosition, attackRotation);
+
+                                spell.transform.parent = null;
+                                spell.name = $"{myNick}_Spell";
+
+                                string msg = $"WEAPON_ATTACK|{myNick}|{idx}|{attackPosition.x:F2},{attackPosition.y:F2},{attackPosition.z:F2}|{attackRotation.eulerAngles.y:F2}\n";
+                                byte[] bytes = Encoding.UTF8.GetBytes(msg);
+                                try
+                                {
+                                    NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
+                                    Debug.Log($"[Send] 공격 패킷 전송: {msg.Trim()}");
+                                }
+                                catch (System.Exception ex)
+                                {
+                                    Debug.LogError($"[Send] 공격 패킷 전송 실패: {ex.Message}");
+                                }
+
+                                WeaponSystem.Instance.StartCooldown(1.5f);
+                            }
+                        }
+                        else if (idx == 3)
+                        {
+                            GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
+                            if (prefab != null)
+                            {
+                                Vector3 startOffset = -transform.right * 1.5f + Vector3.up * 0.5f;
+                                GameObject mace = Instantiate(prefab, transform.position + startOffset, Quaternion.identity);
+                                mace.transform.parent = null;
+                                mace.name = $"{myNick}_Mace";
+
+                                Mace maceScript = mace.GetComponent<Mace>();
+                                if (maceScript != null)
+                                {
+                                    maceScript.swingDuration = 0.5f;
+                                    maceScript.targetTransform = transform; // 캐릭터 Transform 넘김
+                                    maceScript.attackerNick = myNick;
+                                }
+
+                                string msg = $"WEAPON_ATTACK|{myNick}|{idx}|{transform.position.x:F2},{transform.position.y:F2},{transform.position.z:F2}|{transform.eulerAngles.y:F2}\n";
+                                byte[] bytes = Encoding.UTF8.GetBytes(msg);
+                                NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
+
+                                WeaponSystem.Instance.StartCooldown(1.5f);
+                                Debug.Log("[Mace Attack] 캐릭터 인덱스 3번 → 원형 공격");
+                            }
+                        }
+                        else if(idx==4)
+                        {
+                            GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
+                            if (prefab != null)
+                            {
+                                Vector3 attackPosition = transform.position + transform.forward * 1.5f + Vector3.up * 0.5f;
+                                Quaternion attackRotation = transform.rotation;
+
+                                GameObject melody = Instantiate(prefab, attackPosition, attackRotation);
+
+                                melody.transform.parent = null;
+                                melody.name = $"{myNick}_Melody";
+
+                                Melody melodyScript = melody.GetComponent<Melody>();
+                                if (melodyScript != null)
+                                {
+                                    melodyScript.attackerNick = myNick;
+                                }
+
+                                string msg = $"WEAPON_ATTACK|{myNick}|{idx}|{attackPosition.x:F2},{attackPosition.y:F2},{attackPosition.z:F2}|{attackRotation.eulerAngles.y:F2}\n";
+                                byte[] bytes = Encoding.UTF8.GetBytes(msg);
+                                try
+                                {
+                                    NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
+                                    Debug.Log($"[Send] 공격 패킷 전송: {msg.Trim()}");
+                                }
+                                catch (System.Exception ex)
+                                {
+                                    Debug.LogError($"[Send] 공격 패킷 전송 실패: {ex.Message}");
+                                }
+
+                                WeaponSystem.Instance.StartCooldown(1.5f);
+                            }
+                        }
                     }
                 }
                 else

@@ -451,6 +451,59 @@ public class NetworkConnector : MonoBehaviour
                     GameSystem.Instance.DamagePlayer(targetNick, damage);
                     break;
                 }
+            case "MELODY_MOVE":
+                {
+                    if (parts.Length < 4)
+                    {
+                        Debug.LogWarning("[MELODY_MOVE] 메시지 포맷 오류");
+                        break;
+                    }
+
+                    string attackerNick = parts[1];
+
+                    // 위치 파싱
+                    string[] posTokens = parts[2].Split(',');
+                    if (posTokens.Length != 3)
+                    {
+                        Debug.LogWarning("[MELODY_MOVE] 위치 파싱 오류");
+                        break;
+                    }
+
+                    Vector3 pos = new Vector3(
+                        float.Parse(posTokens[0]),
+                        float.Parse(posTokens[1]),
+                        float.Parse(posTokens[2])
+                    );
+
+                    // 회전 Y 파싱
+                    float rotY = float.Parse(parts[3]);
+                    Quaternion rot = Quaternion.Euler(0f, rotY, 0f);
+
+                    // Melody 오브젝트 위치 갱신
+                    GameObject melodyObj = GameObject.Find($"{attackerNick}_Melody");
+                    if (melodyObj != null)
+                    {
+                        melodyObj.transform.position = pos;
+                        melodyObj.transform.rotation = rot;
+                        // Debug.Log($"[MELODY_MOVE] {attackerNick}의 Melody 위치 갱신");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[MELODY_MOVE] Melody 오브젝트를 찾을 수 없음: {attackerNick}_Melody");
+                    }
+
+                    break;
+                }
+            case "MELODY_DESTROY":
+                {
+                    string attackerNick = parts[1];
+                    GameObject obj = GameObject.Find($"{attackerNick}_Melody");
+                    if (obj != null)
+                        Destroy(obj);
+
+                    Debug.Log($"[Network] {attackerNick}의 Melody 오브젝트 제거됨");
+                    break;
+                }
 
 
             case "PLACE_BALLOON_RESULT":

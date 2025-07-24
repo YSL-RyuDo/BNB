@@ -10,7 +10,10 @@ TagManager:
   - Balloon
   - Water
   - Sword
-  - Weapon
+  - Arrow
+  - Spell
+  - Mace
+  - Melody
   layers:
   - Default
   - TransparentFX
@@ -23,10 +26,10 @@ TagManager:
   - Wall
   - Block
   - Sword
-  - 
-  - 
-  - 
-  - 
+  - Arrow
+  - Spell
+  - Mace
+  - Melody
   - 
   - 
   - 

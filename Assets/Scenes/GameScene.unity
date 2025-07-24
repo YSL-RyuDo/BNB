@@ -2888,7 +2888,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 2007
+    m_Bits: 32727
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -3568,10 +3568,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 100d38074fb6e2944a41bc5d397ff61b, type: 3}
   weaponPrefabs:
   - {fileID: 5930707284331121015, guid: 0b3ce33617c22c24b91104966dbccef4, type: 3}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 7181048710141952227, guid: cb90d7a06adc1d24f8a10098887a992f, type: 3}
+  - {fileID: 8006609819375455080, guid: 80e385136e567264791a30b8ebf4429a, type: 3}
+  - {fileID: 7824802446550354718, guid: 30bdbafb0f993664f87daa24ad667928, type: 3}
+  - {fileID: 7398553946676458905, guid: 9a82550d40b610f49a41c27669e8dc85, type: 3}
   - {fileID: 0}
   - {fileID: 0}
   isCooldown: 0

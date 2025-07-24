@@ -121,9 +121,58 @@ public class WeaponSystem : MonoBehaviour
 
         string weaponName = "";
 
-        if (charIndex == 0) // 검이면
+        if (charIndex == 0)
+        {
             weaponName = $"{attackerNick}_Sword";
+        }
+        else if (charIndex == 1)
+        {
+            weaponName = $"{attackerNick}_Arrow";
+        }    
+        else if(charIndex==2)
+        {
+            weaponName = $"{attackerNick}_Spell";
+        }
+        else if(charIndex == 3)
+        {
+            weaponName = $"{attackerNick}_Mace";
 
+            Mace maceScript = weaponObj.GetComponent<Mace>();
+            if (maceScript != null)
+            {
+                maceScript.attackerNick = attackerNick;
+                maceScript.swingDuration = 0.5f;
+
+                GameObject attackerObj = GameObject.Find($"Character_{attackerNick}");
+                if (attackerObj != null)
+                    maceScript.targetTransform = attackerObj.transform;
+            }
+        }
+        else if (charIndex == 4)
+        {
+            weaponName = $"{attackerNick}_Melody";
+
+            Melody melodyScript = weaponObj.GetComponent<Melody>();
+            if (melodyScript != null)
+            {
+                if (attackerNick != NetworkConnector.Instance.UserNickname)
+                {
+                    Destroy(melodyScript); // 아예 컴포넌트 삭제
+                }
+                else
+                {
+                    melodyScript.attackerNick = attackerNick;
+                }
+            }
+        }
+        else if (charIndex == 5)
+        {
+            weaponName = $"{attackerNick}_Spell";
+        }
+        else if (charIndex == 6)
+        {
+            weaponName = $"{attackerNick}_Mace";
+        }
         weaponObj.name = weaponName;
         Debug.Log($"[WeaponSystem] 원격 공격: {attackerNick}, 캐릭터 {charIndex} 무기 생성");
     }
