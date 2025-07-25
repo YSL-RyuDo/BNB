@@ -7,7 +7,7 @@ public class MapSystem : MonoBehaviour
     public static MapSystem Instance;
 
     public GameObject[] map1Prefabs; // 0,1,2 ÇÁ¸®ÆÕ
-    //public GameObject[] map2Prefabs;
+    public GameObject[] map2Prefabs;
     // ...
     int wallHeight = 5;
     private void Awake()
@@ -25,7 +25,7 @@ public class MapSystem : MonoBehaviour
                 tilePrefabs = map1Prefabs;
                 break;
             case "Map2":
-                // tilePrefabs = map2Prefabs;
+                tilePrefabs = map2Prefabs;
                 break;
             default:
                 Debug.LogError("¾Ë ¼ö ¾ø´Â ¸Ê ÀÌ¸§: " + mapName);

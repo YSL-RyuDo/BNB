@@ -3453,6 +3453,13 @@ MonoBehaviour:
   - {fileID: 863330603906094049, guid: be6234f9dbc0ae548b0718bd15d127b7, type: 3}
   - {fileID: 863330603906094049, guid: 3da1b0ef2e93f074785e3c4a81c90757, type: 3}
   - {fileID: 863330603906094049, guid: da2edc8e0d4690b48bfc64cc05279e90, type: 3}
+  map2Prefabs:
+  - {fileID: 2528769028567808131, guid: 411d43e2bb6f96e44963159d5631b00f, type: 3}
+  - {fileID: 387831914626902763, guid: a771c8807f3add74a961f3ee79d269a4, type: 3}
+  - {fileID: 7875654183108811116, guid: 1bb14c6eb32f01a42b66eab5cef23345, type: 3}
+  - {fileID: 863330603906094049, guid: be6234f9dbc0ae548b0718bd15d127b7, type: 3}
+  - {fileID: 863330603906094049, guid: 3da1b0ef2e93f074785e3c4a81c90757, type: 3}
+  - {fileID: 863330603906094049, guid: da2edc8e0d4690b48bfc64cc05279e90, type: 3}
 --- !u!114 &2119840885
 MonoBehaviour:
   m_ObjectHideFlags: 0
