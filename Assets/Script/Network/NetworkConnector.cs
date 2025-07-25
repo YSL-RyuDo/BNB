@@ -438,8 +438,23 @@ public class NetworkConnector : MonoBehaviour
                     float rotY = float.Parse(parts[4]);
                     Quaternion attackRot = Quaternion.Euler(0f, rotY, 0f);
 
-                    WeaponSystem.Instance.HandleRemoteWeaponAttack(attackerNick, charIndex, attackPos, attackRot);
-                    Debug.Log($"[WEAPON_ATTACK] {attackerNick} 캐릭터 {charIndex} 무기 공격 생성됨");
+                    if (charIndex == 6) // 레이저 무기인 경우
+                    {
+                        if (parts.Length < 6)
+                        {
+                            Debug.LogWarning("[WEAPON_ATTACK] 레이저 공격 메시지에 길이 정보가 없음");
+                            break;
+                        }
+                        float laserLength = float.Parse(parts[5]);
+
+                        WeaponSystem.Instance.HandleRemoteLaserAttack(attackerNick, charIndex, attackPos, attackRot, laserLength);
+                        Debug.Log($"[WEAPON_ATTACK] {attackerNick} 캐릭터 {charIndex} 레이저 무기 공격 생성됨 (길이: {laserLength})");
+                    }
+                    else // 일반 무기
+                    {
+                        WeaponSystem.Instance.HandleRemoteWeaponAttack(attackerNick, charIndex, attackPos, attackRot);
+                        Debug.Log($"[WEAPON_ATTACK] {attackerNick} 캐릭터 {charIndex} 무기 공격 생성됨");
+                    }
 
                     break;
                 }

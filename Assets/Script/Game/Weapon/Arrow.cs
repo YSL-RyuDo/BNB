@@ -41,10 +41,6 @@ public class Arrow : MonoBehaviour
 
                 Debug.Log($"[Arrow] {hitPlayerName} 님에게 HIT 메시지(무기:{weaponIndex}) 전송");
             }
-            else
-            {
-                Debug.Log($"[Arrow] {hitPlayerName} 님은 자해중입니다");
-            }
 
             Destroy(gameObject);
             return;

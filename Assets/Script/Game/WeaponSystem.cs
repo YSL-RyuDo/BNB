@@ -167,13 +167,39 @@ public class WeaponSystem : MonoBehaviour
         }
         else if (charIndex == 5)
         {
-            weaponName = $"{attackerNick}_Spell";
+            weaponName = $"{attackerNick}_Pitchfork";
         }
         else if (charIndex == 6)
         {
-            weaponName = $"{attackerNick}_Mace";
+            weaponName = $"{attackerNick}_Laser";
         }
         weaponObj.name = weaponName;
         Debug.Log($"[WeaponSystem] 원격 공격: {attackerNick}, 캐릭터 {charIndex} 무기 생성");
     }
+
+    public void HandleRemoteLaserAttack(string attackerNick, int charIndex, Vector3 position, Quaternion rotation, float laserLength)
+    {
+        GameObject prefab = GetWeaponPrefab(charIndex);
+        if (prefab == null)
+        {
+            Debug.LogWarning("[WeaponSystem] 무기 프리팹 없음, charIndex: " + charIndex);
+            return;
+        }
+
+        GameObject laserObj = Instantiate(prefab, position, rotation);
+        laserObj.transform.parent = null;
+
+        string weaponName = $"{attackerNick}_Laser";
+        laserObj.name = weaponName;
+
+        Laser laserScript = laserObj.GetComponent<Laser>();
+        if (laserScript != null)
+        {
+            laserScript.attackerNick = attackerNick;
+            laserScript.SetLength(laserLength); // 레이저 길이 세팅 메서드 필요
+        }
+
+        Debug.Log($"[WeaponSystem] 원격 레이저 공격: {attackerNick}, 길이: {laserLength}");
+    }
+
 }
