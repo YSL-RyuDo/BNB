@@ -39,6 +39,19 @@ public class NetworkConnector : MonoBehaviour
     public Dictionary<string, int> CurrentUserCharacterIndices =>
         userCharacterEntries.ToDictionary(e => e.nickname, e => e.characterIndex);
 
+
+    
+    // 서버에서 온 메시지의 명령어를 키로 하고 해당 명령어를 처리할 객체를 값으로 저장하는 딕셔너리
+    private Dictionary<string, IMessageHandler> handlers = new();
+
+
+    // 로그인 및 회원가입용 핸들러 등록 함수
+    // 외부 사용
+    public void RegisterHandler(string command, IMessageHandler handler)
+    {
+        handlers[command] = handler;
+    }
+
     [Serializable]
     public class UserCharacterEntry
     {
@@ -126,6 +139,16 @@ public class NetworkConnector : MonoBehaviour
 
         string command = parts[0].Trim();
         string data = parts.Length > 1 ? parts[1] : "";
+
+        // 핸들러 등록된게 있으면 해당 핸들러 호츨
+        if(handlers.TryGetValue(command, out var handler))
+        {
+            handler.HandleMessage(message);
+        }
+        else
+        {
+            Debug.LogWarning("등록된 핸틀러 없음: " + command);
+        }
 
         switch (command)
         {

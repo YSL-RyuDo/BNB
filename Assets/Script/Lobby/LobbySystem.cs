@@ -27,6 +27,7 @@ public class LobbySystem : MonoBehaviour
     public Button[] roomButtons; // ¹öÆ° 6°³
     //public bool[] isOccupied;
     public bool[] isOccupied;
+
     [Header("CreateRoom")]
     public Image previewImage;
     public Button map1Button;
