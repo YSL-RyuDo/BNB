@@ -85,7 +85,7 @@ public class LobbySystem : MonoBehaviour
             byte[] sendRoomBytes = Encoding.UTF8.GetBytes(sendRoomStr);
             await stream.WriteAsync(sendRoomBytes, 0, sendRoomBytes.Length);
 
-            
+
 
         }
 
@@ -476,7 +476,7 @@ public class LobbySystem : MonoBehaviour
 
     private void OnRoomButtonClicked(string roomName)
     {
-        roomName = roomName.Trim(); 
+        roomName = roomName.Trim();
 
         Debug.Log($"¹æ Å¬¸¯µÊ: {roomName}");
 
