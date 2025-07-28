@@ -66,7 +66,6 @@ public class LoginSystem : MonoBehaviour
 #endif
     }
 
-
     public void HandleLoginMessage(string message)
     {
         LoginSystem loginManager = GameObject.FindObjectOfType<LoginSystem>();
@@ -78,17 +77,20 @@ public class LoginSystem : MonoBehaviour
             {
                 string[] userParts = parts[1].Split(',');
 
-                if (userParts.Length == 5)
+                if (userParts.Length == 3)
                 {
                     string userId = userParts[0];
                     string userPw = userParts[1];
                     string userNick = userParts[2];
-                    int level = int.Parse(userParts[3]);
-                    float exp = float.Parse(userParts[4]);
 
                     PlayerPrefs.SetString("nickname", userNick);
                     PlayerPrefs.Save();
                     NetworkConnector.Instance.UserNickname = userNick;
+                    if (!NetworkConnector.Instance.CurrentUserList.Contains(userNick))
+                    {
+                        NetworkConnector.Instance.CurrentUserList.Add(userNick);
+                        Debug.Log($"[로그인] 유저 추가됨: {userNick}");
+                    }
                     SceneManager.LoadScene("LobbyScene");
                 }
                 else

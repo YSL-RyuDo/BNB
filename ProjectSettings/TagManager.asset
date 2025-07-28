@@ -3,25 +3,37 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Ground
+  - Block
+  - Wall
+  - Balloon
+  - Water
+  - Sword
+  - Arrow
+  - Spell
+  - Mace
+  - Melody
+  - Pitchfork
+  - Laser
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Player
+  - 
   - Water
   - UI
-  - Obstacle
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Player
+  - Ground
+  - Wall
+  - Block
+  - Sword
+  - Arrow
+  - Spell
+  - Mace
+  - Melody
+  - Pitchfork
+  - Laser
   - 
   - 
   - 
