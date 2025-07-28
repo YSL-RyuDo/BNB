@@ -40,6 +40,8 @@ public class RegisterUI : MonoBehaviour
         string nickname = inputNickname.text.Trim();
         
         await AuthSender.SendRegisterRequest(id, pw, nickname);
+
+        registerErrorText.text = "회원가입 요청 전송 완료, 응답 대기 중...";
     }
 
     private void OnLoginClicked()
