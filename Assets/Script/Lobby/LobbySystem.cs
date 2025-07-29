@@ -59,7 +59,7 @@ public class LobbySystem : MonoBehaviour
     public TMP_InputField messageInputField;
     public Button sendButton;
 
-    private Dictionary<string, bool> roomPasswordMap = new Dictionary<string, bool>();
+    public Dictionary<string, bool> roomPasswordMap = new Dictionary<string, bool>();
     // Start is called before the first frame update
     private void Awake()
     {

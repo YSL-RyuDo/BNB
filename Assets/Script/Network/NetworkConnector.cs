@@ -145,11 +145,7 @@ public class NetworkConnector : MonoBehaviour
         {
             handler.HandleMessage(message);
         }
-        else
-        {
-            Debug.LogWarning("등록된 핸틀러 없음: " + command);
-        }
-
+        
         switch (command)
         {
             case "LOGIN_SUCCESS":
