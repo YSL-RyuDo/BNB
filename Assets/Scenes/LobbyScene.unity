@@ -538,8 +538,6 @@ GameObject:
   - component: {fileID: 102480832}
   - component: {fileID: 102480834}
   - component: {fileID: 102480833}
-  - component: {fileID: 102480836}
-  - component: {fileID: 102480835}
   m_Layer: 5
   m_Name: RoomSetting
   m_TagString: Untagged
@@ -605,52 +603,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 102480831}
   m_CullTransparentMesh: 1
---- !u!114 &102480835
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 102480831}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 160dea82308f0514d814c2f51c2c3e74, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lobbySender: {fileID: 2121732149}
-  enterRoomPanel: {fileID: 490533375}
-  EnterpasswordInputField: {fileID: 1601505034}
-  confirmPasswordButton: {fileID: 1524783686}
---- !u!114 &102480836
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 102480831}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: afe596d3753c4b745abaff391146ea7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lobbySender: {fileID: 2121732149}
-  mapList:
-  - mapName: Map1
-    previewSprite: {fileID: 21300000, guid: 91e9eda677b706a43b50051ab85502ae, type: 3}
-    mapButton: {fileID: 3805881882778880908}
-  - mapName: Map2
-    previewSprite: {fileID: 21300000, guid: c4b70a2887375c146b77af56d04b5cb7, type: 3}
-    mapButton: {fileID: 9039889886033344793}
-  - mapName: Map3
-    previewSprite: {fileID: 21300000, guid: 0bbbc87cb0357864abb3ef89c601b0dd, type: 3}
-    mapButton: {fileID: 1729897147080471310}
-  previewImage: {fileID: 4404130221398082215}
-  passwordToggle: {fileID: 1710490763670848835}
-  passwordInputField: {fileID: 2242929277923435743}
-  roomNameInputField: {fileID: 4276323340729060801}
-  createButton: {fileID: 2468217874015628129}
-  errorText: {fileID: 6395559093474299800}
-  createRoomPanel: {fileID: 197486745}
 --- !u!1 &124841177
 GameObject:
   m_ObjectHideFlags: 0
@@ -1326,7 +1278,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchorMin.x
@@ -1334,15 +1286,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 325
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 75
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1374,11 +1326,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 487.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -187.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2375,7 +2327,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchorMin.x
@@ -2383,15 +2335,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 325
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 75
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2423,11 +2375,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 487.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -112.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -3626,7 +3578,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchorMin.x
@@ -3634,15 +3586,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 325
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 75
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3674,11 +3626,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 487.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -37.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -3739,7 +3691,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchorMin.x
@@ -3747,15 +3699,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 325
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 75
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3787,11 +3739,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 162.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -112.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -5120,7 +5072,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchorMin.x
@@ -5128,15 +5080,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 325
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 75
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5168,11 +5120,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 162.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -37.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -5233,7 +5185,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchorMin.x
@@ -5241,15 +5193,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 325
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 75
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5281,11 +5233,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 162.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -187.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4160797551951822213, guid: 64a8d164b9a818442a3af0345d9ee889, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -5543,7 +5495,6 @@ GameObject:
   - component: {fileID: 1758788924}
   - component: {fileID: 1758788926}
   - component: {fileID: 1758788925}
-  - component: {fileID: 1758788927}
   m_Layer: 5
   m_Name: RoomList
   m_TagString: Untagged
@@ -5609,29 +5560,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1758788923}
   m_CullTransparentMesh: 1
---- !u!114 &1758788927
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1758788923}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0bb900aaa9a65af48848ed1f1d78bf35, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lobbySender: {fileID: 2121732149}
-  roomButtons:
-  - {fileID: 1676915858}
-  - {fileID: 1104523190}
-  - {fileID: 1117332615}
-  - {fileID: 742056248}
-  - {fileID: 1685643147}
-  - {fileID: 414960266}
-  isOccupied: 
-  createRoom: {fileID: 102480836}
-  roomEnter: {fileID: 102480835}
 --- !u!1 &1764207731
 GameObject:
   m_ObjectHideFlags: 0
@@ -6590,9 +6518,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2121732148}
-  - component: {fileID: 2121732147}
   - component: {fileID: 2121732149}
   - component: {fileID: 2121732150}
+  - component: {fileID: 2121732151}
   m_Layer: 0
   m_Name: LobbyManager
   m_TagString: Untagged
@@ -6600,53 +6528,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2121732147
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2121732146}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef23ceecd6f1d8f49be3f3926ea2de5b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  userNameText: {fileID: 223352701}
-  userLevelText: {fileID: 1979267971}
-  userExpBar: {fileID: 958739297}
-  userExpText: {fileID: 1860363084}
-  userPrefab: {fileID: 8524200181122470303, guid: ffea70b0cee0d2d4ca040945b0a56423, type: 3}
-  userListContent: {fileID: 56770268}
-  roomButtons:
-  - {fileID: 1676915858}
-  - {fileID: 1104523190}
-  - {fileID: 1117332615}
-  - {fileID: 742056248}
-  - {fileID: 1685643147}
-  - {fileID: 414960266}
-  isOccupied: 
-  previewImage: {fileID: 4404130221398082215}
-  map1Button: {fileID: 3805881882778880908}
-  map1Sprite: {fileID: 21300000, guid: 91e9eda677b706a43b50051ab85502ae, type: 3}
-  map2Button: {fileID: 9039889886033344793}
-  map2Sprite: {fileID: 21300000, guid: c4b70a2887375c146b77af56d04b5cb7, type: 3}
-  map3Button: {fileID: 1729897147080471310}
-  map3Sprite: {fileID: 21300000, guid: 0bbbc87cb0357864abb3ef89c601b0dd, type: 3}
-  passwordToggle: {fileID: 1710490763670848835}
-  passwordInputField: {fileID: 2242929277923435743}
-  roomNameInputField: {fileID: 4276323340729060801}
-  createButton: {fileID: 2468217874015628129}
-  logoutButton: {fileID: 1595190307}
-  errorText: {fileID: 6395559093474299800}
-  createRoomPanel: {fileID: 197486745}
-  enterRoomPanel: {fileID: 490533375}
-  EnterpasswordInputField: {fileID: 1601505034}
-  confirmPasswordButton: {fileID: 1524783686}
-  userChatPrefab: {fileID: 301004652707807064, guid: 02a3678c1c2a6a042a918f0998aefc86, type: 3}
-  contentParent: {fileID: 195621133}
-  messageInputField: {fileID: 1444633076}
-  sendButton: {fileID: 1783935127}
 --- !u!4 &2121732148
 Transform:
   m_ObjectHideFlags: 0
@@ -6689,10 +6570,51 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   userInfo: {fileID: 779882402}
   userList: {fileID: 1885937675}
-  roomList: {fileID: 1758788927}
   chat: {fileID: 531499452}
-  roomEnter: {fileID: 102480835}
-  createRoom: {fileID: 102480836}
+  lobbyRoom: {fileID: 2121732151}
+--- !u!114 &2121732151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2121732146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2daae583b8b91434bb23e1439acbe955, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  roomButtons:
+  - {fileID: 1676915858}
+  - {fileID: 1104523190}
+  - {fileID: 1117332615}
+  - {fileID: 742056248}
+  - {fileID: 1685643147}
+  - {fileID: 414960266}
+  isOccupied: 
+  mapList:
+  - mapName: Map1
+    previewSprite: {fileID: 21300000, guid: 91e9eda677b706a43b50051ab85502ae, type: 3}
+    mapButton: {fileID: 3805881882778880908}
+  - mapName: Map2
+    previewSprite: {fileID: 21300000, guid: c4b70a2887375c146b77af56d04b5cb7, type: 3}
+    mapButton: {fileID: 9039889886033344793}
+  - mapName: Map3
+    previewSprite: {fileID: 21300000, guid: 0bbbc87cb0357864abb3ef89c601b0dd, type: 3}
+    mapButton: {fileID: 1729897147080471310}
+  previewImage: {fileID: 4404130221398082215}
+  passwordToggle: {fileID: 1710490763670848835}
+  passwordInputField: {fileID: 2242929277923435743}
+  roomNameInputField: {fileID: 4276323340729060801}
+  createButton: {fileID: 2468217874015628129}
+  logoutButton: {fileID: 0}
+  errorText: {fileID: 6395559093474299800}
+  createRoomPanel: {fileID: 197486745}
+  enterRoomPanel: {fileID: 490533375}
+  EnterpasswordInputField: {fileID: 1601505034}
+  confirmPasswordButton: {fileID: 1524783686}
+  pendingRoomName: 
+  lobbySender: {fileID: 2121732149}
 --- !u!1 &2143931869
 GameObject:
   m_ObjectHideFlags: 0

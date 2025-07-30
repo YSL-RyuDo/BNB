@@ -10,44 +10,37 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
 {
     [SerializeField] private LobbyUserInfo userInfo;
     [SerializeField] private LobbyUserList userList;
-    [SerializeField] private LobbyRoomList roomList;
     [SerializeField] private LobbyChat chat;
-    [SerializeField] private LobbyRoomEnter roomEnter;
-    [SerializeField] private LobbyCreateRoom createRoom;
+    [SerializeField] private LobbyRoom lobbyRoom;
 
+    // 메시지 구독
+    void Start()
+    {
+        NetworkConnector.Instance.LobbyHandler("ROOM_LIST", this);
+        NetworkConnector.Instance.LobbyHandler("ROOM_CREATED", this);
+        NetworkConnector.Instance.LobbyHandler("CREATE_ROOM_SUCCESS", this);
+        NetworkConnector.Instance.LobbyHandler("ENTER_ROOM_SUCCESS", this);
+        NetworkConnector.Instance.LobbyHandler("LOBBY_CHAT", this);
+        NetworkConnector.Instance.LobbyHandler("LOBBY_USER_LIST", this);
+        NetworkConnector.Instance.LobbyHandler("USER_INFO", this);
+    }
+
+    // 구독한 메시지 처리
     public void HandleMessage(string message)
     {
 
         string[] parts = message.Split('|');
-        string command = parts[0];
+        string command = message.Split('|')[0];
 
-        if (message == "ROOM_LIST")
+        switch (command)
         {
-            HandleRoomListMessage(message);
-        }
-        else if (message == "ROOM_CREATED")
-        {
-            HandleRoomCreated(message);
-        }
-        else if (message == "CREATE_ROOM_SUCCESS")
-        {
-            HandleCreateRoomSuccess(message);
-        }
-        else if (message == "ENTER_ROOM_SUCCESS")
-        {
-            HandleEnterRoomSuccess(message);
-        }
-        else if (message == "LOBBY_CHAT")
-        {
-            HandleLobbyChatMessage(message);
-        }
-        else if(message == "LOBBY_USER_LIST")
-        {
-            HandleUserListMessage(message);
-        }
-        else if(message == "USER_INFO")
-        {
-            HandleUserInfoMessage(message);
+            case "ROOM_LIST": HandleRoomListMessage(message); break;
+            case "ROOM_CREATED": HandleRoomCreated(message); break;
+            case "CREATE_ROOM_SUCCESS": HandleCreateRoomSuccess(message); break;
+            case "ENTER_ROOM_SUCCESS": HandleEnterRoomSuccess(message); break;
+            case "LOBBY_CHAT": HandleLobbyChatMessage(message); break;
+            case "LOBBY_USER_LIST": HandleUserListMessage(message); break;
+            case "USER_INFO": HandleUserInfoMessage(message); break;
         }
     }
 
@@ -101,6 +94,11 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
             return;
         }
 
+        foreach (Transform child in userList.userListContent)
+        {
+            Destroy(child.gameObject);
+        }
+
         for (int i = 1; i < parts.Length; i++)
         {
             string[] userInfo = parts[i].Split(',');
@@ -124,6 +122,28 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
 
     public void HandleRoomListMessage(string message)
     {
+        Debug.Log("HandleRoomListMessage 호출: " + message);
+
+        Debug.Log($"roomButtons.Length = {lobbyRoom.roomButtons?.Length ?? -1}");
+        Debug.Log($"isOccupied.Length = {lobbyRoom.isOccupied?.Length ?? -1}");
+
+        for (int i = 0; i < lobbyRoom.roomButtons.Length; i++)
+        {
+            Debug.Log($"roomButtons[{i}] is {(lobbyRoom.roomButtons[i] == null ? "null" : "not null")}");
+        }
+
+        if (lobbyRoom.isOccupied == null)
+        {
+            Debug.LogError("isOccupied 배열이 null입니다!");
+        }
+        else
+        {
+            for (int i = 0; i < lobbyRoom.isOccupied.Length; i++)
+            {
+                Debug.Log($"isOccupied[{i}] = {lobbyRoom.isOccupied[i]}");
+            }
+        }
+
         if (!message.StartsWith("ROOM_LIST|"))
         {
             Debug.LogError("ROOM_LIST 메시지 포맷 오류");
@@ -133,23 +153,37 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
         string data = message.Substring("ROOM_LIST|".Length);
         string[] rooms = data.Split('|', StringSplitOptions.RemoveEmptyEntries);
 
-        List<LobbyRoomData> parsedRooms = new();
+        Debug.Log($"서버로부터 받은 방 개수: {rooms.Length}");
 
-        foreach (string entry in rooms)
+        // 1) UI 슬롯 모두 초기화
+        for (int i = 0; i < lobbyRoom.roomButtons.Length; i++)
         {
-            string[] parts = entry.Split(',', StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length < 3) continue;
+            lobbyRoom.ResetRoomButton(lobbyRoom.roomButtons[i]);
+            lobbyRoom.isOccupied[i] = false;
+        }
+
+        // 2) 받은 방 리스트를 0번 슬롯부터 순서대로 UI에 세팅
+        for (int i = 0; i < rooms.Length && i < lobbyRoom.roomButtons.Length; i++)
+        {
+            string[] parts = rooms[i].Split(',', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length < 3)
+            {
+                Debug.LogWarning("방 정보 포맷 오류: " + rooms[i]);
+                continue;
+            }
 
             string roomName = parts[0].Trim();
             string mapName = parts[1].Trim();
             bool hasPassword = parts[2].Trim() == "1";
 
-            parsedRooms.Add(new LobbyRoomData(roomName, mapName, hasPassword));
+            lobbyRoom.roomPasswordMap[roomName] = hasPassword;
+
+            lobbyRoom.SetRoomButton(lobbyRoom.roomButtons[i], roomName, lobbyRoom.GetSpriteForMap(mapName));
+            lobbyRoom.isOccupied[i] = true;
+
+            Debug.Log($"roomButtons[{i}]에 방 '{roomName}' 세팅 완료");
         }
 
-        roomEnter.SetRoomPasswordMap(parsedRooms.ToDictionary(r => r.RoomName, r => r.HasPassword));
-        roomList.UpdateRoomList(parsedRooms);
-        
     }
 
     public void HandleLobbyChatMessage(string message)
@@ -180,8 +214,6 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
 
     public void HandleCreateRoomSuccess(string message)
     {
-        Debug.Log("HandleCreateRoomSuccessMessage 호출: " + message);
-
         string[] parts = message.Split('|');
         if (parts.Length < 3) return;
 
@@ -208,7 +240,7 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
         {
             hasPassword = true;
         }
-        roomEnter.roomPasswordMap[roomName] = hasPassword;
+        lobbyRoom.roomPasswordMap[roomName] = hasPassword;
 
         List<string> userList = new List<string>();
         Dictionary<string, int> characterIndexMap = new Dictionary<string, int>();
@@ -244,20 +276,28 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
         }
 
         NetworkConnector.Instance.CurrentUserList = userList;
+
+        //NetworkConnector.Instance.CurrentUserCharacterIndices = characterIndexMap;
         NetworkConnector.Instance.SetUserCharacterIndices(characterIndexMap);
-        NetworkConnector.Instance.CurrentRoomName = roomName;
-        NetworkConnector.Instance.SelectedMap = mapName;
 
-        Debug.Log($"[CreateRoomSuccess] mapName={mapName}");
+        Sprite sprite = lobbyRoom.GetSpriteForMap(mapName);
 
-        Sprite sprite = createRoom.GetSpriteForMap(mapName);
-
-        roomList.AddNewRoomButton(roomName, mapName, isCreator);
+        for (int i = 0; i < lobbyRoom.roomButtons.Length; i++)
+        {
+            if (!lobbyRoom.isOccupied[i])
+            {
+                lobbyRoom.SetRoomButton(lobbyRoom.roomButtons[i], roomName, sprite);
+                lobbyRoom.isOccupied[i] = true;
+                break;
+            }
+        }
 
         Debug.Log($"Room '{roomName}' has users: {string.Join(", ", userList)}");
 
         if (isCreator)
         {
+            NetworkConnector.Instance.CurrentRoomName = roomName;
+            NetworkConnector.Instance.SelectedMap = mapName;
             SceneManager.LoadScene("RoomScene");
         }
     }
@@ -292,13 +332,20 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
         string userListStr = parts[3].Trim();
         bool hasPassword = parts.Length > 4 && parts[4].Trim() == "HAS_PASSWORD";
 
-        roomEnter.roomPasswordMap[roomName] = hasPassword;
+        lobbyRoom.roomPasswordMap[roomName] = hasPassword;
 
-        Debug.Log($"[RoomCreated] mapName={mapName}");
+        List<string> userList = userListStr.Split(',').Select(u => u.Trim()).ToList();
+        Sprite sprite = lobbyRoom.GetSpriteForMap(mapName);
 
-        Sprite sprite = createRoom.GetSpriteForMap(mapName);
-
-        roomList.AddNewRoomButton(roomName, mapName, isCreator: false);
+        for (int i = 0; i < lobbyRoom.roomButtons.Length; i++)
+        {
+            if (!lobbyRoom.isOccupied[i])
+            {
+                lobbyRoom.SetRoomButton(lobbyRoom.roomButtons[i], roomName, sprite);
+                lobbyRoom.isOccupied[i] = true;
+                break;
+            }
+        }
 
         Debug.Log($"[ROOM_CREATED] {roomName} | 비번 있음: {hasPassword} | 유저: {userListStr}");
     }

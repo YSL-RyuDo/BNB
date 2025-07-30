@@ -10,6 +10,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+
+
 public class LobbySystem : MonoBehaviour
 {
     [Header("UserInfo")]
@@ -51,7 +53,7 @@ public class LobbySystem : MonoBehaviour
     public GameObject enterRoomPanel;
     public TMP_InputField EnterpasswordInputField;
     public Button confirmPasswordButton;
-    private string pendingRoomName = "";
+    public string pendingRoomName = "";
     [Header("LobbyChat")]
     public GameObject userChatPrefab;
     public Transform contentParent;

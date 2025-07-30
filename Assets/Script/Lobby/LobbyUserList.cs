@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using TMPro;
 using UnityEngine;
 
@@ -10,18 +11,22 @@ public class LobbyUserList : MonoBehaviour
     public GameObject userPrefab;
     public Transform userListContent;
 
-    private void Start()
+    private async void Start()
     {
-        lobbySender.SendGetLobbyUserList();
+        if (NetworkConnector.Instance != null)
+        {
+            var stream = NetworkConnector.Instance.Stream;
+
+            string sendUserStr = "GET_LOBBY_USER_LIST|\n";
+            byte[] sendUserBytes = Encoding.UTF8.GetBytes(sendUserStr);
+            await stream.WriteAsync(sendUserBytes, 0, sendUserBytes.Length);
+
+        }
+        //lobbySender.SendGetLobbyUserList();
     }
 
     public void UpdateUserList(string nickname, int level)
     {
-        foreach (Transform child in userListContent)
-        {
-            Destroy(child.gameObject);
-        }
-
         GameObject item = Instantiate(userPrefab, userListContent);
         TMP_Text[] texts = item.GetComponentsInChildren<TMP_Text>();
         foreach (var text in texts)

@@ -52,6 +52,11 @@ public class NetworkConnector : MonoBehaviour
         handlers[command] = handler;
     }
 
+    public void LobbyHandler(string command, IMessageHandler handler)
+    {
+        handlers[command] = handler;
+    }
+
     [Serializable]
     public class UserCharacterEntry
     {
@@ -169,7 +174,6 @@ public class NetworkConnector : MonoBehaviour
                 else
                     Debug.LogWarning("RegisterSystem을 찾을 수 없습니다.");
                 break;
-
             case "LOBBY_USER_LIST":
                 LobbySystem lobbySystem = FindObjectOfType<LobbySystem>();
                 if (lobbySystem != null)

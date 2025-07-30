@@ -15,12 +15,16 @@ public class LobbyUserInfo : MonoBehaviour
     public TextMeshProUGUI userExpText;
     private float maxExp = 100;
 
-    private void Start()
+    private async void Start()
     {
         if (NetworkConnector.Instance != null)
         {
+            var stream = NetworkConnector.Instance.Stream;
+
             userExpBar.interactable = false;
-            lobbySender.SendGetUserInfo(NetworkConnector.Instance.UserNickname);
+            string sendUserInfoStr = $"GET_USER_INFO|{NetworkConnector.Instance.UserNickname}\n";
+            byte[] sendUserInfoBytes = Encoding.UTF8.GetBytes(sendUserInfoStr);
+            await stream.WriteAsync(sendUserInfoBytes, 0, sendUserInfoBytes.Length);
         }
     }
     
