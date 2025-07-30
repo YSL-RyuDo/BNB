@@ -12,12 +12,14 @@ public class RoomChatManager: MonoBehaviour
     public TMP_InputField messageInputField;
     public Button sendButton;
 
+    [SerializeField] private RoomSender roomSender;
+
     void Start()
     {
         sendButton.onClick.AddListener(OnsendClicked);
     }
 
-    private async void OnsendClicked()
+    private void OnsendClicked()
     {
         if (string.IsNullOrEmpty(messageInputField.text))
         {
@@ -31,10 +33,7 @@ public class RoomChatManager: MonoBehaviour
 
         try
         {
-            var stream = NetworkConnector.Instance.Stream;
-            string sendStr = $"ROOM_MESSAGE|{roomName}:{nickname}:{message}\n";
-            byte[] sendBytes = Encoding.UTF8.GetBytes(sendStr);
-            await stream.WriteAsync(sendBytes, 0, sendBytes.Length);
+            roomSender.SendRoomChat(message, nickname, roomName);
         }
         catch (System.Exception ex)
         {

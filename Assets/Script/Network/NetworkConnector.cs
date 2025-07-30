@@ -57,6 +57,11 @@ public class NetworkConnector : MonoBehaviour
         handlers[command] = handler;
     }
 
+    public void RoomHandler(string command, IMessageHandler handler)
+    {
+        handlers[command] = handler;
+    }
+
     [Serializable]
     public class UserCharacterEntry
     {
@@ -149,6 +154,7 @@ public class NetworkConnector : MonoBehaviour
         if(handlers.TryGetValue(command, out var handler))
         {
             handler.HandleMessage(message);
+            return;
         }
         
         switch (command)

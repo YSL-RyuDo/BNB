@@ -298,6 +298,9 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
         {
             NetworkConnector.Instance.CurrentRoomName = roomName;
             NetworkConnector.Instance.SelectedMap = mapName;
+
+            NetworkConnector.Instance.CurrentRoomLeader = NetworkConnector.Instance.UserNickname;
+
             SceneManager.LoadScene("RoomScene");
         }
     }
@@ -317,6 +320,7 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
 
         Debug.Log($"[입장 성공] 방: {roomName}, 유저: {userListStr}");
 
+        NetworkConnector.Instance.PendingRoomEnterMessage = message;
         // 방 씬으로 전환
         SceneManager.LoadScene("RoomScene");
     }
