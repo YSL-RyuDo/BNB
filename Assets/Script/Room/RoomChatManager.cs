@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Text;
+using System.IO;
 public class RoomChatManager: MonoBehaviour
 {
     public GameObject userChatPrefab;
@@ -12,14 +13,12 @@ public class RoomChatManager: MonoBehaviour
     public TMP_InputField messageInputField;
     public Button sendButton;
 
-    [SerializeField] private RoomSender roomSender;
-
     void Start()
     {
         sendButton.onClick.AddListener(OnsendClicked);
     }
 
-    private void OnsendClicked()
+    private async void OnsendClicked()
     {
         if (string.IsNullOrEmpty(messageInputField.text))
         {
@@ -33,7 +32,12 @@ public class RoomChatManager: MonoBehaviour
 
         try
         {
-            roomSender.SendRoomChat(message, nickname, roomName);
+            var stream = NetworkConnector.Instance.Stream;
+
+            string msg = $"ROOM_MESSAGE|{roomName}:{nickname}:{message}\n";
+            byte[] sendBytes = System.Text.Encoding.UTF8.GetBytes(message);
+            await stream.WriteAsync(sendBytes, 0, sendBytes.Length);
+            await stream.FlushAsync();
         }
         catch (System.Exception ex)
         {

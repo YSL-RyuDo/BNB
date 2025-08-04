@@ -14,15 +14,26 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
     [SerializeField] private LobbyRoom lobbyRoom;
 
     // 메시지 구독
-    void Start()
+    private readonly string[] commands =
     {
-        NetworkConnector.Instance.LobbyHandler("ROOM_LIST", this);
-        NetworkConnector.Instance.LobbyHandler("ROOM_CREATED", this);
-        NetworkConnector.Instance.LobbyHandler("CREATE_ROOM_SUCCESS", this);
-        NetworkConnector.Instance.LobbyHandler("ENTER_ROOM_SUCCESS", this);
-        NetworkConnector.Instance.LobbyHandler("LOBBY_CHAT", this);
-        NetworkConnector.Instance.LobbyHandler("LOBBY_USER_LIST", this);
-        NetworkConnector.Instance.LobbyHandler("USER_INFO", this);
+        "ROOM_LIST", "ROOM_CREATED", "CREATE_ROOM_SUCCESS",
+        "ENTER_ROOM_SUCCESS", "LOBBY_CHAT", "LOBBY_USER_LIST", "USER_INFO"
+    };
+
+    private void OnEnable()
+    {
+        foreach (string command in commands)
+        {
+            NetworkConnector.Instance.LobbyHandler(command, this);
+        }
+    }
+
+    private void OnDisable()
+    {
+        foreach (string command in commands)
+        {
+            NetworkConnector.Instance.RemoveLobbyHandler(command, this);
+        }
     }
 
     // 구독한 메시지 처리
@@ -87,6 +98,13 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
 
     public void HandleUserListMessage(string message)
     {
+        if (userList == null || userList.userListContent == null)
+        {
+            Debug.LogWarning("HandleUserListMessage: userList 또는 userListContent가 null입니다. 메시지 무시함.");
+            return;
+        }
+
+
         string[] parts = message.Split("|");
         if (parts.Length < 2)
         {

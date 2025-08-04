@@ -57,18 +57,9 @@ public class LobbyRoom : MonoBehaviour
 
 
     // Start is called before the first frame update
-    private async void Start()
+    private void Start()
     {
-        if (NetworkConnector.Instance != null)
-        {
-            var stream = NetworkConnector.Instance.Stream;
-
-            string sendRoomStr = "GET_ROOM_LIST|\n";
-            byte[] sendRoomBytes = Encoding.UTF8.GetBytes(sendRoomStr);
-            await stream.WriteAsync(sendRoomBytes, 0, sendRoomBytes.Length);
-
-        }
-        //lobbySender.SendGetRoomList();
+        lobbySender.SendGetRoomList();
 
         foreach (var map in mapList)
         {

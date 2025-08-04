@@ -9,10 +9,28 @@ public class AuthReceiver : IMessageHandler
     private readonly LoginUI loginUI;
     private readonly RegisterUI registerUI;
 
+    private readonly string[] commands = {
+        "LOGIN_SUCCESS", "WRONG_PASSWORD", "ID_NOT_FOUND",
+        "REGISTER_SUCCESS", "EMPTY_PASSWORD", "DUPLICATE_ID",
+        "DUPLICATE_NICK", "REGISTER_ERROR", "FILE_WRITE_ERROR"
+    };
+
     public AuthReceiver(LoginUI loginUI, RegisterUI registerUI)
     {
         this.loginUI = loginUI;
-        this.registerUI = registerUI;   
+        this.registerUI = registerUI;
+
+        foreach (string command in commands)
+        {
+            NetworkConnector.Instance.RegisterHandler(command, this);
+        }
+    }
+    public void Dispose()
+    {
+        foreach (string command in commands)
+        {
+            NetworkConnector.Instance.RemoveHandler(command, this);
+        }
     }
 
     public void HandleMessage(string message)

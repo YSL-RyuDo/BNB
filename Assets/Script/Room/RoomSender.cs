@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using System.Threading.Tasks;
 
@@ -10,6 +11,7 @@ public class RoomSender : MonoBehaviour
         string message = $"CHOOSE_CHARACTER|{roomName}|{nickname}|{characterIndex}\n";
         await SendToServer(message);
     }
+
     public async void SendStartGame(string roomName)
     {
         string message = $"START_GAME|{roomName}\n";
@@ -28,31 +30,18 @@ public class RoomSender : MonoBehaviour
         await SendToServer(message);
     }
 
-    public async void SendRoomChat(string roomName, string nickname, string message)
-    {
-        string msg = $"ROOM_MESSAGE|{roomName}:{nickname}:{message}\n";
-        await SendToServer(msg);
-    }
-
-    public async Task<bool> SendToServer(string message)
+    private async Task SendToServer(string message)
     {
         var stream = NetworkConnector.Instance.Stream;
-
-        if (stream == null)
+        if (stream != null && stream.CanWrite)
         {
-            return false;
-        }
-
-        try
-        {
-            byte[] sendBytes = System.Text.Encoding.UTF8.GetBytes(message);
-            await stream.WriteAsync(sendBytes, 0, sendBytes.Length);
+            byte[] bytes = Encoding.UTF8.GetBytes(message);
+            await stream.WriteAsync(bytes, 0, bytes.Length);
             await stream.FlushAsync();
-            return true;
         }
-        catch (System.Exception ex)
+        else
         {
-            return false;
+            Debug.LogWarning("[RoomSender] 스트림이 유효하지 않습니다.");
         }
     }
 }

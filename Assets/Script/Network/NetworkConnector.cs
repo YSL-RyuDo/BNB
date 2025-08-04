@@ -40,27 +40,38 @@ public class NetworkConnector : MonoBehaviour
         userCharacterEntries.ToDictionary(e => e.nickname, e => e.characterIndex);
 
 
-    
+
     // 서버에서 온 메시지의 명령어를 키로 하고 해당 명령어를 처리할 객체를 값으로 저장하는 딕셔너리
-    private Dictionary<string, IMessageHandler> handlers = new();
+    private Dictionary<string, List<IMessageHandler>> handlers = new();
 
 
     // 로그인 및 회원가입용 핸들러 등록 함수
     // 외부 사용
-    public void RegisterHandler(string command, IMessageHandler handler)
+    public void RegisterHandler(string command, IMessageHandler handler) => AddHandler(command, handler);
+    public void LobbyHandler(string command, IMessageHandler handler) => AddHandler(command, handler);
+    public void RoomHandler(string command, IMessageHandler handler) => AddHandler(command, handler);
+
+    private void AddHandler(string command, IMessageHandler handler)
     {
-        handlers[command] = handler;
+        if (!handlers.ContainsKey(command))
+            handlers[command] = new List<IMessageHandler>();
+
+        if (!handlers[command].Contains(handler))
+            handlers[command].Add(handler);
+    }
+    public void RemoveHandler(string command, IMessageHandler handler)
+    {
+        if (handlers.TryGetValue(command, out var list))
+        {
+            list.Remove(handler);
+            if (list.Count == 0)
+                handlers.Remove(command);
+        }
     }
 
-    public void LobbyHandler(string command, IMessageHandler handler)
-    {
-        handlers[command] = handler;
-    }
+    public void RemoveLobbyHandler(string command, IMessageHandler handler) => RemoveHandler(command, handler);
+    public void RemoveRoomHandler(string command, IMessageHandler handler) => RemoveHandler(command, handler);
 
-    public void RoomHandler(string command, IMessageHandler handler)
-    {
-        handlers[command] = handler;
-    }
 
     [Serializable]
     public class UserCharacterEntry
@@ -151,12 +162,15 @@ public class NetworkConnector : MonoBehaviour
         string data = parts.Length > 1 ? parts[1] : "";
 
         // 핸들러 등록된게 있으면 해당 핸들러 호츨
-        if(handlers.TryGetValue(command, out var handler))
+        if (handlers.TryGetValue(command, out var handlerList))
         {
-            handler.HandleMessage(message);
+            foreach (var handler in handlerList.ToList())
+            {
+                handler?.HandleMessage(message); 
+            }
             return;
         }
-        
+
         switch (command)
         {
             case "LOGIN_SUCCESS":

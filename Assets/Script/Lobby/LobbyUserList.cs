@@ -11,18 +11,9 @@ public class LobbyUserList : MonoBehaviour
     public GameObject userPrefab;
     public Transform userListContent;
 
-    private async void Start()
+    private void Start()
     {
-        if (NetworkConnector.Instance != null)
-        {
-            var stream = NetworkConnector.Instance.Stream;
-
-            string sendUserStr = "GET_LOBBY_USER_LIST|\n";
-            byte[] sendUserBytes = Encoding.UTF8.GetBytes(sendUserStr);
-            await stream.WriteAsync(sendUserBytes, 0, sendUserBytes.Length);
-
-        }
-        //lobbySender.SendGetLobbyUserList();
+        lobbySender.SendGetLobbyUserList();
     }
 
     public void UpdateUserList(string nickname, int level)
