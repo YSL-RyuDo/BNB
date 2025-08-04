@@ -9,12 +9,7 @@ public class RoomUI : MonoBehaviour
     [SerializeField] private RoomSender roomSender;
     [SerializeField] private TextMeshProUGUI roomNameText;
     [SerializeField] private GameObject[] roomPlayerInfos;
-
-    //[SerializeField] private Button[] characterChooseButton;
-    [SerializeField] private GameObject characterButtonPrefab;
-    [SerializeField] private Transform characterButtonParent;
-    private List<Button> characterButtons = new();
-
+    [SerializeField] private Button[] characterChooseButton;
     [SerializeField] private Sprite[] characterSprites;
     [SerializeField] private Button startGameButton;
     [SerializeField] private Button exitButton;
@@ -28,11 +23,11 @@ public class RoomUI : MonoBehaviour
         roomNameText.text = client.CurrentRoomName;
         myPlayerIndex = client.CurrentUserList.FindIndex(n => n.Trim() == client.UserNickname?.Trim());
 
-        //for (int i = 0; i < characterChooseButton.Length; i++)
-        //{
-        //    int idx = i;
-        //    characterChooseButton[i].onClick.AddListener(() => OnClickChooseCharacter(idx));
-        //}
+        for (int i = 0; i < characterChooseButton.Length; i++)
+        {
+            int idx = i;
+            characterChooseButton[i].onClick.AddListener(() => OnClickChooseCharacter(idx));
+        }
 
         startGameButton.onClick.AddListener(OnClickStartGame);
         exitButton.onClick.AddListener(OnClickExitRoom);
@@ -91,6 +86,7 @@ public class RoomUI : MonoBehaviour
 
         RefreshRoomUI(nicknames, roomName);
     }
+
     public void RefreshRoomUI(List<string> updatedUserList, string updatedRoomName = null)
     {
         Debug.Log($"RefreshRoomUI 호출 - updatedRoomName: {updatedRoomName}, updatedUserList.Count: {updatedUserList.Count}");
@@ -138,37 +134,6 @@ public class RoomUI : MonoBehaviour
         OnEnterRoomSuccess(NetworkConnector.Instance.CurrentRoomName, string.Join(",", updatedUserList));
     }
 
-    public void GenerateCharacterButtons(int count)
-    {
-        foreach (Transform child in characterButtonParent)
-            Destroy(child.gameObject);
-
-        characterButtons.Clear();
-
-        for (int i = 0; i < count; i++)
-        {
-            GameObject buttonGO = Instantiate(characterButtonPrefab, characterButtonParent);
-            Button btn = buttonGO.GetComponent<Button>();
-            int index = i;
-
-            btn.onClick.AddListener(() => OnClickChooseCharacter(index));
-            characterButtons.Add(btn);
-
-            Image characterImage = btn.GetComponent<Image>();
-            if (characterImage != null && i < characterSprites.Length)
-            {
-                characterImage.sprite = characterSprites[i];
-                Debug.Log($"[캐릭터 버튼 생성] index: {i}, sprite: {characterSprites[i].name}");
-            }
-            else
-            {
-                Debug.LogWarning($"[캐릭터 버튼 생성] index {i}에 대한 sprite 없음");
-            }
-        }
-
-        Debug.Log($"{count}개의 캐릭터 버튼 생성 완료 (스프라이트 포함)");
-    }
-
     public void HandleCharacterList(string message)
     {
         // 예: CHARACTER_LIST|1,0,1,1,0,0,1
@@ -180,25 +145,32 @@ public class RoomUI : MonoBehaviour
         }
 
         string[] tokens = parts[1].Split(',');
+        if (tokens.Length != characterChooseButton.Length)
+        {
+            Debug.LogWarning($"[RoomSystem] 캐릭터 개수 불일치: 버튼={characterChooseButton.Length}, 데이터={tokens.Length}");
+            return;
+        }
 
-        int count = tokens.Length;
-
-        GenerateCharacterButtons(count);
-
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < tokens.Length; i++)
         {
             bool hasCharacter = int.TryParse(tokens[i], out int hasChar) && hasChar == 1;
 
-            Button btn = characterButtons[i];
-            btn.interactable = hasCharacter;
+            // 캐릭터 버튼 클릭 가능 여부
+            characterChooseButton[i].interactable = hasCharacter;
 
-            Transform lockImage = btn.transform.Find("LockImage");
+            // 잠금 이미지 처리
+            Transform lockImage = characterChooseButton[i].transform.Find("LockImage");
             if (lockImage != null)
-                lockImage.gameObject.SetActive(!hasCharacter);
+            {
+                lockImage.gameObject.SetActive(!hasCharacter); // 보유 안 하면 잠금 이미지 켜기
+            }
 
-            var buttonImage = btn.GetComponent<Image>();
+            // 필요하면 투명도 조정도 가능
+            var buttonImage = characterChooseButton[i].GetComponent<Image>();
             if (buttonImage != null)
+            {
                 buttonImage.color = hasCharacter ? Color.white : new Color(1f, 1f, 1f, 0.5f);
+            }
         }
 
 
@@ -207,12 +179,6 @@ public class RoomUI : MonoBehaviour
 
     private void OnClickChooseCharacter(int index)
     {
-        if (myPlayerIndex < 0 || myPlayerIndex >= roomPlayerInfos.Length)
-        {
-            Debug.LogWarning("내 슬롯 인덱스가 올바르지 않습니다.");
-            return;
-        }
-
         string room = NetworkConnector.Instance.CurrentRoomName;
         string nickname = NetworkConnector.Instance.UserNickname;
         roomSender.SendChooseCharacter(room, nickname, index);
@@ -231,24 +197,12 @@ public class RoomUI : MonoBehaviour
 
     public void UpdatePlayerInfoUI(List<string> userList)
     {
-        if (roomPlayerInfos == null)
-        {
-            Debug.LogWarning("roomPlayerInfos 배열이 null입니다.");
-            return;
-        }
-
         Debug.Log($"UpdatePlayerInfoUI 호출 - userList.Count: {userList.Count}");
 
         var characterIndexMap = NetworkConnector.Instance.CurrentUserCharacterIndices;
 
         for (int i = 0; i < roomPlayerInfos.Length; i++)
         {
-            if (roomPlayerInfos[i] == null)
-            {
-                Debug.LogWarning($"roomPlayerInfos[{i}]는 이미 파괴된 오브젝트입니다.");
-                continue;
-            }
-
             var nameTextTransform = roomPlayerInfos[i].transform.Find("Image/NameText");
             var characterImageTransform = roomPlayerInfos[i].transform.Find("PlayerCharacterImage");
 

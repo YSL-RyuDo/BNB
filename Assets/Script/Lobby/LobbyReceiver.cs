@@ -329,17 +329,37 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
         if (parts.Length < 3) return;
 
         string roomName = parts[1];
-        string userListStr = parts[2];
+        string userListStr = parts[3];
 
         NetworkConnector.Instance.CurrentRoomName = roomName;
 
-        List<string> userList = userListStr.Split(',').ToList();
-        NetworkConnector.Instance.CurrentUserList = userList;
+        List<string> nicknames = new();
+        string[] userTokens = userListStr.Split(',');
 
-        Debug.Log($"[입장 성공] 방: {roomName}, 유저: {userListStr}");
+        foreach (string token in userTokens)
+        {
+            if (token.Contains(":"))
+            {
+                var pair = token.Split(':');
+                string nickname = pair[0].Trim();
+                int charIndex = 0;
+                int.TryParse(pair[1], out charIndex);
+
+                // 캐릭터 정보 저장 (있다면)
+                NetworkConnector.Instance.SetOrUpdateUserCharacter(nickname, charIndex);
+                nicknames.Add(nickname); // 닉네임만 저장
+            }
+            else
+            {
+                nicknames.Add(token.Trim());
+            }
+        }
+
+        NetworkConnector.Instance.CurrentUserList = nicknames;
+
+        Debug.Log($"[입장 성공] 방: {roomName}, 유저: {string.Join(",", nicknames)}");
 
         NetworkConnector.Instance.PendingRoomEnterMessage = message;
-        // 방 씬으로 전환
         SceneManager.LoadScene("RoomScene");
     }
 

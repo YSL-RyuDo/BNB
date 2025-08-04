@@ -171,7 +171,7 @@ public class LobbyRoom : MonoBehaviour
             Debug.LogWarning($"roomPasswordMap에 '{roomName}' 키가 없습니다.");
         }
 
-        lobbySender.SendEnterRoom(roomName, " ");
+        lobbySender.SendEnterRoom(roomName, "");
     }
 
     private async void OnCreateButtonClicked()
