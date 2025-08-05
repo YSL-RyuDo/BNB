@@ -16,6 +16,10 @@ public class LocalPlayerController : MonoBehaviour
     public bool isDead = false;
     public bool isWeaponMode = false;
     public int waterDamage = 10;
+
+    public UnityEngine.UI.Button weaponButtonUI;
+    public UnityEngine.UI.Button balloonButtonUI;
+
     void Start()
     {
         myNick = NetworkConnector.Instance.UserNickname;
@@ -39,6 +43,11 @@ public class LocalPlayerController : MonoBehaviour
         }
 
         lastSentPosition = localCharacter.transform.position;
+
+        weaponButtonUI = GameObject.Find("WeaponButton")?.GetComponent<UnityEngine.UI.Button>();
+        balloonButtonUI = GameObject.Find("BalloonButton")?.GetComponent<UnityEngine.UI.Button>();
+
+        UpdateButtonVisuals();
     }
 
 
@@ -50,6 +59,8 @@ public class LocalPlayerController : MonoBehaviour
         {
             isWeaponMode = !isWeaponMode;
             Debug.Log("[LocalPlayerController] 무기 모드 " + (isWeaponMode ? "활성화" : "비활성화"));
+
+            UpdateButtonVisuals();
         }
 
         // 입력만 받고, 이동은 FixedUpdate에서 처리
@@ -424,5 +435,22 @@ public class LocalPlayerController : MonoBehaviour
         await Task.Delay((int)(delaySeconds * 1000));
         hasSentWaterHit = false;
         Debug.Log("[WaterHitDetector] hasSentWaterHit 플래그 초기화됨");
+    }
+
+    private void UpdateButtonVisuals()
+    {
+        if (weaponButtonUI != null)
+        {
+            var color = weaponButtonUI.image.color;
+            color.a = isWeaponMode ? 1f : 0.4f; // 무기 모드면 선명
+            weaponButtonUI.image.color = color;
+        }
+
+        if (balloonButtonUI != null)
+        {
+            var color = balloonButtonUI.image.color;
+            color.a = isWeaponMode ? 0.4f : 1f; // 풍선 모드면 선명
+            balloonButtonUI.image.color = color;
+        }
     }
 }

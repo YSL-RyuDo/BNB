@@ -46,6 +46,12 @@ public class CharacterSystem : MonoBehaviour
         targetPositions[playerId] = spawnPos;
 
         Debug.Log($"캐릭터 생성됨: {playerId} 캐릭터 인덱스: {characterIndex}, 위치({x}, {y}), 층({layer})");
+
+        Outline outline = character.AddComponent<Outline>();
+        outline.OutlineMode = Outline.Mode.OutlineAll;
+        outline.OutlineColor = (playerId == NetworkConnector.Instance.UserNickname) ? Color.blue : Color.red;
+        outline.OutlineWidth = 5f;
+
     }
 
     private Vector3 ConvertGridToWorldPosition(int x, int y, int layer)
@@ -57,5 +63,6 @@ public class CharacterSystem : MonoBehaviour
 
         return new Vector3(posX, posY, posZ);
     }
+
 
 }
