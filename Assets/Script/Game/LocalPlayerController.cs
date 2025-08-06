@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Text;
 using System.Threading.Tasks;
 
+
 public class LocalPlayerController : MonoBehaviour
 {
     private GameObject localCharacter;
@@ -19,6 +20,7 @@ public class LocalPlayerController : MonoBehaviour
 
     public UnityEngine.UI.Button weaponButtonUI;
     public UnityEngine.UI.Button balloonButtonUI;
+
 
     void Start()
     {
@@ -55,13 +57,7 @@ public class LocalPlayerController : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            isWeaponMode = !isWeaponMode;
-            Debug.Log("[LocalPlayerController] 무기 모드 " + (isWeaponMode ? "활성화" : "비활성화"));
-
-            UpdateButtonVisuals();
-        }
+        HandleToggleInput();
 
         // 입력만 받고, 이동은 FixedUpdate에서 처리
         float h = Input.GetAxisRaw("Horizontal");
@@ -69,6 +65,40 @@ public class LocalPlayerController : MonoBehaviour
 
         inputDirection = new Vector3(h, 0, v).normalized;
 
+        HandleAttackOrBalloonInput();
+    }
+
+    void FixedUpdate()
+    {
+        if (localCharacter == null || rb == null)
+            return;
+
+        if (inputDirection.magnitude > 0.1f)
+        {
+            Vector3 targetPos = rb.position + inputDirection * moveSpeed * Time.fixedDeltaTime;
+
+            rb.MovePosition(targetPos);
+
+            Quaternion targetRot = Quaternion.LookRotation(inputDirection);
+            rb.MoveRotation(targetRot);
+
+            TrySendPosition();
+        }
+    }
+
+    private void HandleToggleInput()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            isWeaponMode = !isWeaponMode;
+            Debug.Log("[LocalPlayerController] 무기 모드 " + (isWeaponMode ? "활성화" : "비활성화"));
+
+            UpdateButtonVisuals();
+        }
+    }
+
+    private void HandleAttackOrBalloonInput()
+    {
         if (Input.GetKeyDown(KeyCode.Space))
         {
             if (isWeaponMode)
@@ -90,23 +120,13 @@ public class LocalPlayerController : MonoBehaviour
                                 sword.transform.parent = null;
                                 sword.name = $"{myNick}_Sword";
 
-                                string msg = $"WEAPON_ATTACK|{myNick}|{idx}|{attackPosition.x:F2},{attackPosition.y:F2},{attackPosition.z:F2}|{attackRotation.eulerAngles.y:F2}\n";
-                                byte[] bytes = Encoding.UTF8.GetBytes(msg);
-                                try
-                                {
-                                    NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
-                                    Debug.Log($"[Send] 공격 패킷 전송: {msg.Trim()}");
-                                }
-                                catch (System.Exception ex)
-                                {
-                                    Debug.LogError($"[Send] 공격 패킷 전송 실패: {ex.Message}");
-                                }
+                                SendWeaponAttackPacket(idx, attackPosition, attackRotation.eulerAngles.y);
 
                                 WeaponSystem.Instance.StartCooldown(1.5f);
                                 Debug.Log("[Sword Attack] 캐릭터 인덱스 0번 → 검 휘두름");
                             }
                         }
-                        else if(idx == 1)
+                        else if (idx == 1)
                         {
                             GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
                             if (prefab != null)
@@ -119,22 +139,12 @@ public class LocalPlayerController : MonoBehaviour
                                 arrow.transform.parent = null;
                                 arrow.name = $"{myNick}_Arrow";
 
-                                string msg = $"WEAPON_ATTACK|{myNick}|{idx}|{attackPosition.x:F2},{attackPosition.y:F2},{attackPosition.z:F2}|{attackRotation.eulerAngles.y:F2}\n";
-                                byte[] bytes = Encoding.UTF8.GetBytes(msg);
-                                try
-                                {
-                                    NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
-                                    Debug.Log($"[Send] 공격 패킷 전송: {msg.Trim()}");
-                                }
-                                catch (System.Exception ex)
-                                {
-                                    Debug.LogError($"[Send] 공격 패킷 전송 실패: {ex.Message}");
-                                }
+                                SendWeaponAttackPacket(idx, attackPosition, attackRotation.eulerAngles.y);
 
                                 WeaponSystem.Instance.StartCooldown(1.5f);
                             }
                         }
-                        else if(idx ==2)
+                        else if (idx == 2)
                         {
                             GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
                             if (prefab != null)
@@ -147,17 +157,7 @@ public class LocalPlayerController : MonoBehaviour
                                 spell.transform.parent = null;
                                 spell.name = $"{myNick}_Spell";
 
-                                string msg = $"WEAPON_ATTACK|{myNick}|{idx}|{attackPosition.x:F2},{attackPosition.y:F2},{attackPosition.z:F2}|{attackRotation.eulerAngles.y:F2}\n";
-                                byte[] bytes = Encoding.UTF8.GetBytes(msg);
-                                try
-                                {
-                                    NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
-                                    Debug.Log($"[Send] 공격 패킷 전송: {msg.Trim()}");
-                                }
-                                catch (System.Exception ex)
-                                {
-                                    Debug.LogError($"[Send] 공격 패킷 전송 실패: {ex.Message}");
-                                }
+                                SendWeaponAttackPacket(idx, attackPosition, attackRotation.eulerAngles.y);
 
                                 WeaponSystem.Instance.StartCooldown(1.5f);
                             }
@@ -180,15 +180,13 @@ public class LocalPlayerController : MonoBehaviour
                                     maceScript.attackerNick = myNick;
                                 }
 
-                                string msg = $"WEAPON_ATTACK|{myNick}|{idx}|{transform.position.x:F2},{transform.position.y:F2},{transform.position.z:F2}|{transform.eulerAngles.y:F2}\n";
-                                byte[] bytes = Encoding.UTF8.GetBytes(msg);
-                                NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
+                                SendWeaponAttackPacket(idx, transform.position, transform.eulerAngles.y);
 
                                 WeaponSystem.Instance.StartCooldown(1.5f);
                                 Debug.Log("[Mace Attack] 캐릭터 인덱스 3번 → 원형 공격");
                             }
                         }
-                        else if(idx==4)
+                        else if (idx == 4)
                         {
                             GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
                             if (prefab != null)
@@ -207,17 +205,7 @@ public class LocalPlayerController : MonoBehaviour
                                     melodyScript.attackerNick = myNick;
                                 }
 
-                                string msg = $"WEAPON_ATTACK|{myNick}|{idx}|{attackPosition.x:F2},{attackPosition.y:F2},{attackPosition.z:F2}|{attackRotation.eulerAngles.y:F2}\n";
-                                byte[] bytes = Encoding.UTF8.GetBytes(msg);
-                                try
-                                {
-                                    NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
-                                    Debug.Log($"[Send] 공격 패킷 전송: {msg.Trim()}");
-                                }
-                                catch (System.Exception ex)
-                                {
-                                    Debug.LogError($"[Send] 공격 패킷 전송 실패: {ex.Message}");
-                                }
+                                SendWeaponAttackPacket(idx, attackPosition, attackRotation.eulerAngles.y);
 
                                 WeaponSystem.Instance.StartCooldown(1.5f);
                             }
@@ -248,9 +236,7 @@ public class LocalPlayerController : MonoBehaviour
                                     pfScript.targetRot = Quaternion.LookRotation(forward) * Quaternion.Euler(0f, -90f, 0f);
                                 }
 
-                                string msg = $"WEAPON_ATTACK|{myNick}|{idx}|{spawnPosition.x:F2},{spawnPosition.y:F2},{spawnPosition.z:F2}|{attackRotation.eulerAngles.y:F2}\n";
-                                byte[] bytes = Encoding.UTF8.GetBytes(msg);
-                                NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
+                                SendWeaponAttackPacket(idx, spawnPosition, transform.eulerAngles.y);
 
                                 WeaponSystem.Instance.StartCooldown(2f);
                                 Debug.Log("[Pitchfork Attack] 캐릭터 인덱스 5번 → 앞에서 생성 후 휘두름");
@@ -300,17 +286,7 @@ public class LocalPlayerController : MonoBehaviour
                                 }
 
                                 // 4. 네트워크 공격 메시지 전송
-                                string msg = $"WEAPON_ATTACK|{myNick}|{idx}|{spawnPosition.x:F2},{spawnPosition.y:F2},{spawnPosition.z:F2}|{attackRotation.eulerAngles.y:F2}|{laserLength:F2}\n";
-                                byte[] bytes = Encoding.UTF8.GetBytes(msg);
-                                try
-                                {
-                                    NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
-                                    Debug.Log($"[Send] 공격 패킷 전송: {msg.Trim()}");
-                                }
-                                catch (System.Exception ex)
-                                {
-                                    Debug.LogError($"[Send] 공격 패킷 전송 실패: {ex.Message}");
-                                }
+                                SendWeaponAttackPacket(idx, spawnPosition, attackRotation.eulerAngles.y, laserLength);
 
                                 WeaponSystem.Instance.StartCooldown(2.0f);
                                 Debug.Log("[Scepter Laser Attack] 캐릭터 인덱스 6번 → 레이저 발사");
@@ -362,23 +338,31 @@ public class LocalPlayerController : MonoBehaviour
         }
     }
 
-
-
-    void FixedUpdate()
+    private async void SendWeaponAttackPacket(int idx, Vector3 pos, float rotationY, float? extraValue = null)
     {
-        if (localCharacter == null || rb == null)
-            return;
+        string msg;
 
-        if (inputDirection.magnitude > 0.1f)
+        if (extraValue.HasValue)
         {
-            Vector3 targetPos = rb.position + inputDirection * moveSpeed * Time.fixedDeltaTime;
+            // 레이저용 등 추가 데이터 포함
+            msg = $"WEAPON_ATTACK|{myNick}|{idx}|{pos.x:F2},{pos.y:F2},{pos.z:F2}|{rotationY:F2}|{extraValue.Value:F2}\n";
+        }
+        else
+        {
+            // 일반 무기 공격
+            msg = $"WEAPON_ATTACK|{myNick}|{idx}|{pos.x:F2},{pos.y:F2},{pos.z:F2}|{rotationY:F2}\n";
+        }
 
-            rb.MovePosition(targetPos);
+        byte[] bytes = Encoding.UTF8.GetBytes(msg);
 
-            Quaternion targetRot = Quaternion.LookRotation(inputDirection);
-            rb.MoveRotation(targetRot);
-
-            TrySendPosition();
+        try
+        {
+            await NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
+            Debug.Log($"[Send] 공격 패킷 전송: {msg.Trim()}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[Send] 공격 패킷 전송 실패: {ex.Message}");
         }
     }
 
