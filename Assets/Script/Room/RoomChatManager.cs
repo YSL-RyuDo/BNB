@@ -35,7 +35,7 @@ public class RoomChatManager: MonoBehaviour
             var stream = NetworkConnector.Instance.Stream;
 
             string msg = $"ROOM_MESSAGE|{roomName}:{nickname}:{message}\n";
-            byte[] sendBytes = System.Text.Encoding.UTF8.GetBytes(message);
+            byte[] sendBytes = System.Text.Encoding.UTF8.GetBytes(msg);
             await stream.WriteAsync(sendBytes, 0, sendBytes.Length);
             await stream.FlushAsync();
         }
