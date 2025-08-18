@@ -51,6 +51,8 @@ public class NetworkConnector : MonoBehaviour
     public void LobbyHandler(string command, IMessageHandler handler) => AddHandler(command, handler);
     public void RoomHandler(string command, IMessageHandler handler) => AddHandler(command, handler);
 
+    public void MyPageHandler(string command, IMessageHandler handler) => AddHandler(command, handler);
+
     private void AddHandler(string command, IMessageHandler handler)
     {
         if (!handlers.ContainsKey(command))
@@ -71,6 +73,8 @@ public class NetworkConnector : MonoBehaviour
 
     public void RemoveLobbyHandler(string command, IMessageHandler handler) => RemoveHandler(command, handler);
     public void RemoveRoomHandler(string command, IMessageHandler handler) => RemoveHandler(command, handler);
+
+    public void RemoveMyPageHandler(string command, IMessageHandler handler) => RemoveHandler(command, handler);
 
 
     [Serializable]

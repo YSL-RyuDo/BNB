@@ -1,10 +1,10 @@
-
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 
 public class LobbyRoom : MonoBehaviour
@@ -33,6 +33,8 @@ public class LobbyRoom : MonoBehaviour
     public TMP_InputField roomNameInputField;
     public Button createButton;
     public Button logoutButton;
+    public Button myPageButton;
+
 
     public TextMeshProUGUI errorText;
     public GameObject createRoomPanel;
@@ -74,6 +76,8 @@ public class LobbyRoom : MonoBehaviour
 
         passwordToggle.onValueChanged.AddListener(OnPasswordToggleChanged);
         OnPasswordToggleChanged(passwordToggle.isOn);
+
+        myPageButton.onClick.AddListener(LoadMyPageScene);
 
         createButton.onClick.AddListener(OnCreateButtonClicked);
         confirmPasswordButton.onClick.AddListener(OnConfirmPasswordClicked);
@@ -289,4 +293,8 @@ public class LobbyRoom : MonoBehaviour
             errorText.text = "";
     }
 
+    private void LoadMyPageScene()
+    {
+        SceneManager.LoadScene("MyPageScene");
+    }
 }
