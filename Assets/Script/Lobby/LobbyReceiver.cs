@@ -183,18 +183,25 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
         // 2) 받은 방 리스트를 0번 슬롯부터 순서대로 UI에 세팅
         for (int i = 0; i < rooms.Length && i < lobbyRoom.roomButtons.Length; i++)
         {
-            string[] parts = rooms[i].Split(',', StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length < 3)
+            string[] f = rooms[i].Split(new[] { ',' }, 5, StringSplitOptions.None);
+            if (f.Length < 3)
             {
-                Debug.LogWarning("방 정보 포맷 오류: " + rooms[i]);
+                Debug.LogWarning($"방 정보 포맷 오류: {rooms[i]}");
                 continue;
             }
 
-            string roomName = parts[0].Trim();
-            string mapName = parts[1].Trim();
-            bool hasPassword = parts[2].Trim() == "1";
+            string roomName = f[0].Trim();
+            string mapName = f[1].Trim();
+            bool hasPassword = f[2].Trim() == "1";
+
+            bool isCoop = false;
+            string userListStr = string.Empty;
+
+            if (f.Length >= 4)
+                isCoop = f[3].Trim() == "1";
 
             lobbyRoom.roomPasswordMap[roomName] = hasPassword;
+            lobbyRoom.roomCoopMap[roomName] = isCoop;
 
             lobbyRoom.SetRoomButton(lobbyRoom.roomButtons[i], roomName, lobbyRoom.GetSpriteForMap(mapName));
             lobbyRoom.isOccupied[i] = true;
@@ -260,6 +267,13 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
         }
         lobbyRoom.roomPasswordMap[roomName] = hasPassword;
 
+        bool isCoop = false;
+        if(parts.Length > 6 && parts[6].Trim() == "1")
+        {
+            isCoop = true;
+        }
+        lobbyRoom.roomCoopMap[roomName] = isCoop;
+
         List<string> userList = new List<string>();
         Dictionary<string, int> characterIndexMap = new Dictionary<string, int>();
 
@@ -268,28 +282,14 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
             var userEntries = userListStr.Split(',');
             foreach (var entry in userEntries)
             {
-                var userParts = entry.Split(':');
-                if (userParts.Length == 2)
-                {
-                    string nick = userParts[0].Trim();
-                    if (int.TryParse(userParts[1].Trim(), out int charIndex))
-                    {
-                        userList.Add(nick);
-                        characterIndexMap[nick] = charIndex;
-                    }
-                    else
-                    {
-                        userList.Add(nick);
-                        characterIndexMap[nick] = 0; // 기본값
-                        Debug.LogWarning($"캐릭터 인덱스 파싱 실패: {userParts[1]}");
-                    }
-                }
-                else
-                {
-                    string nick = entry.Trim();
-                    userList.Add(nick);
-                    characterIndexMap[nick] = 0; // 기본값
-                }
+                var up = entry.Split(':');
+
+                string nick = up[0].Trim();
+                userList.Add(nick);
+
+                int charIndex = 0;
+                if (up.Length >= 2) int.TryParse(up[1].Trim(), out charIndex);
+                characterIndexMap[nick] = charIndex;
             }
         }
 
@@ -311,6 +311,13 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
         }
 
         Debug.Log($"Room '{roomName}' has users: {string.Join(", ", userList)}");
+
+        string rawUserListStr = userListStr; // team 필드(:Blue/:Red)가 포함된 원본
+        string hasPwStr = hasPassword ? "HAS_PASSWORD" : "NO_PASSWORD";
+        string coopStr = isCoop ? "1" : "0";
+
+        NetworkConnector.Instance.PendingRoomEnterMessage =
+            $"ENTER_ROOM_SUCCESS|{roomName}|{mapName}|{rawUserListStr}|{hasPwStr}|{coopStr}";
 
         if (isCreator)
         {
@@ -374,7 +381,10 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
         string userListStr = parts[3].Trim();
         bool hasPassword = parts.Length > 4 && parts[4].Trim() == "HAS_PASSWORD";
 
+        bool isCoop = (parts.Length >= 6) ? (parts[5].Trim() == "1") : false;
+
         lobbyRoom.roomPasswordMap[roomName] = hasPassword;
+        lobbyRoom.roomCoopMap[roomName] = isCoop;
 
         List<string> userList = userListStr.Split(',').Select(u => u.Trim()).ToList();
         Sprite sprite = lobbyRoom.GetSpriteForMap(mapName);

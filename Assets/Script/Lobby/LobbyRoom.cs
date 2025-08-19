@@ -36,6 +36,8 @@ public class LobbyRoom : MonoBehaviour
     public Button logoutButton;
     public Button myPageButton;
 
+    public Sprite coopSprite;
+    public Sprite passwordSprite;
 
     public TextMeshProUGUI errorText;
     public GameObject createRoomPanel;
@@ -50,6 +52,7 @@ public class LobbyRoom : MonoBehaviour
     private bool isTeamGame = false;
 
     public Dictionary<string, bool> roomPasswordMap = new Dictionary<string, bool>();
+    public Dictionary<string, bool> roomCoopMap = new Dictionary<string, bool>();
 
     [SerializeField]
     private LobbySender lobbySender;
@@ -106,6 +109,10 @@ public class LobbyRoom : MonoBehaviour
     public void SetRoomButton(Button btn, string roomName, Sprite sprite)
     {
         Debug.Log("룸 버튼 세팅 호출");
+
+        bool hasPassword = roomPasswordMap.TryGetValue(roomName, out var hp) && hp;
+        bool isCoop = roomCoopMap.TryGetValue(roomName, out var coop) && coop;
+
         var roomNameText = btn.transform.Find("RoomNameText")?.GetComponent<TextMeshProUGUI>();
         if (roomNameText != null)
             roomNameText.text = roomName;
@@ -119,6 +126,24 @@ public class LobbyRoom : MonoBehaviour
         else
         {
             Debug.LogWarning("RoomImage Image 컴포넌트 못 찾음");
+        }
+
+        var coopImage = btn.transform.Find("CoopImage")?.GetComponent<Image>();
+        if (coopImage != null)
+        {
+            if (roomCoopMap[roomName] == true)
+            {
+                coopImage.sprite = coopSprite;
+            }      
+        }
+
+        var passwordImage = btn.transform.Find("PasswordImage")?.GetComponent<Image>();
+        if (passwordImage != null)
+        {
+            if(roomPasswordMap[roomName] == true)
+            { 
+                passwordImage.sprite = passwordSprite; 
+            }
         }
 
         btn.onClick.RemoveAllListeners();
@@ -135,6 +160,14 @@ public class LobbyRoom : MonoBehaviour
         var roomImage = btn.transform.Find("RoomImage")?.GetComponent<Image>();
         if (roomImage != null)
             roomImage.sprite = null;
+
+        var coopImage = btn.transform.Find("CoopImage")?.GetComponent<Image>();
+        if (coopImage != null)
+            coopImage.sprite = null;
+
+        var passwordImage = btn.transform.Find("PasswordImage")?.GetComponent<Image>();
+        if (passwordImage != null)
+            passwordImage.sprite = null;
 
         btn.onClick.RemoveAllListeners();
     }

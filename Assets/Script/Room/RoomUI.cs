@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -14,6 +15,11 @@ public class RoomUI : MonoBehaviour
     [SerializeField] private Button startGameButton;
     [SerializeField] private Button exitButton;
 
+    private bool isCoopMode = false;
+    private readonly Dictionary<string, string> userTeamMap = new();
+    [SerializeField] private Color redTeamColor = Color.red;
+    [SerializeField] private Color blueTeamColor = Color.blue;
+    [SerializeField] private Color soloColor = Color.black;
     private int myPlayerIndex = -1;
 
     private void Start()
@@ -22,6 +28,9 @@ public class RoomUI : MonoBehaviour
 
         roomNameText.text = client.CurrentRoomName;
         myPlayerIndex = client.CurrentUserList.FindIndex(n => n.Trim() == client.UserNickname?.Trim());
+
+        ParseEnterRoomPacket(client.PendingRoomEnterMessage);
+
 
         for (int i = 0; i < characterChooseButton.Length; i++)
         {
@@ -36,6 +45,26 @@ public class RoomUI : MonoBehaviour
         roomSender.SendGetCharacterInfo(client.UserNickname?.Trim());
 
         OnEnterRoomSuccess(client.CurrentRoomName, string.Join(",", client.CurrentUserList));
+    }
+
+    private void ParseEnterRoomPacket(string message)
+    {
+        if (string.IsNullOrEmpty(message)) return;
+
+        var p = message.Split('|');
+        if (p.Length < 4 || p[0] != "ENTER_ROOM_SUCCESS") return;
+
+        string userListStr = p[3];                          // nick:idx(:team),...
+        isCoopMode = p.Length >= 6 && p[5].Trim() == "1";   // coop 1/0
+
+        userTeamMap.Clear();
+        foreach (var token in userListStr.Split(',', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var up = token.Split(':'); // nick:idx(:team)
+            string nickname = up[0].Trim();
+            string team = (up.Length >= 3) ? up[2].Trim() : "None";
+            userTeamMap[nickname] = team;
+        }
     }
 
     public void HandleUserJoined(string message)
@@ -54,29 +83,28 @@ public class RoomUI : MonoBehaviour
 
         List<string> nicknames = new List<string>();
 
+        userTeamMap.Clear();
+        bool anyTeamField = false;
+
+
         // NetworkConnector.Instance.CurrentUserCharacterIndices.Clear();
 
         foreach (string token in userTokens)
         {
-            if (token.Contains(":"))
-            {
-                var pair = token.Split(':');
-                string nickname = pair[0].Trim();
-                int charIndex = 0;
-                if (!int.TryParse(pair[1], out charIndex))
-                {
-                    charIndex = 0; // 기본값
-                }
-                NetworkConnector.Instance.SetOrUpdateUserCharacter(nickname, charIndex);
-                nicknames.Add(nickname);
-            }
-            else
-            {
-                string nickname = token.Trim();
-                NetworkConnector.Instance.SetOrUpdateUserCharacter(nickname, 0);
-                nicknames.Add(nickname);
-            }
+            var up = token.Split(':'); // nick:idx(:team)
+            string nickname = up[0].Trim();
+
+            int charIndex = 0;
+            if (up.Length >= 2) int.TryParse(up[1], out charIndex);
+            NetworkConnector.Instance.SetOrUpdateUserCharacter(nickname, charIndex);
+            nicknames.Add(nickname);
+
+            string team = (up.Length >= 3) ? up[2].Trim() : "None";
+            userTeamMap[nickname] = team;
+            if (up.Length >= 3) anyTeamField = true;
         }
+
+        if (anyTeamField) isCoopMode = true;
 
         // 저장
         NetworkConnector.Instance.CurrentRoomName = roomName;
@@ -220,6 +248,8 @@ public class RoomUI : MonoBehaviour
                 string nickname = userList[i];
                 nameText.text = nickname;
 
+                ApplyNameColor(nameText, nickname);
+
                 if (characterIndexMap.TryGetValue(nickname, out int characterIndex))
                 {
                     Debug.Log($"[{i}] 캐릭터 인덱스: {characterIndex}");
@@ -273,6 +303,24 @@ public class RoomUI : MonoBehaviour
         {
             startGameButton.gameObject.SetActive(false);
             Debug.Log("방장이 아닙니다. 시작 버튼 비활성화.");
+        }
+    }
+
+    private void ApplyNameColor(TextMeshProUGUI nameText, string nickname)
+    {
+        nameText.color = soloColor;
+
+        if (!isCoopMode)
+        {
+            return;
+        }
+
+        if (userTeamMap.TryGetValue(nickname, out var team))
+        {
+            if (string.Equals(team, "Blue", System.StringComparison.OrdinalIgnoreCase))
+                nameText.color = blueTeamColor;
+            else if (string.Equals(team, "Red", System.StringComparison.OrdinalIgnoreCase))
+                nameText.color = redTeamColor;
         }
     }
 }
