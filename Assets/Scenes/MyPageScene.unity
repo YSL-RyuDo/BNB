@@ -4271,7 +4271,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   errorText: {fileID: 402361808}
-  myPageSender: {fileID: 0}
 --- !u!114 &1363832912
 MonoBehaviour:
   m_ObjectHideFlags: 0

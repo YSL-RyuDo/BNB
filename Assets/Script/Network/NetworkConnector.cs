@@ -566,7 +566,27 @@ public class NetworkConnector : MonoBehaviour
                     Debug.Log($"[Network] {attackerNick}의 Melody 오브젝트 제거됨");
                     break;
                 }
+            case "DESTROYWALL":
+                {
+                    string[] messageParts = message.Split('|');
 
+                    if (messageParts.Length < 2)
+                    {
+                        Debug.LogWarning("[DESTROYWALL] 메시지 형식 오류: " + message);
+                        break;
+                    }
+
+                    string wallName = messageParts[1].Trim();
+
+                    GameObject wall = GameObject.Find(wallName);
+                    if (wall != null)
+                    {
+                        Destroy(wall);
+                        Debug.Log($"[Map] 벽 파괴: {wallName}");
+                    }
+
+                    break;
+                }
 
             case "PLACE_BALLOON_RESULT":
                 {

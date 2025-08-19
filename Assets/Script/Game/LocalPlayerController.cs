@@ -318,11 +318,11 @@ public class LocalPlayerController : MonoBehaviour
             float snappedZ = Mathf.Round(pos.z / cellSize) * cellSize;
             Vector3 snappedPos = new Vector3(snappedX, 0, snappedZ);
 
-            if ((snappedPos - lastBalloonPos).sqrMagnitude < 0.01f)
-            {
-                Debug.Log("[LocalPlayerController] 같은 위치에 중복 설치 방지");
-                return;
-            }
+            //if ((snappedPos - lastBalloonPos).sqrMagnitude < 0.01f)
+            //{
+            //    Debug.Log("[LocalPlayerController] 같은 위치에 중복 설치 방지");
+            //    return;
+            //}
 
             lastBalloonPos = snappedPos;
 

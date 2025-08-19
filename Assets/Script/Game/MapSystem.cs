@@ -8,8 +8,8 @@ public class MapSystem : MonoBehaviour
 
     public GameObject[] map1Prefabs; // 0,1,2 프리팹
     public GameObject[] map2Prefabs;
-    // ...
     int wallHeight = 5;
+
     private void Awake()
     {
         Instance = this;
@@ -37,8 +37,8 @@ public class MapSystem : MonoBehaviour
 
         string[] rows = rawData.Split(';');
         int totalRows = rows.Length;
-        int layerHeight = totalRows / 2;  // 13 (층 높이)
-        int mapWidth = rows[0].Split(',').Length;  // 15 (가로 너비)
+        int layerHeight = totalRows / 2;
+        int mapWidth = rows[0].Split(',').Length;
 
         for (int y = 0; y < totalRows; y++)
         {
@@ -46,38 +46,30 @@ public class MapSystem : MonoBehaviour
 
             bool isUpperLayer = (y >= layerHeight);
             float yOffset = isUpperLayer ? 1f : 0f;
-
             int localZ = y % layerHeight;
 
             if (!isUpperLayer)
             {
-                // 0층 (바닥) - 기존 15x13 맵 그대로 생성
                 for (int x = 0; x < mapWidth; x++)
                 {
                     if (int.TryParse(cols[x], out int tileIndex))
                     {
-                        if (tileIndex == 5) continue; // 특정 타일 무시
+                        if (tileIndex == 5) continue;
 
                         Vector3 pos = new Vector3(x, yOffset, localZ);
-                        Quaternion rotation = Quaternion.Euler(90, 0, 180); // X축으로 90도 회전
+                        Quaternion rotation = Quaternion.Euler(90, 0, 180);
                         GameObject tile = Instantiate(tilePrefabs[tileIndex], pos, rotation);
+                        tile.name = $"{tilePrefabs[tileIndex].name}_{x}_{localZ}"; // 이름 변경
                         tile.transform.SetParent(mapParent.transform);
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"[맵 로딩] 숫자 변환 실패 ({mapName}, 위치: {x},{y})");
                     }
                 }
             }
             else
             {
-                // 1층 (상층) - 좌우, 상하 테두리 포함 17x15 범위 생성
-
                 int startX = -1;
-                int endX = mapWidth; // 15
-
+                int endX = mapWidth;
                 int startZ = -1;
-                int endZ = layerHeight; // 13
+                int endZ = layerHeight;
 
                 for (int x = startX; x <= endX; x++)
                 {
@@ -92,30 +84,21 @@ public class MapSystem : MonoBehaviour
                             {
                                 Vector3 pos = new Vector3(x, height, z);
                                 GameObject tile = Instantiate(tilePrefabs[5], pos, Quaternion.identity);
+                                tile.name = $"{tilePrefabs[5].name}_{x}_{z}_h{height}"; // 좌표 포함
                                 tile.transform.SetParent(mapParent.transform);
                             }
                         }
-                        else
+                        else if (x >= 0 && x < mapWidth && z >= 0 && z < layerHeight)
                         {
-                            // 내부 타일은 원래 데이터로 채움 (1층 데이터는 rows[layerHeight + z])
-                            // z는 -1~13 범위이므로 내부는 0~12 범위만 원래 데이터로 읽음
-                            if (z >= 0 && z < layerHeight && x >= 0 && x < mapWidth)
+                            string[] upperLayerCols = rows[layerHeight + z].Split(',');
+                            if (int.TryParse(upperLayerCols[x], out int upperTileIndex))
                             {
-                                string[] upperLayerCols = rows[layerHeight + z].Split(',');
-                                if (int.TryParse(upperLayerCols[x], out int originalTileIndex))
-                                {
-                                    tileIndex = originalTileIndex;
-                                    if (tileIndex == 5) continue; // 무시 타일
-                                }
-                                else
-                                {
-                                    Debug.LogWarning($"[맵 로딩] 숫자 변환 실패 ({mapName}, 위치: {x},{layerHeight + z})");
-                                    continue;
-                                }
+                                tileIndex = upperTileIndex;
+                                if (tileIndex == 5) continue;
                             }
                             else
                             {
-                                // 경계 밖 내부 아닌데 데이터 없음, 무시
+                                Debug.LogWarning($"[맵 로딩] 숫자 변환 실패 ({mapName}, 위치: {x},{layerHeight + z})");
                                 continue;
                             }
                         }
@@ -124,16 +107,15 @@ public class MapSystem : MonoBehaviour
                         {
                             Vector3 pos = new Vector3(x, yOffset, z);
                             GameObject tile = Instantiate(tilePrefabs[tileIndex], pos, Quaternion.identity);
+                            tile.name = $"{tilePrefabs[tileIndex].name}_{x}_{z}"; // 이름 변경
                             tile.transform.SetParent(mapParent.transform);
                         }
                     }
                 }
-                // 한 행씩 처리하는 대신 x,z 이중 for문으로 전체 영역 커버
-                break; // 상층은 한번만 처리하면 됨
+                break;
             }
         }
 
         Debug.Log("맵 로딩 완료: " + mapName);
     }
-
 }

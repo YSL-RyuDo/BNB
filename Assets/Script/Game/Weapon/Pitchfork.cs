@@ -60,8 +60,12 @@ public class Pitchfork : MonoBehaviour
 
         if (other.CompareTag("Wall"))
         {
-            Debug.Log($"[Pitchfork] Wall ÅÂ±× °´Ã¼ ÆÄ±«µÊ: {other.name}");
+            string wallName = other.name;
+            string msg = $"HITWALL|{wallName}\n";
+            byte[] bytes = Encoding.UTF8.GetBytes(msg);
+            NetworkConnector.Instance.Stream.Write(bytes, 0, bytes.Length);
             Destroy(other.gameObject);
+            Debug.Log($"[Pitchfork] ¼­¹ö¿¡ º® ÆÄ±« ¿äÃ»: {wallName}");
         }
     }
 }

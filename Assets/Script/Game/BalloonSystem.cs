@@ -381,7 +381,7 @@ public class BalloonSystem : MonoBehaviour
                 {
                     Debug.Log($"[WATER] 충돌체: {hit.name}, Tag: {hit.tag}, Layer: {LayerMask.LayerToName(hit.gameObject.layer)}");
 
-                    if (hit.CompareTag("Wall") || hit.gameObject.layer == LayerMask.NameToLayer("Wall"))
+                    if (hit.CompareTag("Wall") || hit.gameObject.layer == LayerMask.NameToLayer("Wall") || hit.CompareTag("Ground") || hit.gameObject.layer == LayerMask.NameToLayer("Ground"))
                     {
                         Debug.Log($"[WATER] 벽 발견 at ({x},{z}) → 퍼짐 종료");
                         blocked = true;
@@ -394,9 +394,7 @@ public class BalloonSystem : MonoBehaviour
                         Destroy(hit.gameObject);
                         blocked = true;
                         break;
-                    }
-
-                    
+                    } 
                 }
 
                 if (blocked)

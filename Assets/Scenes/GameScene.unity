@@ -263,10 +263,10 @@ RectTransform:
   - {fileID: 1919097024}
   m_Father: {fileID: 1293517329}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 123, y: -29}
-  m_SizeDelta: {x: 50, y: 50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &68970187
 MonoBehaviour:
@@ -1137,10 +1137,10 @@ RectTransform:
   - {fileID: 219436239}
   m_Father: {fileID: 1948158161}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 302, y: -45}
-  m_SizeDelta: {x: 80, y: 80}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &467980059
 MonoBehaviour:
@@ -1333,10 +1333,10 @@ RectTransform:
   - {fileID: 1489285758}
   m_Father: {fileID: 1948158161}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 132, y: -45}
-  m_SizeDelta: {x: 80, y: 80}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &577153339
 MonoBehaviour:
@@ -1454,10 +1454,10 @@ RectTransform:
   - {fileID: 1347823742}
   m_Father: {fileID: 1948158161}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 217, y: -45}
-  m_SizeDelta: {x: 80, y: 80}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &688183637
 MonoBehaviour:
@@ -1575,10 +1575,10 @@ RectTransform:
   - {fileID: 1576942281}
   m_Father: {fileID: 1948158161}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 47, y: -45}
-  m_SizeDelta: {x: 80, y: 80}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &945357028
 MonoBehaviour:
@@ -3290,10 +3290,10 @@ RectTransform:
   - {fileID: 497451408}
   m_Father: {fileID: 1293517329}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 223, y: -29}
-  m_SizeDelta: {x: 50, y: 50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1957455499
 MonoBehaviour:
@@ -3454,12 +3454,14 @@ MonoBehaviour:
   - {fileID: 863330603906094049, guid: 3da1b0ef2e93f074785e3c4a81c90757, type: 3}
   - {fileID: 863330603906094049, guid: da2edc8e0d4690b48bfc64cc05279e90, type: 3}
   map2Prefabs:
-  - {fileID: 2528769028567808131, guid: 411d43e2bb6f96e44963159d5631b00f, type: 3}
-  - {fileID: 387831914626902763, guid: a771c8807f3add74a961f3ee79d269a4, type: 3}
-  - {fileID: 7875654183108811116, guid: 1bb14c6eb32f01a42b66eab5cef23345, type: 3}
-  - {fileID: 863330603906094049, guid: be6234f9dbc0ae548b0718bd15d127b7, type: 3}
-  - {fileID: 863330603906094049, guid: 3da1b0ef2e93f074785e3c4a81c90757, type: 3}
-  - {fileID: 863330603906094049, guid: da2edc8e0d4690b48bfc64cc05279e90, type: 3}
+  - {fileID: 2528769028567808131, guid: 400f8f0e3e8e94d48aee2e870c7b5fac, type: 3}
+  - {fileID: 387831914626902763, guid: b2f7f85af40401248961d886e38c1154, type: 3}
+  - {fileID: 7875654183108811116, guid: 68e557bff1ef64c4390cd1849070da76, type: 3}
+  - {fileID: 863330603906094049, guid: 700aaa029727741459a4f0125b1286fb, type: 3}
+  - {fileID: 863330603906094049, guid: 011030ef22446234e898033477d923b8, type: 3}
+  - {fileID: 863330603906094049, guid: e62f600f111e4c44585f566adbcd4417, type: 3}
+  - {fileID: 863330603906094049, guid: bf092c87107a6ba47a1510bfb72c275d, type: 3}
+  - {fileID: 863330603906094049, guid: a8ffbf73e0f35ab4b961b32baf541255, type: 3}
 --- !u!114 &2119840885
 MonoBehaviour:
   m_ObjectHideFlags: 0
