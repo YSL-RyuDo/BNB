@@ -29,6 +29,7 @@ public class LobbyRoom : MonoBehaviour
     public Image previewImage;
 
     public Toggle passwordToggle;
+    public Toggle teamToggle;
     public TMP_InputField passwordInputField;
     public TMP_InputField roomNameInputField;
     public Button createButton;
@@ -45,6 +46,8 @@ public class LobbyRoom : MonoBehaviour
     public TMP_InputField EnterpasswordInputField;
     public Button confirmPasswordButton;
     public string pendingRoomName = "";
+
+    private bool isTeamGame = false;
 
     public Dictionary<string, bool> roomPasswordMap = new Dictionary<string, bool>();
 
@@ -209,6 +212,15 @@ public class LobbyRoom : MonoBehaviour
             }
         }
 
+        if (teamToggle.isOn)
+        {
+            isTeamGame = true;
+        }
+        else
+        {
+            isTeamGame = false;
+        }
+
         if (createRoomPanel != null)
         {
             createRoomPanel.SetActive(false);
@@ -217,7 +229,7 @@ public class LobbyRoom : MonoBehaviour
         string selectedMap = NetworkConnector.Instance.SelectedMap;
         string password = passwordToggle.isOn ? passwordInputField.text.Trim() : "";
 
-        string packet = $"CREATE_ROOM|{roomName}|{selectedMap}|{password}";
+        string packet = $"CREATE_ROOM|{roomName}|{selectedMap}|{password}|{isTeamGame}";
 
         try
         {
