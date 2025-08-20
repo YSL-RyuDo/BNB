@@ -33,6 +33,8 @@ public class Mace : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        string myNickname = NetworkConnector.Instance.UserNickname;
+
         if (!name.StartsWith(attackerNick + "_"))
             return;
 
@@ -42,7 +44,7 @@ public class Mace : MonoBehaviour
             if (hitPlayerName == attackerNick) return;
 
             int weaponIndex = 3;
-            string attackMsg = $"HIT|{weaponIndex}|{hitPlayerName}\n";
+            string attackMsg = $"HIT|{weaponIndex}|{myNickname}|{hitPlayerName}\n";
             byte[] bytes = Encoding.UTF8.GetBytes(attackMsg);
             NetworkConnector.Instance.Stream.Write(bytes, 0, bytes.Length);
 

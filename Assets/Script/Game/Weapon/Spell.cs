@@ -26,6 +26,7 @@ public class Spell : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        string myNickname = NetworkConnector.Instance.UserNickname;
         // 캐릭터와 충돌한 경우
         if (other.name.StartsWith("Character_"))
         {
@@ -36,7 +37,7 @@ public class Spell : MonoBehaviour
             if (hitPlayerName != myNick)
             {
                 int weaponIndex = 2;
-                string attackMsg = $"HIT|{weaponIndex}|{hitPlayerName}\n";
+                string attackMsg = $"HIT|{weaponIndex}|{myNickname}|{hitPlayerName}\n";
                 byte[] bytes = Encoding.UTF8.GetBytes(attackMsg);
                 NetworkConnector.Instance.Stream.Write(bytes, 0, bytes.Length);
 

@@ -51,7 +51,7 @@ public class Pitchfork : MonoBehaviour
                 return;
 
             int weaponIndex = 5;
-            string attackMsg = $"HIT|{weaponIndex}|{hitPlayerName}\n";
+            string attackMsg = $"HIT|{weaponIndex}|{myNickname}|{hitPlayerName}\n";
             byte[] bytes = Encoding.UTF8.GetBytes(attackMsg);
             NetworkConnector.Instance.Stream.Write(bytes, 0, bytes.Length);
 

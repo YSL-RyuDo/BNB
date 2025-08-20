@@ -52,7 +52,7 @@ public class Sword : MonoBehaviour
                 return; // 자기 자신 맞은 거면 무시
 
             int weaponIndex = 0; // 검이라면 0
-            string attackMsg = $"HIT|{weaponIndex}|{hitPlayerName}\n";
+            string attackMsg = $"HIT|{weaponIndex}|{myNickname}|{hitPlayerName}\n";
             byte[] bytes = Encoding.UTF8.GetBytes(attackMsg);
             NetworkConnector.Instance.Stream.Write(bytes, 0, bytes.Length);
 
