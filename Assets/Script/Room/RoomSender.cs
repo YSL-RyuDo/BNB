@@ -30,6 +30,12 @@ public class RoomSender : MonoBehaviour
         await SendToServer(message);
     }
 
+    public async void SendTeamChange(string nickname)
+    {
+        string message = $"TEAMCHANGE|{nickname}\n";
+        await SendToServer(message);
+    }
+
     private async Task SendToServer(string message)
     {
         var stream = NetworkConnector.Instance.Stream;

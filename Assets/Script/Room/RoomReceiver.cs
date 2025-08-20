@@ -29,6 +29,7 @@ public class RoomReceiver : MonoBehaviour, IMessageHandler
         switch (command)
         {
             case "REFRESH_ROOM_SUCCESS":
+                Debug.Log("[RoomReceiver RAW] " + message);
                 roomUI.HandleUserJoined(message);
                 break;
             case "CHARACTER_LIST":

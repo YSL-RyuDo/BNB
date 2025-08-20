@@ -14,6 +14,7 @@ public class RoomUI : MonoBehaviour
     [SerializeField] private Sprite[] characterSprites;
     [SerializeField] private Button startGameButton;
     [SerializeField] private Button exitButton;
+    [SerializeField] private Button teamChangeButton;
 
     private bool isCoopMode = false;
     private readonly Dictionary<string, string> userTeamMap = new();
@@ -40,6 +41,8 @@ public class RoomUI : MonoBehaviour
 
         startGameButton.onClick.AddListener(OnClickStartGame);
         exitButton.onClick.AddListener(OnClickExitRoom);
+
+        teamChangeButton.onClick.AddListener(OnClickTeamChange);
 
         UpdatePlayerInfoUI(client.CurrentUserList);
         roomSender.SendGetCharacterInfo(client.UserNickname?.Trim());
@@ -73,46 +76,61 @@ public class RoomUI : MonoBehaviour
         string[] parts = message.Split('|');
         if (parts.Length < 4)
         {
-            Debug.LogWarning("REFRESH_ROOM_SUCCESS 파싱 실패");
+            Debug.LogWarning("REFRESH_ROOM_SUCCESS 파싱 실패: " + message);
             return;
         }
 
         string roomName = parts[1];
         string mapName = parts[2];
-        string[] userTokens = parts[3].Split(',');
 
-        List<string> nicknames = new List<string>();
+        // 빈 항목 제거 (끝 콤마/공백 방지)
+        string[] userTokens = parts[3].Split(',', StringSplitOptions.RemoveEmptyEntries);
 
+        var nicknames = new List<string>();
         userTeamMap.Clear();
         bool anyTeamField = false;
 
-
-        // NetworkConnector.Instance.CurrentUserCharacterIndices.Clear();
-
-        foreach (string token in userTokens)
+        foreach (string raw in userTokens)
         {
-            var up = token.Split(':'); // nick:idx(:team)
+            string token = raw.Trim();
+            if (string.IsNullOrEmpty(token)) continue;
+
+            // nick:idx(:team[:...])
+            var up = token.Split(':');
+            if (up.Length < 2) continue;
+
             string nickname = up[0].Trim();
+            if (string.IsNullOrEmpty(nickname)) continue;
 
             int charIndex = 0;
             if (up.Length >= 2) int.TryParse(up[1], out charIndex);
             NetworkConnector.Instance.SetOrUpdateUserCharacter(nickname, charIndex);
-            nicknames.Add(nickname);
 
-            string team = (up.Length >= 3) ? up[2].Trim() : "None";
+            string team = (up.Length >= 3 && !string.IsNullOrWhiteSpace(up[2])) ? up[2].Trim() : "None";
             userTeamMap[nickname] = team;
             if (up.Length >= 3) anyTeamField = true;
+
+            nicknames.Add(nickname);
+        }
+
+        if (nicknames.Count == 0)
+        {
+            Debug.LogWarning("[RoomUI] 빈 유저 리스트 수신 → UI 보존. 원문: " + message);
+            return;
         }
 
         if (anyTeamField) isCoopMode = true;
 
-        // 저장
+        // 상태 저장 및 UI 갱신 (여기서만 반영)
         NetworkConnector.Instance.CurrentRoomName = roomName;
         NetworkConnector.Instance.SelectedMap = mapName;
         NetworkConnector.Instance.CurrentUserList = nicknames;
-        NetworkConnector.Instance.CurrentRoomLeader = nicknames.Count > 0 ? nicknames[0] : null;
+        NetworkConnector.Instance.CurrentRoomLeader = (nicknames.Count > 0) ? nicknames[0] : null;
 
         RefreshRoomUI(nicknames, roomName);
+
+        // 협동전이면 계속 누를 수 있게
+        UpdateTeamChangeButtonInteractable();
     }
 
     public void RefreshRoomUI(List<string> updatedUserList, string updatedRoomName = null)
@@ -160,6 +178,8 @@ public class RoomUI : MonoBehaviour
         UpdatePlayerInfoUI(updatedUserList);
 
         OnEnterRoomSuccess(NetworkConnector.Instance.CurrentRoomName, string.Join(",", updatedUserList));
+
+        UpdateTeamChangeButtonInteractable();
     }
 
     public void HandleCharacterList(string message)
@@ -322,5 +342,27 @@ public class RoomUI : MonoBehaviour
             else if (string.Equals(team, "Red", System.StringComparison.OrdinalIgnoreCase))
                 nameText.color = redTeamColor;
         }
+    }
+
+
+    private void OnClickTeamChange()
+    {
+        if (!isCoopMode) return;
+
+        string myNick = NetworkConnector.Instance.UserNickname?.Trim();
+        if (string.IsNullOrEmpty(myNick)) return;
+
+
+        roomSender.SendTeamChange(myNick);
+    }
+
+    private void UpdateTeamChangeButtonInteractable()
+    {
+        if (teamChangeButton == null) return;
+
+        teamChangeButton.gameObject.SetActive(isCoopMode);
+
+        teamChangeButton.interactable = isCoopMode;
+        
     }
 }
