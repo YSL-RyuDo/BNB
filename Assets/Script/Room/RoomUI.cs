@@ -48,6 +48,7 @@ public class RoomUI : MonoBehaviour
         roomSender.SendGetCharacterInfo(client.UserNickname?.Trim());
 
         OnEnterRoomSuccess(client.CurrentRoomName, string.Join(",", client.CurrentUserList));
+        UpdateTeamChangeButtonInteractable();
     }
 
     private void ParseEnterRoomPacket(string message)
@@ -358,11 +359,15 @@ public class RoomUI : MonoBehaviour
 
     private void UpdateTeamChangeButtonInteractable()
     {
-        if (teamChangeButton == null) return;
+        if (isCoopMode)
+        {
+            teamChangeButton.gameObject.SetActive(true);
+            teamChangeButton.interactable = true;
+        }
+        else
+        {
+            teamChangeButton.gameObject.SetActive(false);
+        }
 
-        teamChangeButton.gameObject.SetActive(isCoopMode);
-
-        teamChangeButton.interactable = isCoopMode;
-        
     }
 }
