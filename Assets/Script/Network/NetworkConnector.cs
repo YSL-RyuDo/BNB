@@ -39,7 +39,8 @@ public class NetworkConnector : MonoBehaviour
     public Dictionary<string, int> CurrentUserCharacterIndices =>
         userCharacterEntries.ToDictionary(e => e.nickname, e => e.characterIndex);
 
-
+    public bool IsCoopMode { get; set; }
+    public Dictionary<string, string> UserTeams { get; } = new();
 
     // 서버에서 온 메시지의 명령어를 키로 하고 해당 명령어를 처리할 객체를 값으로 저장하는 딕셔너리
     private Dictionary<string, List<IMessageHandler>> handlers = new();

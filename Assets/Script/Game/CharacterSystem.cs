@@ -49,8 +49,32 @@ public class CharacterSystem : MonoBehaviour
 
         Outline outline = character.AddComponent<Outline>();
         outline.OutlineMode = Outline.Mode.OutlineAll;
-        outline.OutlineColor = (playerId == NetworkConnector.Instance.UserNickname) ? Color.blue : Color.red;
         outline.OutlineWidth = 5f;
+
+        var nc = NetworkConnector.Instance;
+        string myNick = nc.UserNickname;
+
+        if (playerId == myNick)
+        {
+            outline.OutlineColor = Color.blue;
+        }
+        else
+        {
+            if (nc.IsCoopMode)
+            {
+                string myTeam = nc.UserTeams.TryGetValue(myNick, out var mt) ? mt : "None";
+                string playerTeam = nc.UserTeams.TryGetValue(playerId, out var pt) ? pt : "None";
+
+                if (!string.IsNullOrEmpty(myTeam) && myTeam != "None" && myTeam == playerTeam)
+                    outline.OutlineColor = Color.green;
+                else
+                    outline.OutlineColor = Color.red;
+            }
+            else
+            {
+                outline.OutlineColor = Color.red;
+            }
+        }
 
     }
 

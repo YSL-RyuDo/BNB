@@ -18,6 +18,12 @@ public class RoomSender : MonoBehaviour
         await SendToServer(message);
     }
 
+    public async void SendStartCoopGame(string roomName)
+    {
+        string message = $"START_COOP_GAME|{roomName}\n";
+        await SendToServer(message);
+    }
+
     public async void SendExitRoom(string roomName, string nickname)
     {
         string message = $"EXIT_ROOM|{roomName}|{nickname}\n";

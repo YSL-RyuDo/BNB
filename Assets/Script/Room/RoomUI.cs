@@ -69,6 +69,11 @@ public class RoomUI : MonoBehaviour
             string team = (up.Length >= 3) ? up[2].Trim() : "None";
             userTeamMap[nickname] = team;
         }
+
+        NetworkConnector.Instance.IsCoopMode = isCoopMode;
+        NetworkConnector.Instance.UserTeams.Clear();
+        foreach (var kv in userTeamMap)
+            NetworkConnector.Instance.UserTeams[kv.Key] = kv.Value;
     }
 
     public void HandleUserJoined(string message)
@@ -121,6 +126,11 @@ public class RoomUI : MonoBehaviour
         }
 
         if (anyTeamField) isCoopMode = true;
+
+        NetworkConnector.Instance.IsCoopMode = isCoopMode;
+        NetworkConnector.Instance.UserTeams.Clear();
+        foreach (var kv in userTeamMap)
+            NetworkConnector.Instance.UserTeams[kv.Key] = kv.Value;
 
         // 상태 저장 및 UI 갱신 (여기서만 반영)
         NetworkConnector.Instance.CurrentRoomName = roomName;
@@ -235,6 +245,12 @@ public class RoomUI : MonoBehaviour
 
     private void OnClickStartGame()
     {
+        roomSender.SendStartGame(NetworkConnector.Instance.CurrentRoomName);
+
+        if (isCoopMode)
+        {
+            roomSender.SendStartCoopGame(NetworkConnector.Instance.CurrentRoomName);
+        }
         roomSender.SendStartGame(NetworkConnector.Instance.CurrentRoomName);
     }
 
