@@ -58,9 +58,9 @@ public class RoomUI : MonoBehaviour
         var p = message.Split('|');
         if (p.Length < 4 || p[0] != "ENTER_ROOM_SUCCESS") return;
 
-        string userListStr = p[3];                          // nick:idx(:team),...
+        string userListStr = p[3];                         
         if (p.Length >= 6)
-            isCoopMode = p[5].Trim() == "1";   // coop 1/0
+            isCoopMode = p[5].Trim() == "1";   
 
         userTeamMap.Clear();
         foreach (var token in userListStr.Split(',', StringSplitOptions.RemoveEmptyEntries))
@@ -103,6 +103,7 @@ public class RoomUI : MonoBehaviour
             string token = raw.Trim();
             if (string.IsNullOrEmpty(token)) continue;
 
+            // nick:idx(:team[:...])
             var up = token.Split(':');
             if (up.Length < 2) continue;
 
@@ -115,14 +116,11 @@ public class RoomUI : MonoBehaviour
 
             string team = (up.Length >= 3 && !string.IsNullOrWhiteSpace(up[2])) ? up[2].Trim() : "None";
             userTeamMap[nickname] = team;
-
-            // 유저 토큰 뒤에 팀 이름이 있을 때에만 팀전으로 간주되게 함
             if (string.Equals(team, "Blue", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(team, "Red", StringComparison.OrdinalIgnoreCase))
             {
                 isTeam = true;
             }
-
 
             nicknames.Add(nickname);
         }
@@ -133,7 +131,7 @@ public class RoomUI : MonoBehaviour
             return;
         }
 
-        if (!isCoopMode)
+        if (!isCoopMode)         
             isCoopMode = isTeam;
 
         NetworkConnector.Instance.IsCoopMode = isCoopMode;
@@ -254,10 +252,6 @@ public class RoomUI : MonoBehaviour
 
     private void OnClickStartGame()
     {
-        //if (isCoopMode)
-        //{
-        //    roomSender.SendStartCoopGame(NetworkConnector.Instance.CurrentRoomName);
-        //}
         roomSender.SendStartGame(NetworkConnector.Instance.CurrentRoomName);
     }
 

@@ -41,6 +41,7 @@ public class GameSystem : MonoBehaviour
 
     async void Start()
     {
+        //
         gameResultPanel.SetActive(false);
         string nickName = NetworkConnector.Instance.UserNickname;
         string currentRoomLeader = NetworkConnector.Instance.CurrentRoomLeader;
