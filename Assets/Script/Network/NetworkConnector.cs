@@ -423,6 +423,7 @@ public class NetworkConnector : MonoBehaviour
                         GameSystem.Instance.CreateUserInfoUI(playerId, charIndex, health);
                     }
 
+                    GameSystem.Instance.ApplyTeamLayout();
                     break;
                 }
             case "BALLOON_LIST":

@@ -59,7 +59,8 @@ public class RoomUI : MonoBehaviour
         if (p.Length < 4 || p[0] != "ENTER_ROOM_SUCCESS") return;
 
         string userListStr = p[3];                          // nick:idx(:team),...
-        isCoopMode = p.Length >= 6 && p[5].Trim() == "1";   // coop 1/0
+        if (p.Length >= 6)
+            isCoopMode = p[5].Trim() == "1";   // coop 1/0
 
         userTeamMap.Clear();
         foreach (var token in userListStr.Split(',', StringSplitOptions.RemoveEmptyEntries))
@@ -94,14 +95,14 @@ public class RoomUI : MonoBehaviour
 
         var nicknames = new List<string>();
         userTeamMap.Clear();
-        bool anyTeamField = false;
+
+        bool isTeam = false;
 
         foreach (string raw in userTokens)
         {
             string token = raw.Trim();
             if (string.IsNullOrEmpty(token)) continue;
 
-            // nick:idx(:team[:...])
             var up = token.Split(':');
             if (up.Length < 2) continue;
 
@@ -114,7 +115,14 @@ public class RoomUI : MonoBehaviour
 
             string team = (up.Length >= 3 && !string.IsNullOrWhiteSpace(up[2])) ? up[2].Trim() : "None";
             userTeamMap[nickname] = team;
-            if (up.Length >= 3) anyTeamField = true;
+
+            // 유저 토큰 뒤에 팀 이름이 있을 때에만 팀전으로 간주되게 함
+            if (string.Equals(team, "Blue", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(team, "Red", StringComparison.OrdinalIgnoreCase))
+            {
+                isTeam = true;
+            }
+
 
             nicknames.Add(nickname);
         }
@@ -125,7 +133,8 @@ public class RoomUI : MonoBehaviour
             return;
         }
 
-        if (anyTeamField) isCoopMode = true;
+        if (!isCoopMode)
+            isCoopMode = isTeam;
 
         NetworkConnector.Instance.IsCoopMode = isCoopMode;
         NetworkConnector.Instance.UserTeams.Clear();
@@ -245,6 +254,10 @@ public class RoomUI : MonoBehaviour
 
     private void OnClickStartGame()
     {
+        //if (isCoopMode)
+        //{
+        //    roomSender.SendStartCoopGame(NetworkConnector.Instance.CurrentRoomName);
+        //}
         roomSender.SendStartGame(NetworkConnector.Instance.CurrentRoomName);
     }
 

@@ -29,16 +29,15 @@ public class GameSystem : MonoBehaviour
     private Dictionary<string, float> lastHitTimes = new Dictionary<string, float>(); // 닉네임 → 마지막 피격 시간
     private float hitCooldown = 1.0f; // 무적 시간 (초)
 
+    private Color blueTeamColor = Color.blue;
+    private Color redTeamColor = Color.red;
+    private Color soloColor = Color.black;
+
+
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject); // 이미 존재하면 자신을 제거
-            return;
-        }
         Instance = this;
     }
-
 
     async void Start()
     {
@@ -48,7 +47,7 @@ public class GameSystem : MonoBehaviour
         string roomName = NetworkConnector.Instance.CurrentRoomName;
         string selectedMap = NetworkConnector.Instance.SelectedMap;
 
-        if(nickName == currentRoomLeader)
+        if (nickName == currentRoomLeader)
         {
             string getMapMsg = $"GET_MAP|{roomName}|{selectedMap}\n";
             byte[] getMapBytes = Encoding.UTF8.GetBytes(getMapMsg);
@@ -137,8 +136,30 @@ public class GameSystem : MonoBehaviour
         Slider userHealthBar = uiObj.transform.Find("UserHealthBar")?.GetComponent<Slider>();
 
         if (nameText != null)
+        {
             nameText.text = playerId;
 
+
+            var nc = NetworkConnector.Instance;
+            if (nc != null && nc.IsCoopMode && nc.UserTeams != null)
+            {
+                string team;
+                if (nc.UserTeams.TryGetValue(playerId, out team))
+                {
+                    if (team == "Blue") nameText.color = blueTeamColor;
+                    else if (team == "Red") nameText.color = redTeamColor;
+                    else nameText.color = soloColor;
+                }
+                else
+                {
+                    nameText.color = soloColor;
+                }
+            }
+            else
+            {
+                nameText.color = soloColor;
+            }
+        }
         if (healthText != null)
             healthText.text = $"HP: {health}";
 
@@ -163,7 +184,48 @@ public class GameSystem : MonoBehaviour
         }
     }
 
-    
+    public void ApplyTeamLayout()
+    {
+        var nc = NetworkConnector.Instance;
+        if (nc == null || userInfoContent == null) return;
+
+        // 유저 목록(들어온 순서)과 팀 맵
+        var userList = nc.CurrentUserList;       // a,b,c,d 순서
+        var teamMap = nc.UserTeams;             // nickname -> "Blue"/"Red"/"None"
+
+        if (userList == null || teamMap == null) return;
+
+        List<string> blues = new();
+        List<string> reds = new();
+        List<string> none = new();
+
+        foreach (var nick in userList)
+        {
+            if (!teamMap.TryGetValue(nick, out var team) || string.IsNullOrEmpty(team) || team == "None")
+                none.Add(nick);
+            else if (team == "Blue")
+                blues.Add(nick);
+            else if (team == "Red")
+                reds.Add(nick);
+            else
+                none.Add(nick);
+        }
+
+        SetSiblingForList(reds);
+        SetSiblingForList(blues);
+        SetSiblingForList(none);
+    }
+
+    void SetSiblingForList(List<string> list)
+    {
+        int sibling = 0;
+        foreach (var nick in list)
+        {
+            var t = userInfoContent.Find($"UserInfo_{nick}");
+            if (t != null) t.SetSiblingIndex(sibling++);
+        }
+    }
+
     public void DamagePlayer(string nickname, int damage)
     {
         float now = Time.time;
