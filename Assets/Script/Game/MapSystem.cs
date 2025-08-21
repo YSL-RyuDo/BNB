@@ -6,6 +6,8 @@ public class MapSystem : MonoBehaviour
 {
     public static MapSystem Instance;
 
+    private Dictionary<string, GameObject> blocksDict = new Dictionary<string, GameObject>(); // 블록 관리
+
     public GameObject[] map1Prefabs; // 0,1,2 프리팹
     public GameObject[] map2Prefabs;
     int wallHeight = 5;
@@ -61,6 +63,9 @@ public class MapSystem : MonoBehaviour
                         GameObject tile = Instantiate(tilePrefabs[tileIndex], pos, rotation);
                         tile.name = $"{tilePrefabs[tileIndex].name}_{x}_{localZ}"; // 이름 변경
                         tile.transform.SetParent(mapParent.transform);
+
+                        // 블록 등록
+                        blocksDict[tile.name] = tile;
                     }
                 }
             }
@@ -86,6 +91,9 @@ public class MapSystem : MonoBehaviour
                                 GameObject tile = Instantiate(tilePrefabs[5], pos, Quaternion.identity);
                                 tile.name = $"{tilePrefabs[5].name}_{x}_{z}_h{height}"; // 좌표 포함
                                 tile.transform.SetParent(mapParent.transform);
+
+                                // 블록 등록
+                                blocksDict[tile.name] = tile;
                             }
                         }
                         else if (x >= 0 && x < mapWidth && z >= 0 && z < layerHeight)
@@ -109,6 +117,9 @@ public class MapSystem : MonoBehaviour
                             GameObject tile = Instantiate(tilePrefabs[tileIndex], pos, Quaternion.identity);
                             tile.name = $"{tilePrefabs[tileIndex].name}_{x}_{z}"; // 이름 변경
                             tile.transform.SetParent(mapParent.transform);
+
+                            // 블록 등록
+                            blocksDict[tile.name] = tile;
                         }
                     }
                 }
@@ -117,5 +128,37 @@ public class MapSystem : MonoBehaviour
         }
 
         Debug.Log("맵 로딩 완료: " + mapName);
+    }
+
+    // 메시지 처리에서 바로 호출
+    public void HandleDestroyBlockMessage(string message)
+    {
+        string[] parts = message.Split('|');
+        if (parts.Length < 2) return;
+
+        string[] blockNames = parts[1].Split(',');
+
+        // 메인 스레드에서 실행
+        StartCoroutine(DestroyBlocksCoroutine(blockNames));
+    }
+
+    private IEnumerator DestroyBlocksCoroutine(string[] blockNames)
+    {
+        foreach (var rawName in blockNames)
+        {
+            string name = rawName.Trim();
+            if (blocksDict.TryGetValue(name, out GameObject block) && block != null)
+            {
+                block.SetActive(false);
+                Destroy(block);
+                blocksDict.Remove(name);
+                Debug.Log($"[Map] 블록 파괴: {name}");
+            }
+            else
+            {
+                Debug.LogWarning($"[Map] 블록을 찾을 수 없음: {name}");
+            }
+        }
+        yield return null;
     }
 }

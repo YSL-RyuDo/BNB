@@ -35,6 +35,7 @@ public class Mace : MonoBehaviour
     {
         string myNickname = NetworkConnector.Instance.UserNickname;
 
+
         if (!name.StartsWith(attackerNick + "_"))
             return;
 

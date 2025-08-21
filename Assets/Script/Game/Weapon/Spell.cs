@@ -27,6 +27,10 @@ public class Spell : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         string myNickname = NetworkConnector.Instance.UserNickname;
+
+        if (!this.name.StartsWith(myNickname + "_"))
+            return; // 내가 만든 무기가 아니면 무시 (자기 무기로만 판정함)
+
         // 캐릭터와 충돌한 경우
         if (other.name.StartsWith("Character_"))
         {
@@ -42,9 +46,15 @@ public class Spell : MonoBehaviour
                 NetworkConnector.Instance.Stream.Write(bytes, 0, bytes.Length);
 
                 Debug.Log($"[Spell] {hitPlayerName} 님에게 HIT 메시지(무기:{weaponIndex}) 전송");
+
+                string destroyMsg = $"DESTROY_SPELL|{this.name}\n";
+                byte[] destroyBytes = Encoding.UTF8.GetBytes(destroyMsg);
+                NetworkConnector.Instance.Stream.Write(destroyBytes, 0, destroyBytes.Length);
+
+                Debug.Log($"[Spell] {this.name} 제거 패킷 전송");
             }
 
-            Destroy(gameObject);
+           // Destroy(gameObject);
             return;
         }
     }

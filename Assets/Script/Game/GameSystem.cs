@@ -28,10 +28,17 @@ public class GameSystem : MonoBehaviour
     private Dictionary<string, RewardData> rewardMap = new Dictionary<string, RewardData>();
     private Dictionary<string, float> lastHitTimes = new Dictionary<string, float>(); // 닉네임 → 마지막 피격 시간
     private float hitCooldown = 1.0f; // 무적 시간 (초)
+
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject); // 이미 존재하면 자신을 제거
+            return;
+        }
         Instance = this;
     }
+
 
     async void Start()
     {

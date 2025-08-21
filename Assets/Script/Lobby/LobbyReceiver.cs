@@ -333,39 +333,44 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
     public void HandleEnterRoomSuccess(string message)
     {
         string[] parts = message.Split('|');
-        if (parts.Length < 3) return;
+        if (parts.Length < 4) return;
 
         string roomName = parts[1];
+        string mapName = parts[2];
         string userListStr = parts[3];
-
-        NetworkConnector.Instance.CurrentRoomName = roomName;
+        string coopFlag = (parts.Length >= 6) ? parts[5].Trim() : "0";
 
         List<string> nicknames = new();
-        string[] userTokens = userListStr.Split(',');
 
-        foreach (string token in userTokens)
+        NetworkConnector.Instance.UserTeams.Clear();
+
+        foreach (string token in userListStr.Split(',', StringSplitOptions.RemoveEmptyEntries))
         {
-            if (token.Contains(":"))
-            {
-                var pair = token.Split(':');
-                string nickname = pair[0].Trim();
-                int charIndex = 0;
-                int.TryParse(pair[1], out charIndex);
+            var up = token.Split(':'); // nick:idx(:team)
+            if (up.Length < 2) continue;
 
-                // 캐릭터 정보 저장 (있다면)
-                NetworkConnector.Instance.SetOrUpdateUserCharacter(nickname, charIndex);
-                nicknames.Add(nickname); // 닉네임만 저장
-            }
-            else
-            {
-                nicknames.Add(token.Trim());
-            }
+            string nickname = up[0].Trim();
+            int charIndex = 0;
+            int.TryParse(up[1], out charIndex);
+
+            // 캐릭터 정보 갱신
+            NetworkConnector.Instance.SetOrUpdateUserCharacter(nickname, charIndex);
+            nicknames.Add(nickname);
+
+            // 팀 정보 저장
+            string team = (up.Length >= 3 && !string.IsNullOrWhiteSpace(up[2])) ? up[2].Trim() : "None";
+            NetworkConnector.Instance.UserTeams[nickname] = team;
         }
 
+        NetworkConnector.Instance.CurrentRoomName = roomName;
+        NetworkConnector.Instance.SelectedMap = mapName;
         NetworkConnector.Instance.CurrentUserList = nicknames;
+        NetworkConnector.Instance.CurrentRoomLeader = (nicknames.Count > 0) ? nicknames[0] : null;
+        NetworkConnector.Instance.IsCoopMode = (coopFlag == "1");
 
-        Debug.Log($"[입장 성공] 방: {roomName}, 유저: {string.Join(",", nicknames)}");
+        Debug.Log($"[입장 성공] 방: {roomName}, 맵: {mapName}, 유저: {string.Join(",", nicknames)}, Coop: {coopFlag}");
 
+        // 방 씬으로 이동
         NetworkConnector.Instance.PendingRoomEnterMessage = message;
         SceneManager.LoadScene("RoomScene");
     }

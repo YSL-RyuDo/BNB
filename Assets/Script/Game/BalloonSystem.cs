@@ -346,12 +346,13 @@ public class BalloonSystem : MonoBehaviour
             spreadByDir[direction].Sort((a, b) => (a - center).sqrMagnitude.CompareTo((b - center).sqrMagnitude));
         }
 
+        // 룸리더가 발견한 블록 이름 저장용 리스트
+        List<string> blocksToDestroy = new List<string>();
+
         // 물 생성 및 충돌 검사
         foreach (var direction in directions)
         {
             List<Vector2Int> dirPositions = spreadByDir[direction];
-            Debug.Log($"[WATER] 방향 {direction} 시작 - 타일 수: {dirPositions.Count}");
-
             bool directionBlocked = false;
 
             foreach (var pos in dirPositions)
@@ -373,28 +374,24 @@ public class BalloonSystem : MonoBehaviour
                 int layerMask = LayerMask.GetMask("Block", "Wall");
                 Collider[] hits = Physics.OverlapBox(spawnPos, Vector3.one * 0.4f, Quaternion.identity, layerMask);
 
-                Debug.Log($"[WATER] 체크 중: ({x},{z}) 히트 {hits.Length}개");
-
                 bool blocked = false;
 
                 foreach (var hit in hits)
                 {
-                    Debug.Log($"[WATER] 충돌체: {hit.name}, Tag: {hit.tag}, Layer: {LayerMask.LayerToName(hit.gameObject.layer)}");
-
-                    if (hit.CompareTag("Wall") || hit.gameObject.layer == LayerMask.NameToLayer("Wall") || hit.CompareTag("Ground") || hit.gameObject.layer == LayerMask.NameToLayer("Ground"))
+                    if (hit.CompareTag("Wall") || hit.CompareTag("Ground") ||
+                        hit.gameObject.layer == LayerMask.NameToLayer("Wall") ||
+                        hit.gameObject.layer == LayerMask.NameToLayer("Ground"))
                     {
-                        Debug.Log($"[WATER] 벽 발견 at ({x},{z}) → 퍼짐 종료");
                         blocked = true;
                         break;
                     }
 
                     if (hit.CompareTag("Block") || hit.gameObject.layer == LayerMask.NameToLayer("Block"))
                     {
-                        Debug.Log($"[WATER] 블록 발견 at ({x},{z}) → 제거 및 퍼짐 종료");
-                        Destroy(hit.gameObject);
+                        blocksToDestroy.Add(hit.name); // 블록 이름 저장
                         blocked = true;
                         break;
-                    } 
+                    }
                 }
 
                 if (blocked)
@@ -403,15 +400,23 @@ public class BalloonSystem : MonoBehaviour
                     break;
                 }
 
+                // 물 생성
                 if (waterPrefabs != null && waterType >= 0 && waterType < waterPrefabs.Length)
                 {
-                    Debug.Log($"[WATER] 물 생성: ({x},{z})");
                     GameObject water = Instantiate(waterPrefabs[waterType], spawnPos, Quaternion.identity);
                     Destroy(water, 2f);
                 }
             }
+        }
 
-            Debug.Log($"[WATER] 방향 {direction} 완료");
+        // 룸리더가 발견한 블록을 한 번에 서버로 전송
+        if (NetworkConnector.Instance.UserNickname == NetworkConnector.Instance.CurrentRoomLeader &&
+            blocksToDestroy.Count > 0)
+        {
+            string destroyMsg = $"DESTROY_BLOCK|{string.Join(",", blocksToDestroy)}\n";
+            byte[] bytes = Encoding.UTF8.GetBytes(destroyMsg);
+            NetworkConnector.Instance.Stream.Write(bytes, 0, bytes.Length);
+            Debug.Log($"[WATER] 룸리더가 블록 제거 요청 전송: {destroyMsg}");
         }
     }
 

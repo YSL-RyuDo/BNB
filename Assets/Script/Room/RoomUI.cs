@@ -246,12 +246,6 @@ public class RoomUI : MonoBehaviour
     private void OnClickStartGame()
     {
         roomSender.SendStartGame(NetworkConnector.Instance.CurrentRoomName);
-
-        if (isCoopMode)
-        {
-            roomSender.SendStartCoopGame(NetworkConnector.Instance.CurrentRoomName);
-        }
-        roomSender.SendStartGame(NetworkConnector.Instance.CurrentRoomName);
     }
 
     private void OnClickExitRoom()

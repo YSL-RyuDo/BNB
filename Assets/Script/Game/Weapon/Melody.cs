@@ -87,10 +87,16 @@ public class Melody : MonoBehaviour
             return;
         }
 
+
+
         if (other.name.StartsWith("Character_"))
         {
             string myNickname = NetworkConnector.Instance.UserNickname;
             string hitPlayerName = other.name.Replace("Character_", "").Trim();
+
+            if (!this.name.StartsWith(myNickname + "_"))
+                return; // 내가 만든 무기가 아니면 무시 (자기 무기로만 판정함)
+
 
             if (hitPlayerName == attackerNick.Trim())
             {

@@ -31,6 +31,10 @@ public class Arrow : MonoBehaviour
 
             string myNick = NetworkConnector.Instance.UserNickname;
 
+            if (!this.name.StartsWith(myNick + "_"))
+                return; // 내가 만든 무기가 아니면 무시 (자기 무기로만 판정함)
+
+
             // 자기 자신이 맞았는지 검사하고
             if (hitPlayerName != myNick)
             {

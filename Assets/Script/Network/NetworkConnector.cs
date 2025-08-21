@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using System.IO;
 using System.Linq;
+using System.Collections;
 public class NetworkConnector : MonoBehaviour
 {
     private TcpClient _client;
@@ -327,14 +328,13 @@ public class NetworkConnector : MonoBehaviour
                 break;
             case "GAME_START":
                 Debug.Log("게임 시작 메시지 수신, 씬 전환");
-                UnityEngine.SceneManagement.SceneManager.LoadScene("GameScene");
+                SceneManager.LoadScene("GameScene");
                 break;
             case "CHARACTER_LIST":
                 {
                     RoomSystem.Instance.HandleCharacterList(message);
                     break;
                 }
-
             case "MAP_DATA":
                 {
                     if (parts.Length < 4)
@@ -447,7 +447,6 @@ public class NetworkConnector : MonoBehaviour
                     EmoticonSystem.Instance.ShowUserEmoticon(senderNickname, emoIndex);
                     break;
                 }
-
             case "MOVE_RESULT":
                 {
                     GameSystem gameMoveSystem = FindObjectOfType<GameSystem>();
@@ -457,7 +456,6 @@ public class NetworkConnector : MonoBehaviour
                     }
                     break;
                 }
-
             case "WEAPON_ATTACK":
                 {
                     if (parts.Length < 5)
@@ -588,6 +586,30 @@ public class NetworkConnector : MonoBehaviour
 
                     break;
                 }
+            case "DESTROY_SPELL":
+                {
+                    string[] messageParts = message.Split('|');
+
+                    if (messageParts.Length < 2)
+                    {
+                        Debug.LogWarning("[DESTROY_SPELL] 메시지 형식 오류: " + message);
+                        break;
+                    }
+
+                    string spellName = messageParts[1].Trim();
+
+                    GameObject spellObj = GameObject.Find(spellName);
+                    if (spellObj != null)
+                    {
+                        Destroy(spellObj);
+                        Debug.Log($"[Spell] 스펠 제거: {spellName}");
+                    }
+
+                    break;
+                }
+            case "DESTROY_BLOCK":
+                MapSystem.Instance.HandleDestroyBlockMessage(message);
+                break;
 
             case "PLACE_BALLOON_RESULT":
                 {
