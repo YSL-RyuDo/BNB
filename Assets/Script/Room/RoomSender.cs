@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 public class RoomSender : MonoBehaviour
 {
+    private bool startGameLocked = false;
+
+    public void ResetStartGameLock() => startGameLocked = false;
+
     public async void SendChooseCharacter(string roomName, string nickname, int characterIndex)
     {
         string message = $"CHOOSE_CHARACTER|{roomName}|{nickname}|{characterIndex}\n";
@@ -14,8 +18,35 @@ public class RoomSender : MonoBehaviour
 
     public async void SendStartGame(string roomName)
     {
+        if (startGameLocked)
+        {
+            Debug.Log("[RoomSender] START_GAME 중복 요청 무시");
+            return;
+        }
+
+        // 스트림 상태 사전 체크
+        var stream = NetworkConnector.Instance?.Stream;
+        if (stream == null || !stream.CanWrite)
+        {
+            Debug.LogWarning("[RoomSender] Stream 불가. START_GAME 전송 취소");
+            return;
+        }
+
+        startGameLocked = true; // ★ 먼저 잠금
         string message = $"START_GAME|{roomName}\n";
-        await SendToServer(message);
+
+        // 실패 시 락 해제되도록 직접 보냄(예외 처리)
+        try
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(message);
+            await stream.WriteAsync(bytes, 0, bytes.Length);
+            await stream.FlushAsync();
+        }
+        catch (System.Exception ex)
+        {
+            startGameLocked = false; // 실패하면 재시도 허용
+            Debug.LogError($"[RoomSender] START_GAME 송신 실패: {ex.Message}");
+        }
     }
 
     public async void SendStartCoopGame(string roomName)

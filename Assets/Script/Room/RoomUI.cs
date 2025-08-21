@@ -22,7 +22,7 @@ public class RoomUI : MonoBehaviour
     [SerializeField] private Color blueTeamColor = Color.blue;
     [SerializeField] private Color soloColor = Color.black;
     private int myPlayerIndex = -1;
-
+    private bool startClicked = false;
     private void Start()
     {
         var client = NetworkConnector.Instance;
@@ -252,6 +252,11 @@ public class RoomUI : MonoBehaviour
 
     private void OnClickStartGame()
     {
+        if (startClicked) return;
+        startClicked = true;
+        startGameButton.interactable = false;
+
+
         roomSender.SendStartGame(NetworkConnector.Instance.CurrentRoomName);
     }
 

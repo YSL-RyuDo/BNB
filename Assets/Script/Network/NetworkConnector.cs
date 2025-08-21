@@ -36,6 +36,10 @@ public class NetworkConnector : MonoBehaviour
     public string CurrentRoomLeader { get => currentRoomLeader; set => currentRoomLeader = value; }
     public string PendingRoomEnterMessage { get => pendingRoomEnterMessage; set => pendingRoomEnterMessage = value; }
 
+    private static string s_LastMapName;
+    private static string s_LastMapRaw;
+    private static readonly HashSet<string> s_SpawnedThisMap = new();
+
     public List<string> CurrentUserList { get => currentUserList; set => currentUserList = value; }
     public Dictionary<string, int> CurrentUserCharacterIndices =>
         userCharacterEntries.ToDictionary(e => e.nickname, e => e.characterIndex);
@@ -325,6 +329,7 @@ public class NetworkConnector : MonoBehaviour
                 break;
             case "START_GAME_FAIL":
                 Debug.LogWarning("게임 시작 실패: " + message);
+                FindObjectOfType<RoomSender>()?.ResetStartGameLock();
                 break;
             case "GAME_START":
                 Debug.Log("게임 시작 메시지 수신, 씬 전환");
@@ -347,9 +352,21 @@ public class NetworkConnector : MonoBehaviour
                     string mapRawData = parts[2];
                     string spawnRawData = parts[3];
 
-                    Debug.Log($"[MAP_DATA 수신] mapName: {mapName}");
+                    bool samePayload = (s_LastMapName == mapName) && (s_LastMapRaw == mapRawData);
+                    if (!samePayload)
+                    {
+                        Debug.Log($"[MAP_DATA 수신] 최초/갱신 처리 → mapName: {mapName}");
+                        MapSystem.Instance.LoadMap(mapName, mapRawData);
 
-                    MapSystem.Instance.LoadMap(mapName, mapRawData);
+                        // 현재 맵 세션 키 갱신 + 스폰 기록 초기화
+                        s_LastMapName = mapName;
+                        s_LastMapRaw = mapRawData;
+                        s_SpawnedThisMap.Clear();
+                    }
+                    else
+                    {
+                        Debug.Log("[MAP_DATA] 동일 맵 데이터 재수신 → LoadMap 스킵");
+                    }
 
                     string[] spawnEntries = spawnRawData.Split(',');
 
@@ -378,7 +395,14 @@ public class NetworkConnector : MonoBehaviour
                         int layer = (y >= 13) ? 1 : 0;
                         int localY = (layer == 1) ? y - 13 : y;
 
-                        // 캐릭터 인덱스 가져오기
+                        // 이미 스폰한 플레이어는 스킵
+                        if (!s_SpawnedThisMap.Add(playerId))
+                        {
+                            Debug.Log($"[MAP_DATA] 이미 스폰된 플레이어: {playerId} → 스킵");
+                            continue;
+                        }
+
+                        // 캐릭터 인덱스 저장 (원하시면 이미 있으면 갱신하지 않도록 조건 추가 가능)
                         NetworkConnector.Instance.CurrentUserCharacterIndices[playerId] = charIndex;
 
                         CharacterSystem.Instance.SpawnCharacterAt(playerId, charIndex, x, localY, layer);
@@ -665,6 +689,19 @@ public class NetworkConnector : MonoBehaviour
                     GameSystem.Instance.HandleGameResult(winnerNickname);
                     break;
                 }
+            case "TEAM_WIN":
+                {
+                    // 원문: TEAM_WIN|Blue,a,c
+                    var part = message.Split('|');
+                    if (part.Length < 2) break;
+
+                    var tokens = part[1].Split(',');
+                    var team = tokens[0].Trim();  // "Blue" 또는 "Red"
+
+                    GameSystem.Instance.SetWinnerTeam(team);
+                    GameSystem.Instance.OpenResultPanel();      // ← 팀 설정 후에 열기
+                    break;
+                }
             case "REWARD_RESULT":
                 {
                     string[] rewards = message.Substring("REWARD_RESULT|".Length).Split('|');
@@ -773,7 +810,10 @@ public class NetworkConnector : MonoBehaviour
                 Debug.LogWarning("RoomSystem을 찾을 수 없거나 PendingRoomEnterMessage가 비어 있음");
             }
 
+            FindObjectOfType<RoomSender>()?.ResetStartGameLock();
+
             SceneManager.sceneLoaded -= OnRoomSceneLoaded;
+
         }
     }
 

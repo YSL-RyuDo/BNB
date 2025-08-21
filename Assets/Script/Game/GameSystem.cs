@@ -20,11 +20,16 @@ public class GameSystem : MonoBehaviour
     private HashSet<string> deadPlayers = new HashSet<string>(); // 중복 방지용
 
     public GameObject gameResultPanel;           // 인스펙터에서 할당
+    public GameObject coopGameResultPanel;
     public TextMeshProUGUI winnerText;           // WinnerText 오브젝트
+    public TextMeshProUGUI coopWinnerText;           // WinnerText 오브젝트
     public GameObject userResultPrefab;          // UserResult 프리팹
     public Transform userResultParent;
+    public Transform coopUserResultParent;
     public Button lobbyButton;
+    public Button coopLobbyButton;
     private string winnerNickname = "";
+    private string winnerTeam = "";
     private Dictionary<string, RewardData> rewardMap = new Dictionary<string, RewardData>();
     private Dictionary<string, float> lastHitTimes = new Dictionary<string, float>(); // 닉네임 → 마지막 피격 시간
     private float hitCooldown = 1.0f; // 무적 시간 (초)
@@ -34,6 +39,7 @@ public class GameSystem : MonoBehaviour
     private Color soloColor = Color.black;
 
     private static bool startRanOnce = false;
+    private static bool mapRequestedOnce = false;
 
     private void Awake()
     {
@@ -44,15 +50,13 @@ public class GameSystem : MonoBehaviour
         }
         Instance = this;
 
-        startRanOnce = false;
+
     }
 
     async void Start()
     {
-        if (startRanOnce)
-        {      
-            return;
-        }
+        if (startRanOnce) return;
+        startRanOnce = true;
 
         //
         gameResultPanel.SetActive(false);
@@ -61,8 +65,9 @@ public class GameSystem : MonoBehaviour
         string roomName = NetworkConnector.Instance.CurrentRoomName;
         string selectedMap = NetworkConnector.Instance.SelectedMap;
 
-        if (nickName == currentRoomLeader)
+        if (nickName == currentRoomLeader && !mapRequestedOnce)
         {
+            mapRequestedOnce = true;
             string getMapMsg = $"GET_MAP|{roomName}|{selectedMap}\n";
             byte[] getMapBytes = Encoding.UTF8.GetBytes(getMapMsg);
             await NetworkConnector.Instance.Stream.WriteAsync(getMapBytes, 0, getMapBytes.Length);
@@ -80,6 +85,7 @@ public class GameSystem : MonoBehaviour
         await NetworkConnector.Instance.Stream.WriteAsync(getBalloonBytes, 0, getBalloonBytes.Length);
 
         lobbyButton.onClick.AddListener(() => OnLobbyButtonClicked(nickName));
+        coopLobbyButton.onClick.AddListener(() => OnCoopLobbyButtonClicked(nickName));
     }
 
     public void HandleMoveResult(string message)
@@ -361,17 +367,118 @@ public class GameSystem : MonoBehaviour
 
     public void OpenResultPanel()
     {
-        gameResultPanel.SetActive(true);
-        winnerText.text = $"Winner {winnerNickname}";
+        var nc = NetworkConnector.Instance;
+        bool isCoop = (nc != null && nc.IsCoopMode);
 
-        foreach (Transform child in userResultParent)
+        // 패널 활성/비활성
+        if (isCoop && coopGameResultPanel != null)
         {
-            Destroy(child.gameObject);
+            coopGameResultPanel.SetActive(true);
+            if (gameResultPanel != null) gameResultPanel.SetActive(false);
+        }
+        else
+        {
+            if (gameResultPanel != null) gameResultPanel.SetActive(true);
+            if (coopGameResultPanel != null) coopGameResultPanel.SetActive(false);
         }
 
-        foreach (string nick in NetworkConnector.Instance.CurrentUserList)
+        if (userResultParent != null)
+            foreach (Transform child in userResultParent) Destroy(child.gameObject);
+        if (coopUserResultParent != null)
+            foreach (Transform child in coopUserResultParent) Destroy(child.gameObject);
+
+        if (!isCoop)
         {
-            GameObject obj = Instantiate(userResultPrefab, userResultParent);
+            if (winnerText != null)
+                winnerText.text = $"Winner {winnerNickname}";
+
+
+            foreach (string nick in nc.CurrentUserList)
+            {
+                GameObject obj = Instantiate(userResultPrefab, userResultParent);
+                obj.name = $"UserResult_{nick}";
+                var characterImage = obj.transform.Find("CharacterImage")?.GetComponent<Image>();
+                var nameText = obj.transform.Find("NameText")?.GetComponent<TextMeshProUGUI>();
+                var levelText = obj.transform.Find("LevelText")?.GetComponent<TextMeshProUGUI>();
+                var expText = obj.transform.Find("EXPText")?.GetComponent<TextMeshProUGUI>();
+                var coin1Text = obj.transform.Find("Coin1Text")?.GetComponent<TextMeshProUGUI>();
+                var coin2Text = obj.transform.Find("Coin2Text")?.GetComponent<TextMeshProUGUI>();
+                var lobbyToggle = obj.transform.Find("LobbyToggle")?.GetComponent<Toggle>();
+
+                if (characterImage != null && CharacterSystem.Instance != null)
+                {
+                    int charIndex = 0;
+                    nc.CurrentUserCharacterIndices.TryGetValue(nick, out charIndex);
+
+                    bool isWinner = (nick == winnerNickname);
+                    var imgs = isWinner ? CharacterSystem.Instance.characterWinImage
+                                        : CharacterSystem.Instance.characterDeathImage;
+
+                    if (charIndex >= 0 && charIndex < imgs.Length)
+                        characterImage.sprite = imgs[charIndex];
+                    else
+                        Debug.LogWarning($"[결과 이미지] 범위 초과: {charIndex}");
+                }
+
+                if (nameText != null)
+                {
+                    nameText.text = nick;
+                    nameText.color = (nick == winnerNickname) ? Color.yellow : Color.black;
+                }
+
+                if (rewardMap != null && rewardMap.TryGetValue(nick, out RewardData data))
+                {
+                    if (levelText != null) levelText.text = $"Lv {data.level}";
+                    if (expText != null) expText.text = $"EXP {data.exp}";
+                    if (coin1Text != null) coin1Text.text = $"Coins {data.coin0:N0}";
+                    if (coin2Text != null) coin2Text.text = $"Medals {data.coin1:N0}";
+                }
+                else
+                {
+                    if (levelText != null) levelText.text = "Lv 1";
+                    if (expText != null) expText.text = "EXP 0";
+                    if (coin1Text != null) coin1Text.text = "Coins 0";
+                    if (coin2Text != null) coin2Text.text = "Medals 0";
+                }
+
+                if (lobbyToggle != null)
+                {
+                    lobbyToggle.isOn = false;
+                    lobbyToggle.interactable = true;
+                    lobbyToggle.onValueChanged.AddListener(isOn => { if (isOn) _ = SendReadyToExitAsync(nick); });
+                }
+            }
+
+            return;
+        }
+
+        if (string.IsNullOrEmpty(winnerTeam))
+        {
+            Debug.LogWarning("[Result] 코옵인데 winnerTeam이 아직 설정되지 않았습니다. TEAM_WIN 수신 후 OpenResultPanel을 다시 호출해야 합니다.");
+            return; 
+        }
+
+        if (coopWinnerText != null)
+        {
+            coopWinnerText.text = $"Winner {winnerTeam}";
+            if (winnerTeam == "Blue") coopWinnerText.color = blueTeamColor;
+            else if (winnerTeam == "Red") coopWinnerText.color = redTeamColor;
+            else coopWinnerText.color = soloColor;
+        }
+
+        var teamMap = nc.UserTeams;
+        List<string> winners = new();
+        List<string> losers = new();
+
+        foreach (var nick in nc.CurrentUserList)
+        {
+            if (teamMap != null && teamMap.TryGetValue(nick, out var t) && t == winnerTeam) winners.Add(nick);
+            else losers.Add(nick);
+        }
+
+        void CreateEntry(string nick, bool isWinnerSide)
+        {
+            GameObject obj = Instantiate(userResultPrefab, coopUserResultParent);
             obj.name = $"UserResult_{nick}";
             var characterImage = obj.transform.Find("CharacterImage")?.GetComponent<Image>();
             var nameText = obj.transform.Find("NameText")?.GetComponent<TextMeshProUGUI>();
@@ -380,58 +487,20 @@ public class GameSystem : MonoBehaviour
             var coin1Text = obj.transform.Find("Coin1Text")?.GetComponent<TextMeshProUGUI>();
             var coin2Text = obj.transform.Find("Coin2Text")?.GetComponent<TextMeshProUGUI>();
             var lobbyToggle = obj.transform.Find("LobbyToggle")?.GetComponent<Toggle>();
-            var lobbyButton = obj.transform.Find("LobbyButton")?.GetComponent<Button>();
 
             if (characterImage != null && CharacterSystem.Instance != null)
             {
-                int charIndex = 0;
-                NetworkConnector.Instance.CurrentUserCharacterIndices.TryGetValue(nick, out charIndex);
-
-                if (nick == winnerNickname)
-                {
-                    if (charIndex >= 0 && charIndex < CharacterSystem.Instance.characterWinImage.Length)
-                    {
-                        characterImage.sprite = CharacterSystem.Instance.characterWinImage[charIndex];
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"[결과 이미지] WinImage 범위 초과: {charIndex}");
-                    }
-                }
-                else
-                {
-                    if (charIndex >= 0 && charIndex < CharacterSystem.Instance.characterDeathImage.Length)
-                    {
-                        characterImage.sprite = CharacterSystem.Instance.characterDeathImage[charIndex];
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"[결과 이미지] DeathImage 범위 초과: {charIndex}");
-                    }
-                }
+                int charIndex = 0; nc.CurrentUserCharacterIndices.TryGetValue(nick, out charIndex);
+                var imgs = isWinnerSide ? CharacterSystem.Instance.characterWinImage
+                                        : CharacterSystem.Instance.characterDeathImage;
+                if (charIndex >= 0 && charIndex < imgs.Length) characterImage.sprite = imgs[charIndex];
             }
-
 
             if (nameText != null)
             {
                 nameText.text = nick;
-                nameText.color = (nick == winnerNickname) ? UnityEngine.Color.yellow : UnityEngine.Color.black;
+                nameText.color = isWinnerSide ? Color.yellow : Color.black;
             }
-
-            if (lobbyToggle != null)
-            {
-                lobbyToggle.isOn = false;
-                lobbyToggle.interactable = true;
-
-                lobbyToggle.onValueChanged.AddListener(isOn =>
-                {
-                    if (isOn)
-                    {
-                        _ = SendReadyToExitAsync(nick);
-                    }
-                });
-            }
-
 
             if (rewardMap != null && rewardMap.TryGetValue(nick, out RewardData data))
             {
@@ -447,13 +516,44 @@ public class GameSystem : MonoBehaviour
                 if (coin1Text != null) coin1Text.text = "Coins 0";
                 if (coin2Text != null) coin2Text.text = "Medals 0";
             }
+
+            if (lobbyToggle != null)
+            {
+                lobbyToggle.isOn = false;
+                lobbyToggle.interactable = true;
+                lobbyToggle.onValueChanged.AddListener(isOn => { if (isOn) _ = SendReadyToExitAsync(nick); });
+            }
         }
+
+        foreach (var nick in winners) CreateEntry(nick, true);
+        foreach (var nick in losers) CreateEntry(nick, false);
+
     }
 
     public void OnLobbyButtonClicked(string targetNickname)
     {
         string targetName = $"UserResult_{targetNickname}";
         Transform targetUserResult = userResultParent.Find(targetName);
+
+        if (targetUserResult != null)
+        {
+            var toggle = targetUserResult.Find("LobbyToggle")?.GetComponent<Toggle>();
+            if (toggle != null)
+            {
+                toggle.isOn = true;
+                toggle.interactable = false;
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"UserResult_{targetNickname}를 찾을 수 없습니다.");
+        }
+    }
+
+    public void OnCoopLobbyButtonClicked(string targetNickname)
+    {
+        string targetName = $"UserResult_{targetNickname}";
+        Transform targetUserResult = coopUserResultParent.Find(targetName);
 
         if (targetUserResult != null)
         {
@@ -501,15 +601,19 @@ public class GameSystem : MonoBehaviour
 
         string nickname = parts[1];
 
-        // userResultParent는 UserResult UI가 붙는 부모 Transform
-        Transform targetUserResult = userResultParent.Find($"UserResult_{nickname}");
-        if (targetUserResult != null)
+        Transform t1 = userResultParent != null ? userResultParent.Find($"UserResult_{nickname}") : null;
+
+        Transform t2 = coopUserResultParent != null ? coopUserResultParent.Find($"UserResult_{nickname}") : null;
+
+        Transform target = t1 != null ? t1 : t2;
+
+        if (target != null)
         {
-            Toggle lobbyToggle = targetUserResult.Find("LobbyToggle")?.GetComponent<Toggle>();
+            Toggle lobbyToggle = target.Find("LobbyToggle")?.GetComponent<Toggle>();
             if (lobbyToggle != null)
             {
-                lobbyToggle.isOn = true;         // 토글 켜기
-                lobbyToggle.interactable = false; // 유저가 직접 조작 못하게 막기
+                lobbyToggle.isOn = true;
+                lobbyToggle.interactable = false;
             }
         }
         else
@@ -517,5 +621,14 @@ public class GameSystem : MonoBehaviour
             Debug.LogWarning($"UserResult_{nickname} UI를 찾을 수 없습니다.");
         }
     }
+    public void SetWinnerTeam(string team)
+    {
+        winnerTeam = team;
+    }
 
+    private void OnDestroy()
+    {
+        startRanOnce = false;
+        mapRequestedOnce = false;
+    }
 }
