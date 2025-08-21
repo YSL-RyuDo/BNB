@@ -33,14 +33,27 @@ public class GameSystem : MonoBehaviour
     private Color redTeamColor = Color.red;
     private Color soloColor = Color.black;
 
+    private static bool startRanOnce = false;
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
+
+        startRanOnce = false;
     }
 
     async void Start()
     {
+        if (startRanOnce)
+        {      
+            return;
+        }
+
         //
         gameResultPanel.SetActive(false);
         string nickName = NetworkConnector.Instance.UserNickname;
