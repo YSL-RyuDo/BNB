@@ -23,6 +23,13 @@ public class RoomUI : MonoBehaviour
     [SerializeField] private Color soloColor = Color.black;
     private int myPlayerIndex = -1;
     private bool startClicked = false;
+
+
+    private const int MaxPlayers = 4;      // 방 정원
+    private bool colorPainted = false;     // 색을 이미 한 번 일괄 적용했는지
+    private string lastSignature = null;
+
+
     private void Start()
     {
         var client = NetworkConnector.Instance;
@@ -30,7 +37,7 @@ public class RoomUI : MonoBehaviour
         roomNameText.text = client.CurrentRoomName;
         myPlayerIndex = client.CurrentUserList.FindIndex(n => n.Trim() == client.UserNickname?.Trim());
 
-        ParseEnterRoomPacket(client.PendingRoomEnterMessage);
+        ParseRoomSnapshot(client.PendingRoomEnterMessage);
 
 
         for (int i = 0; i < characterChooseButton.Length; i++)
@@ -44,37 +51,87 @@ public class RoomUI : MonoBehaviour
 
         teamChangeButton.onClick.AddListener(OnClickTeamChange);
 
-        UpdatePlayerInfoUI(client.CurrentUserList);
+        
         roomSender.SendGetCharacterInfo(client.UserNickname?.Trim());
+
+        UpdatePlayerInfoUI(client.CurrentUserList);
 
         OnEnterRoomSuccess(client.CurrentRoomName, string.Join(",", client.CurrentUserList));
         UpdateTeamChangeButtonInteractable();
     }
 
-    private void ParseEnterRoomPacket(string message)
+    private void ParseRoomSnapshot(string message)
     {
         if (string.IsNullOrEmpty(message)) return;
 
         var p = message.Split('|');
-        if (p.Length < 4 || p[0] != "ENTER_ROOM_SUCCESS") return;
+        if (p.Length < 4) return;
 
-        string userListStr = p[3];                         
-        if (p.Length >= 6)
-            isCoopMode = p[5].Trim() == "1";   
+        string cmd = p[0].Trim();
+        string roomName = null;
+        string mapName = null;
+        string roster = null;         // "nick:idx(:team),nick:idx(:team)..."
+        bool? coopFromPacket = null;    // ENTER에만 확정 플래그 있을 수 있음
+
+        if (cmd == "ENTER_ROOM_SUCCESS")
+        {
+            // 예: ENTER_ROOM_SUCCESS|roomName|...|nick:idx(:team)|...|isCoopFlag
+            roomName = p[1].Trim();
+            // (필요하면 p[2]에 맵이 오는 구조일 수도 있으니 상황 맞춰 보강)
+            roster = p[3];
+            if (p.Length >= 6) coopFromPacket = (p[5].Trim() == "1");
+        }
+        else if (cmd == "REFRESH_ROOM_SUCCESS")
+        {
+            // 예: REFRESH_ROOM_SUCCESS|roomName|mapName|nick:idx(:team),...
+            roomName = p[1].Trim();
+            mapName = p[2].Trim();
+            roster = p[3];
+        }
+        else
+        {
+            // 그 외 패킷은 무시
+            return;
+        }
+
+        if (string.IsNullOrEmpty(roster)) return;
 
         userTeamMap.Clear();
-        foreach (var token in userListStr.Split(',', StringSplitOptions.RemoveEmptyEntries))
+        bool isTeamPresent = false;
+
+        foreach (var token in roster.Split(',', StringSplitOptions.RemoveEmptyEntries))
         {
             var up = token.Split(':'); // nick:idx(:team)
             string nickname = up[0].Trim();
+
+            int idx = 0;
+            if (up.Length >= 2) int.TryParse(up[1], out idx);
+            NetworkConnector.Instance.SetOrUpdateUserCharacter(nickname, idx);
+
             string team = (up.Length >= 3) ? up[2].Trim() : "None";
             userTeamMap[nickname] = team;
+
+            if (string.Equals(team, "Blue", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(team, "Red", StringComparison.OrdinalIgnoreCase))
+                isTeamPresent = true;
         }
 
+        // coop 결정: ENTER에선 확정 플래그, REFRESH에선 팀 존재 여부로 보강
+        if (coopFromPacket.HasValue)
+            isCoopMode = coopFromPacket.Value;
+        else if (!isCoopMode)
+            isCoopMode = isTeamPresent;
+
+        // 커넥터 상태 동기화
         NetworkConnector.Instance.IsCoopMode = isCoopMode;
         NetworkConnector.Instance.UserTeams.Clear();
         foreach (var kv in userTeamMap)
             NetworkConnector.Instance.UserTeams[kv.Key] = kv.Value;
+
+        if (!string.IsNullOrEmpty(roomName))
+            NetworkConnector.Instance.CurrentRoomName = roomName;
+        if (!string.IsNullOrEmpty(mapName))
+            NetworkConnector.Instance.SelectedMap = mapName;
     }
 
     public void HandleUserJoined(string message)
@@ -144,6 +201,8 @@ public class RoomUI : MonoBehaviour
         NetworkConnector.Instance.SelectedMap = mapName;
         NetworkConnector.Instance.CurrentUserList = nicknames;
         NetworkConnector.Instance.CurrentRoomLeader = (nicknames.Count > 0) ? nicknames[0] : null;
+
+        NetworkConnector.Instance.PendingRoomEnterMessage = message;
 
         RefreshRoomUI(nicknames, roomName);
 
@@ -392,4 +451,5 @@ public class RoomUI : MonoBehaviour
         }
 
     }
+
 }

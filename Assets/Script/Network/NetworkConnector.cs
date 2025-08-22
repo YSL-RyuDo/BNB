@@ -30,6 +30,8 @@ public class NetworkConnector : MonoBehaviour
     [SerializeField] private List<string> currentUserList = new List<string>();
     [SerializeField] private List<UserCharacterEntry> userCharacterEntries = new List<UserCharacterEntry>();
 
+    public bool EnterPacketApplied { get; set; }
+
     public string UserNickname { get => userNickname; set => userNickname = value; }
     public string SelectedMap { get => selectedMap; set => selectedMap = value; }
     public string CurrentRoomName { get => currentRoomName; set => currentRoomName = value; }
@@ -38,6 +40,30 @@ public class NetworkConnector : MonoBehaviour
 
     private static string s_LastMapName;
     private static string s_LastMapRaw;
+
+    private static bool s_ForceReloadMapNextTime = false;
+
+
+    private static void PrepareNewRound()
+    {
+        // 다음 MAP_DATA에서 동일 페이로드라도 반드시 한 번은 LoadMap 하도록 플래그
+        s_ForceReloadMapNextTime = true;
+
+        // 이전 라운드 캐시 초기화
+        s_SpawnedThisMap.Clear();
+        s_LastMapName = null;
+        s_LastMapRaw = null;
+    }
+
+    private void OnEnable() { SceneManager.sceneLoaded += OnAnySceneLoaded; }
+    private void OnDisable() { SceneManager.sceneLoaded -= OnAnySceneLoaded; }
+
+    private void OnAnySceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "GameScene")
+            PrepareNewRound();  // 게임씬 들어오면 항상 새 라운드로 간주
+    }
+
     private static readonly HashSet<string> s_SpawnedThisMap = new();
 
     public List<string> CurrentUserList { get => currentUserList; set => currentUserList = value; }
@@ -325,6 +351,7 @@ public class NetworkConnector : MonoBehaviour
                 }
             case "START_GAME_SUCCESS":
                 Debug.Log("게임 시작 조건 충족! 씬 전환...");
+                PrepareNewRound(); 
                 UnityEngine.SceneManagement.SceneManager.LoadScene("GameScene");
                 break;
             case "START_GAME_FAIL":
@@ -333,6 +360,7 @@ public class NetworkConnector : MonoBehaviour
                 break;
             case "GAME_START":
                 Debug.Log("게임 시작 메시지 수신, 씬 전환");
+                PrepareNewRound();
                 SceneManager.LoadScene("GameScene");
                 break;
             case "CHARACTER_LIST":
@@ -351,21 +379,21 @@ public class NetworkConnector : MonoBehaviour
                     string mapName = parts[1];
                     string mapRawData = parts[2];
                     string spawnRawData = parts[3];
-
                     bool samePayload = (s_LastMapName == mapName) && (s_LastMapRaw == mapRawData);
-                    if (!samePayload)
-                    {
-                        Debug.Log($"[MAP_DATA 수신] 최초/갱신 처리 → mapName: {mapName}");
-                        MapSystem.Instance.LoadMap(mapName, mapRawData);
 
-                        // 현재 맵 세션 키 갱신 + 스폰 기록 초기화
+                    bool mustReload = !samePayload || s_ForceReloadMapNextTime;
+                    if (mustReload)
+                    {
+                        Debug.Log($"[MAP_DATA] 새 라운드/갱신 로드 → {mapName}");
+                        MapSystem.Instance.LoadMap(mapName, mapRawData);
                         s_LastMapName = mapName;
                         s_LastMapRaw = mapRawData;
-                        s_SpawnedThisMap.Clear();
+                        s_SpawnedThisMap.Clear();    // 스폰 기록 리셋
+                        s_ForceReloadMapNextTime = false; // 강제 로드 1회만
                     }
                     else
                     {
-                        Debug.Log("[MAP_DATA] 동일 맵 데이터 재수신 → LoadMap 스킵");
+                        Debug.Log("[MAP_DATA] 동일 페이로드 재수신 → LoadMap 스킵");
                     }
 
                     string[] spawnEntries = spawnRawData.Split(',');
@@ -403,7 +431,7 @@ public class NetworkConnector : MonoBehaviour
                         }
 
                         // 캐릭터 인덱스 저장 (원하시면 이미 있으면 갱신하지 않도록 조건 추가 가능)
-                        NetworkConnector.Instance.CurrentUserCharacterIndices[playerId] = charIndex;
+                        NetworkConnector.Instance.SetOrUpdateUserCharacter(playerId, charIndex);
 
                         CharacterSystem.Instance.SpawnCharacterAt(playerId, charIndex, x, localY, layer);
                     }
@@ -767,8 +795,8 @@ public class NetworkConnector : MonoBehaviour
     {
         if (scene.name == "RoomScene")
         {
-            RoomSystem roomSystem = FindObjectOfType<RoomSystem>();
-            if (roomSystem != null && !string.IsNullOrEmpty(PendingRoomEnterMessage))
+      
+            if (!string.IsNullOrEmpty(PendingRoomEnterMessage))
             {
                 // 파싱: ENTER_ROOM_SUCCESS|roomName|qwe:2,asd:1,zxc:0
                 string[] parts = PendingRoomEnterMessage.Split('|');
@@ -801,9 +829,9 @@ public class NetworkConnector : MonoBehaviour
                         }
                     }
                 }
-
-                roomSystem.HandleUserJoined(PendingRoomEnterMessage);
                 PendingRoomEnterMessage = null;
+
+                
             }
             else
             {
