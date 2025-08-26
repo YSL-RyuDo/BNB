@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -8,12 +9,11 @@ using UnityEngine.SceneManagement;
 public class MyPageReceiver : MonoBehaviour, IMessageHandler
 {
     [SerializeField] private MyPageUserInfo userInfo;
-    [SerializeField] private MyPageEmoticon emoticon;
 
     // 메시지 구독
     private readonly string[] commands =
     {
-        "USER_INFO", "EMO_LIST"
+        "SETINFO", "WINRATE", "GETMYEMO", "GETMYBALLOON"
     };
 
     private void OnEnable()
@@ -41,83 +41,79 @@ public class MyPageReceiver : MonoBehaviour, IMessageHandler
 
         switch (command)
         {
-            case "USER_INFO": HandleUserInfoMessage(message); break;
-            case "EMO_LIST": HandleEmoticonMessage(message); break; 
+            case "SETINFO": HandleSetInfoMessage(message); break;
+            case "WINRATE": HandleWinRateMessage(message); break;
         }
     }
 
-    public void HandleUserInfoMessage(string message)
+    public void HandleSetInfoMessage(string message)
     {
-        Debug.Log("HandleUserInfoMessage 호출: " + message);
+        if (string.IsNullOrEmpty(message) || !message.StartsWith("SETINFO|"))
+            return;
 
-        if (!message.StartsWith("USER_INFO|"))
+        // SETINFO|닉,레벨,경험치,아이콘,emo0,emo1,emo2,emo3,balloon
+        string data = message.Substring("SETINFO|".Length).Trim();
+        string[] p = data.Split(',');
+
+        if (p.Length < 9)
         {
-            Debug.LogError("USER_INFO 메시지 포맷 오류");
+            Debug.LogError($"[SETINFO] 필드 수 부족: {data}");
             return;
         }
 
-        string data = message.Substring("USER_INFO|".Length).Trim();
+        string nickname = p[0].Trim();
 
-        string[] parts = data.Split(',');
+        int level = TryInt(p[1], 1);
+        float exp = TryFloat(p[2], 0f);
 
-        if (parts.Length < 3)
-        {
-            Debug.LogError("USER_INFO 데이터 파싱 실패: " + data);
-            return;
-        }
+        int[] equippedEmos = new int[4];
+        equippedEmos[0] = TryInt(p[4], -1);
+        equippedEmos[1] = TryInt(p[5], -1);
+        equippedEmos[2] = TryInt(p[6], -1);
+        equippedEmos[3] = TryInt(p[7], -1);
 
-        string nickname = parts[0].Trim();
-        int level;
-        float exp;
+        int balloonIndex = TryInt(p[8], -1);
 
-        if (!int.TryParse(parts[1].Trim(), out level))
-        {
-            Debug.LogError("레벨 파싱 실패: " + parts[1]);
-            level = 1; // 기본값
-        }
-
-        if (!float.TryParse(parts[2].Trim(), out exp))
-        {
-            Debug.LogError("경험치 파싱 실패: " + parts[2]);
-            exp = 0f;
-        }
-
-        Debug.Log($"유저 정보 - 닉네임: {nickname}, 레벨: {level}, 경험치: {exp}");
-
-        userInfo.SetUserInfoUI(nickname, level, exp);
+        userInfo.SetUserInfoUI(nickname, level, exp, equippedEmos, balloonIndex);
     }
 
-    public void HandleEmoticonMessage(string message)
+    private void HandleWinRateMessage(string message)
     {
-        if (!message.StartsWith("EMO_LIST|")) return;
+        if (!message.StartsWith("WINRATE|")) return;
 
-        string[] parts = message.Substring("EMO_LIST|".Length).Split(',');
-        if (parts.Length != 4)
+        string data = message.Substring("WINRATE|".Length).Trim();
+        string[] p = data.Split(',');
+
+        if (p.Length < 3)
         {
-            Debug.LogWarning("[EmoticonSystem] 이모티콘 개수 오류");
+            Debug.LogError($"[WINRATE] 필수 항목 부족: {data}");
             return;
         }
 
-        for (int i = 0; i < 4; i++)
-        {
-            if (int.TryParse(parts[i], out int emoIndex))
-            {
-                if (emoIndex >= 0 && emoIndex < emoticon.emoticonPrefabs.Length)
-                {
-                    emoticon.emoticonButtons[i].image.sprite = emoticon.emoticonPrefabs[emoIndex];
+        string nickname = p[0].Trim();
+        int totalWin = TryInt(p[1], 0);
+        int totalLose = TryInt(p[2], 0);
 
-                    // 버튼 이름을 emoIndex로 설정
-                    emoticon.emoticonButtons[i].name = emoIndex.ToString();
-                }
-                else
-                {
-                    Debug.LogWarning($"[EmoticonSystem] 잘못된 이모티콘 인덱스: {emoIndex}");
-                }
-            }
-            else
-            {
-                Debug.LogWarning($"[EmoticonSystem] 이모티콘 파싱 실패: {parts[i]}");
-            }
+        var top3Triples = new List<int[]>(3);
+        for (int i = 0; i < 3; i++)
+        {
+            int baseIdx = 3 + i * 3;
+            if (p.Length <= baseIdx + 2) break;
+
+            int idx = TryInt(p[baseIdx], -1);
+            int win = TryInt(p[baseIdx + 1], 0);
+            int lose = TryInt(p[baseIdx + 2], 0);
+
+            if (idx >= 0)
+                top3Triples.Add(new int[] { idx, win, lose });
         }
+
+        userInfo.SetWinRateUI(nickname, totalWin, totalLose, top3Triples);
     }
+
+    private static int TryInt(string s, int def)
+       => int.TryParse(s.Trim(), out var v) ? v : def;
+    private static float TryFloat(string s, float def)
+       => float.TryParse(s.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out var v) ? v : def;
 }
+
