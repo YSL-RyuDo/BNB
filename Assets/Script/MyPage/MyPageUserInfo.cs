@@ -17,6 +17,8 @@ public class MyPageUserInfo : MonoBehaviour
 
     public Image[] myEmoticonImages;
     public Sprite[] emoticonList;
+    public Transform emoticonSettingParent;
+    public GameObject emoticonSettingButtonPrefab;
 
     public Image myBalloon;
     public Sprite[] balloonList;
@@ -32,7 +34,7 @@ public class MyPageUserInfo : MonoBehaviour
     public RawImage characterModelingIamge;
 
     private GameObject spawnedModel;
-
+    
     public Button exitButton;
     private float maxExp = 100;
 
@@ -207,6 +209,55 @@ public class MyPageUserInfo : MonoBehaviour
 
         spawnedModel = Instantiate(characterModelings[charIndex],
                                        Vector3.zero, Quaternion.Euler(0f, 180f, 0f));
+    }
+
+    public void BuildOwnedEmoticonButtons(List<int> ownedEmoteIndexes)
+    {
+        if (emoticonSettingParent == null || emoticonSettingButtonPrefab == null)
+        {
+            Debug.LogWarning("[EmoteSetting] Parent 또는 Prefab이 연결되지 않았습니다.");
+            return;
+        }
+
+        for (int i = emoticonSettingParent.childCount - 1; i >= 0; i--)
+            Destroy(emoticonSettingParent.GetChild(i).gameObject);
+
+        if (ownedEmoteIndexes == null || ownedEmoteIndexes.Count == 0)
+            return;
+
+        ownedEmoteIndexes.Sort();
+
+        foreach (int idx in ownedEmoteIndexes)
+        {
+            if (idx < 0 || emoticonList == null || idx >= emoticonList.Length)
+                continue;
+
+            var sprite = emoticonList[idx];
+            if (sprite == null) continue;
+
+            var go = Instantiate(emoticonSettingButtonPrefab, emoticonSettingParent);
+            go.name = $"EmoteBtn_{idx}";
+
+            Image icon = null;
+            var images = go.GetComponentsInChildren<Image>(true);
+            foreach (var img in images)
+            {
+                string n = img.name.ToLowerInvariant();
+                if (n.Contains("icon"))
+                {
+                    icon = img;
+                    break;
+                }
+            }
+            if (icon == null && images.Length > 0) icon = images[0];
+
+            if (icon != null)
+            {
+                icon.sprite = sprite;
+                icon.enabled = true;
+                icon.preserveAspect = true;
+            }
+        }
     }
 
     private void LoadLobbyScene()

@@ -2847,6 +2847,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 65d633588d7df104eaf8bbee8fff4111, type: 3}
   - {fileID: 21300000, guid: 3d736fb0c4d9edd49822283058f12c74, type: 3}
   - {fileID: 21300000, guid: 49876aed630a2d0419cb225ad80e8267, type: 3}
+  emoticonSettingParent: {fileID: 1461045594}
+  emoticonSettingButtonPrefab: {fileID: 2269905935962731227, guid: 13d4ba64e9b3cf247a52775d49479305, type: 3}
   myBalloon: {fileID: 337074858}
   balloonList:
   - {fileID: 21300000, guid: 0ad7f188e70ba474ca40523f027ade47, type: 3}
@@ -2873,9 +2875,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: ac55c9e9e0e5dcc4d80019da4101c695, type: 3}
   - {fileID: 21300000, guid: a295350202ae69c4b9246f4bf488d334, type: 3}
   characterModelingIamge: {fileID: 191049230}
-  previewYaw: 180
-  facePreviewCamera: 0
-  previewCamera: {fileID: 1822743869}
   exitButton: {fileID: 15830670}
 --- !u!114 &1363832915
 MonoBehaviour:

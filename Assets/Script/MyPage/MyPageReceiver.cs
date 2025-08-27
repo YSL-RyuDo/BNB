@@ -43,6 +43,7 @@ public class MyPageReceiver : MonoBehaviour, IMessageHandler
         {
             case "SETINFO": HandleSetInfoMessage(message); break;
             case "WINRATE": HandleWinRateMessage(message); break;
+            case "GETMYEMO": HandleGetMyEmoMessage(message); break;
         }
     }
 
@@ -109,6 +110,28 @@ public class MyPageReceiver : MonoBehaviour, IMessageHandler
         }
 
         userInfo.SetWinRateUI(nickname, totalWin, totalLose, top3Triples);
+    }
+
+    private void HandleGetMyEmoMessage(string message)
+    {
+        if (!message.StartsWith("GETMYEMO|")) return;
+
+        string data = message.Substring("GETMYEMO|".Length).Trim();
+        if (string.IsNullOrEmpty(data)) return;
+
+        var tokens = data.Split(',');
+        if (tokens.Length == 0) return;
+
+        string nickname = tokens[0].Trim();
+
+        var owned = new List<int>();
+        for (int i = 1; i < tokens.Length; i++)
+        {
+            if (int.TryParse(tokens[i].Trim(), out var idx))
+                owned.Add(idx);
+        }
+
+        userInfo.BuildOwnedEmoticonButtons(owned);
     }
 
     private static int TryInt(string s, int def)
