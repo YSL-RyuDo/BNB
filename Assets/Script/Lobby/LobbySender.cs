@@ -61,6 +61,13 @@ public class LobbySender : MonoBehaviour
         await SendToServer(message);
     }
 
+    public async void SendGetUserPageInfo(string nickname)
+    {
+        string message = $"GETINFO|{nickname}\n";
+        await SendToServer(message);
+    }
+
+
     public async Task<bool> SendToServer(string message)
     {
         var stream = NetworkConnector.Instance.Stream;

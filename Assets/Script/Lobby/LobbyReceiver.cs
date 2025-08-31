@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,12 +13,14 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
     [SerializeField] private LobbyUserList userList;
     [SerializeField] private LobbyChat chat;
     [SerializeField] private LobbyRoom lobbyRoom;
+    [SerializeField] private LobbyUserPage userPage;
 
     // 메시지 구독
     private readonly string[] commands =
     {
         "ROOM_LIST", "ROOM_CREATED", "CREATE_ROOM_SUCCESS",
-        "ENTER_ROOM_SUCCESS", "LOBBY_CHAT", "LOBBY_USER_LIST", "USER_INFO"
+        "ENTER_ROOM_SUCCESS", "LOBBY_CHAT", "LOBBY_USER_LIST", "USER_INFO",
+        "SETINFO", "WINRATE", "GETMYEMO", "GETMYBALLOON"
     };
 
     private void OnEnable()
@@ -52,6 +55,8 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
             case "LOBBY_CHAT": HandleLobbyChatMessage(message); break;
             case "LOBBY_USER_LIST": HandleUserListMessage(message); break;
             case "USER_INFO": HandleUserInfoMessage(message); break;
+            case "SETINFO": HandleSetInfoMessage(message); break;
+            case "WINRATE": HandleWinRateMessage(message); break;
         }
     }
 
@@ -406,5 +411,75 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
 
         Debug.Log($"[ROOM_CREATED] {roomName} | 비번 있음: {hasPassword} | 유저: {userListStr}");
     }
+    public void HandleSetInfoMessage(string message)
+    {
+        if (string.IsNullOrEmpty(message) || !message.StartsWith("SETINFO|"))
+            return;
 
+        string data = message.Substring("SETINFO|".Length).Trim();
+        string[] p = data.Split(',');
+
+        if (p.Length < 2)
+        {
+            Debug.LogError($"[SETINFO] 필드 수 부족: {data}");
+            return;
+        }
+
+        string nickname = p[0].Trim();
+        int level = TryInt(p[1], 1);
+
+        // 본인이 클릭한 유저가 맞는지 확인
+        if (LobbyUserList.LastRequestedNickname != null &&
+            !string.Equals(LobbyUserList.LastRequestedNickname, nickname))
+        {
+            Debug.Log($"[SETINFO] 요청한 닉네임과 다르므로 무시: {nickname}");
+            return;
+        }
+
+        userPage.SetUserInfoUI(nickname, level);
+
+    }
+
+    private void HandleWinRateMessage(string message)
+    {
+        if (!message.StartsWith("WINRATE|")) return;
+
+        string data = message.Substring("WINRATE|".Length).Trim();
+        string[] p = data.Split(',');
+
+        if (p.Length < 3)
+        {
+            Debug.LogError($"[WINRATE] 필수 항목 부족: {data}");
+            return;
+        }
+
+        string nickname = p[0].Trim();
+        int totalWin = TryInt(p[1], 0);
+        int totalLose = TryInt(p[2], 0);
+
+        var top3Triples = new List<int[]>(3);
+        for (int i = 0; i < 3; i++)
+        {
+            int baseIdx = 3 + i * 3;
+            if (p.Length <= baseIdx + 2) break;
+
+            int idx = TryInt(p[baseIdx], -1);
+            int win = TryInt(p[baseIdx + 1], 0);
+            int lose = TryInt(p[baseIdx + 2], 0);
+
+            if (idx >= 0) top3Triples.Add(new int[] { idx, win, lose });
+        }
+
+        if (LobbyUserList.LastRequestedNickname != null &&
+            !string.Equals(LobbyUserList.LastRequestedNickname, nickname))
+        {
+            Debug.Log($"[WINRATE] 요청한 닉네임과 다르므로 무시: {nickname}");
+            return;
+        }
+
+        userPage.SetWinRateUI(nickname, totalWin, totalLose, top3Triples);
+    }
+
+    private static int TryInt(string s, int def)
+        => int.TryParse(s.Trim(), out var v) ? v : def;
 }
