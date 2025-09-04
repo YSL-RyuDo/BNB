@@ -19,10 +19,20 @@ public class LobbyUserPage : MonoBehaviour
     public GameObject characterRatePrefab;
     public Sprite[] CharacterList;
 
-    public void SetUserInfoUI(string nickname, int level)
+
+    public Image[] myEmoticonImages;
+    public Sprite[] emoticonList;
+
+    public Image myBalloon;
+    public Sprite[] balloonList;
+
+    public void SetUserInfoUI(string nickname, int level, int[] equippedEmoIndices, int balloonIndex)
     {
         if (userNameText) userNameText.text = nickname;
         if (userLevelText) userLevelText.text = $"LV. {level}";
+
+        ApplyEquippedEmotes(equippedEmoIndices);
+        ApplyBalloon(balloonIndex);
     }
 
     public void SetWinRateUI(string nickname, int totalWin, int totalLose, List<int[]> top3Triples)
@@ -96,6 +106,52 @@ public class LobbyUserPage : MonoBehaviour
         {
             target.sprite = CharacterList[charIndex];
             target.enabled = (target.sprite != null);
+     
+        }
+    }
+
+    private void ApplyEquippedEmotes(int[] indices)
+    {
+        if (myEmoticonImages == null) return;
+
+        for (int i = 0; i < myEmoticonImages.Length; i++)
+        {
+            var img = myEmoticonImages[i];
+            if (img == null) continue;
+
+            bool valid = indices != null
+                      && i < indices.Length
+                      && indices[i] >= 0
+                      && emoticonList != null
+                      && indices[i] < emoticonList.Length;
+
+            if (valid)
+            {
+                img.sprite = emoticonList[indices[i]];
+                img.enabled = true;
+            }
+            else
+            {
+                img.sprite = null;  // ºó Ä­ Ã³¸®
+                img.enabled = false;
+            }
+        }
+    }
+
+    private void ApplyBalloon(int idx)
+    {
+        if (myBalloon == null) return;
+
+        bool valid = idx >= 0 && balloonList != null && idx < balloonList.Length;
+        if (valid)
+        {
+            myBalloon.sprite = balloonList[idx];
+            myBalloon.enabled = true;
+        }
+        else
+        {
+            myBalloon.sprite = null;
+            myBalloon.enabled = false;
         }
     }
 }

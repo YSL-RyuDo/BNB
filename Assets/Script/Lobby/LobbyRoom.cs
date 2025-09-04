@@ -38,6 +38,8 @@ public class LobbyRoom : MonoBehaviour
 
     public Sprite coopSprite;
     public Sprite passwordSprite;
+    public Sprite soloSprite;
+    public Sprite nonPasswordSprite;
 
     public TextMeshProUGUI errorText;
     public GameObject createRoomPanel;
@@ -135,6 +137,10 @@ public class LobbyRoom : MonoBehaviour
             {
                 coopImage.sprite = coopSprite;
             }      
+            else
+            {
+                coopImage.sprite = soloSprite;
+            }
         }
 
         var passwordImage = btn.transform.Find("PasswordImage")?.GetComponent<Image>();
@@ -143,6 +149,10 @@ public class LobbyRoom : MonoBehaviour
             if(roomPasswordMap[roomName] == true)
             { 
                 passwordImage.sprite = passwordSprite; 
+            }
+            else
+            {
+                passwordImage.sprite = nonPasswordSprite;
             }
         }
 

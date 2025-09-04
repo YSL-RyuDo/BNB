@@ -416,27 +416,29 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
         if (string.IsNullOrEmpty(message) || !message.StartsWith("SETINFO|"))
             return;
 
+        // SETINFO|닉,레벨,경험치,아이콘,emo0,emo1,emo2,emo3,balloon
         string data = message.Substring("SETINFO|".Length).Trim();
         string[] p = data.Split(',');
 
-        if (p.Length < 2)
+        if (p.Length < 9)
         {
             Debug.LogError($"[SETINFO] 필드 수 부족: {data}");
             return;
         }
 
         string nickname = p[0].Trim();
+
         int level = TryInt(p[1], 1);
 
-        // 본인이 클릭한 유저가 맞는지 확인
-        if (LobbyUserList.LastRequestedNickname != null &&
-            !string.Equals(LobbyUserList.LastRequestedNickname, nickname))
-        {
-            Debug.Log($"[SETINFO] 요청한 닉네임과 다르므로 무시: {nickname}");
-            return;
-        }
+        int[] equippedEmos = new int[4];
+        equippedEmos[0] = TryInt(p[4], -1);
+        equippedEmos[1] = TryInt(p[5], -1);
+        equippedEmos[2] = TryInt(p[6], -1);
+        equippedEmos[3] = TryInt(p[7], -1);
 
-        userPage.SetUserInfoUI(nickname, level);
+        int balloonIndex = TryInt(p[8], -1);
+
+        userPage.SetUserInfoUI(nickname, level, equippedEmos, balloonIndex);
 
     }
 
