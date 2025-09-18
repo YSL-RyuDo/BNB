@@ -55,7 +55,7 @@ public class MyPageUserInfo : MonoBehaviour
     private void ApplyBasicInfo(string nickname, int level, float exp)
     {
         if (userNameText) userNameText.text = nickname;
-        if (userLevelText) userLevelText.text = $"LV. {level}";
+        if (userLevelText) userLevelText.text = $"{level}";
 
         maxExp = Mathf.Max(1f, level * 100f);
         float currentExp = Mathf.Clamp(exp, 0f, maxExp);

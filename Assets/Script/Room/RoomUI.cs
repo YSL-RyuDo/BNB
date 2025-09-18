@@ -38,7 +38,7 @@ public class RoomUI : MonoBehaviour
         myPlayerIndex = client.CurrentUserList.FindIndex(n => n.Trim() == client.UserNickname?.Trim());
 
         ParseRoomSnapshot(client.PendingRoomEnterMessage);
-
+        client.RestoreCharacterIndicesAfterGame();
 
         for (int i = 0; i < characterChooseButton.Length; i++)
         {
@@ -70,27 +70,23 @@ public class RoomUI : MonoBehaviour
         string cmd = p[0].Trim();
         string roomName = null;
         string mapName = null;
-        string roster = null;         // "nick:idx(:team),nick:idx(:team)..."
-        bool? coopFromPacket = null;    // ENTER에만 확정 플래그 있을 수 있음
+        string roster = null;        
+        bool? coopFromPacket = null;    
 
         if (cmd == "ENTER_ROOM_SUCCESS")
         {
-            // 예: ENTER_ROOM_SUCCESS|roomName|...|nick:idx(:team)|...|isCoopFlag
             roomName = p[1].Trim();
-            // (필요하면 p[2]에 맵이 오는 구조일 수도 있으니 상황 맞춰 보강)
             roster = p[3];
             if (p.Length >= 6) coopFromPacket = (p[5].Trim() == "1");
         }
         else if (cmd == "REFRESH_ROOM_SUCCESS")
         {
-            // 예: REFRESH_ROOM_SUCCESS|roomName|mapName|nick:idx(:team),...
             roomName = p[1].Trim();
             mapName = p[2].Trim();
             roster = p[3];
         }
         else
         {
-            // 그 외 패킷은 무시
             return;
         }
 
@@ -116,13 +112,11 @@ public class RoomUI : MonoBehaviour
                 isTeamPresent = true;
         }
 
-        // coop 결정: ENTER에선 확정 플래그, REFRESH에선 팀 존재 여부로 보강
         if (coopFromPacket.HasValue)
             isCoopMode = coopFromPacket.Value;
         else if (!isCoopMode)
             isCoopMode = isTeamPresent;
 
-        // 커넥터 상태 동기화
         NetworkConnector.Instance.IsCoopMode = isCoopMode;
         NetworkConnector.Instance.UserTeams.Clear();
         foreach (var kv in userTeamMap)
@@ -160,7 +154,6 @@ public class RoomUI : MonoBehaviour
             string token = raw.Trim();
             if (string.IsNullOrEmpty(token)) continue;
 
-            // nick:idx(:team[:...])
             var up = token.Split(':');
             if (up.Length < 2) continue;
 
@@ -315,7 +308,7 @@ public class RoomUI : MonoBehaviour
         startClicked = true;
         startGameButton.interactable = false;
 
-
+        NetworkConnector.Instance.CacheCharacterIndicesBeforeGame();
         roomSender.SendStartGame(NetworkConnector.Instance.CurrentRoomName);
     }
 

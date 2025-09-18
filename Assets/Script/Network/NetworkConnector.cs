@@ -38,12 +38,25 @@ public class NetworkConnector : MonoBehaviour
     public string CurrentRoomLeader { get => currentRoomLeader; set => currentRoomLeader = value; }
     public string PendingRoomEnterMessage { get => pendingRoomEnterMessage; set => pendingRoomEnterMessage = value; }
 
+    public Dictionary<string, int> lastCharacterSnapshot { get; private set; } = new();
+
     private static string s_LastMapName;
     private static string s_LastMapRaw;
 
     private static bool s_ForceReloadMapNextTime = false;
 
-
+    //게임 시작 전 캐릭터 인덱스 정보를 저장
+    public void CacheCharacterIndicesBeforeGame()
+    {
+        lastCharacterSnapshot = new Dictionary<string, int>(CurrentUserCharacterIndices);
+    }
+    public void RestoreCharacterIndicesAfterGame()
+    {
+        if (lastCharacterSnapshot != null && lastCharacterSnapshot.Count > 0)
+        {
+            SetUserCharacterIndices(lastCharacterSnapshot);
+        }
+    }
     private static void PrepareNewRound()
     {
         // 다음 MAP_DATA에서 동일 페이로드라도 반드시 한 번은 LoadMap 하도록 플래그
@@ -351,7 +364,8 @@ public class NetworkConnector : MonoBehaviour
                 }
             case "START_GAME_SUCCESS":
                 Debug.Log("게임 시작 조건 충족! 씬 전환...");
-                PrepareNewRound(); 
+                PrepareNewRound();
+                CacheCharacterIndicesBeforeGame();
                 UnityEngine.SceneManagement.SceneManager.LoadScene("GameScene");
                 break;
             case "START_GAME_FAIL":
@@ -361,6 +375,7 @@ public class NetworkConnector : MonoBehaviour
             case "GAME_START":
                 Debug.Log("게임 시작 메시지 수신, 씬 전환");
                 PrepareNewRound();
+                CacheCharacterIndicesBeforeGame();
                 SceneManager.LoadScene("GameScene");
                 break;
             case "CHARACTER_LIST":
@@ -795,7 +810,11 @@ public class NetworkConnector : MonoBehaviour
     {
         if (scene.name == "RoomScene")
         {
-      
+            if (lastCharacterSnapshot != null && lastCharacterSnapshot.Count > 0)
+            {
+                SetUserCharacterIndices(lastCharacterSnapshot);
+            }
+
             if (!string.IsNullOrEmpty(PendingRoomEnterMessage))
             {
                 // 파싱: ENTER_ROOM_SUCCESS|roomName|qwe:2,asd:1,zxc:0
@@ -809,6 +828,9 @@ public class NetworkConnector : MonoBehaviour
                         {
                             string[] pair = token.Split(':');
                             string nickname = pair[0].Trim();
+
+                            FindObjectOfType<RoomSender>()?.SendGetCharacterInfo(nickname);
+
                             if (int.TryParse(pair[1], out int charIndex))
                             {
                                 NetworkConnector.Instance.CurrentUserCharacterIndices[nickname] = charIndex;
@@ -844,6 +866,7 @@ public class NetworkConnector : MonoBehaviour
 
         }
     }
+
 
     public void SetUserCharacterIndices(Dictionary<string, int> dict)
     {
