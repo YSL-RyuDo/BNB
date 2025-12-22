@@ -17,6 +17,12 @@ public class MyPageSender : MonoBehaviour
         await SendToServer(message);
     }
 
+    public async void SendEmoChange(string nickname, int from, int to)
+    {
+        string msg = $"EMO_CHANGE|{nickname},{from},{to}\n";
+        await SendToServer(msg);
+    }
+
     public async Task<bool> SendToServer(string message)
     {
         var stream = NetworkConnector.Instance.Stream;

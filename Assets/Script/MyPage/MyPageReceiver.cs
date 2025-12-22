@@ -13,7 +13,7 @@ public class MyPageReceiver : MonoBehaviour, IMessageHandler
     // 메시지 구독
     private readonly string[] commands =
     {
-        "SETINFO", "WINRATE", "GETMYEMO", "GETMYBALLOON"
+        "SETINFO", "WINRATE", "GETMYEMO", "GETMYBALLOON", "GETMYICON"
     };
 
     private void OnEnable()
@@ -44,6 +44,7 @@ public class MyPageReceiver : MonoBehaviour, IMessageHandler
             case "SETINFO": HandleSetInfoMessage(message); break;
             case "WINRATE": HandleWinRateMessage(message); break;
             case "GETMYEMO": HandleGetMyEmoMessage(message); break;
+            case "GETMYICON": HandleGetMyIconMessage(message); break;
         }
     }
 
@@ -75,7 +76,9 @@ public class MyPageReceiver : MonoBehaviour, IMessageHandler
 
         int balloonIndex = TryInt(p[8], -1);
 
-        userInfo.SetUserInfoUI(nickname, level, exp, equippedEmos, balloonIndex);
+        int equippedIcon = TryInt(p[3], -1);
+
+        userInfo.SetUserInfoUI(nickname, level, exp, equippedEmos, balloonIndex, equippedIcon);
     }
 
     private void HandleWinRateMessage(string message)
@@ -134,6 +137,25 @@ public class MyPageReceiver : MonoBehaviour, IMessageHandler
         userInfo.BuildOwnedEmoticonButtons(owned);
     }
 
+    private void HandleGetMyIconMessage(string message)
+    {
+        if (!message.StartsWith("GETMYICON|")) return;
+
+        string data = message.Substring("GETMYICON|".Length).Trim();
+        if (string.IsNullOrEmpty(data)) return;
+
+        var tokens = data.Split(',');
+        if (tokens.Length <= 1) return;
+
+        var ownedIcons = new List<int>();
+        for (int i = 1; i < tokens.Length; i++)
+        {
+            if (int.TryParse(tokens[i].Trim(), out var idx))
+                ownedIcons.Add(idx);
+        }
+
+        userInfo.BuildOwnedIconButtons(ownedIcons);
+    }
     private static int TryInt(string s, int def)
        => int.TryParse(s.Trim(), out var v) ? v : def;
     private static float TryFloat(string s, float def)

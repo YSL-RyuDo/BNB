@@ -23,6 +23,11 @@ public class MyPageUserInfo : MonoBehaviour
     public Image myBalloon;
     public Sprite[] balloonList;
 
+    public Image myIconImages;
+    public Sprite[] iconList;
+    public Transform iconSettingParent;
+    public GameObject iconSettingButtonPrefab;
+
     public TextMeshProUGUI userRecordText;
     public TextMeshProUGUI userWinnigRateText;
 
@@ -38,18 +43,50 @@ public class MyPageUserInfo : MonoBehaviour
     public Button exitButton;
     private float maxExp = 100;
 
+    [SerializeField]
+    private int selectedEquippedEmo = -1;
+
+
+
     private void Start()
     {
         userExpBar.interactable = false;
         myPageSender.SendGetInfo(NetworkConnector.Instance.UserNickname);
         exitButton.onClick.AddListener(() => LoadLobbyScene());
+
+        for (int i = 0; i < myEmoticonImages.Length; i++)
+        {
+            int slotIndex = i;
+
+            var btn = myEmoticonImages[i].GetComponent<Button>();
+            if (btn == null)
+                btn = myEmoticonImages[i].gameObject.AddComponent<Button>();
+
+            btn.onClick.AddListener(() =>
+            {
+                OnEquippedEmoClicked(slotIndex);
+            });
+        }
     }
 
-    public void SetUserInfoUI(string nickname, int level, float exp, int[] equippedEmoIndices, int balloonIndex)
+    private void OnEquippedEmoClicked(int slotIndex)
+    {
+        var img = myEmoticonImages[slotIndex];
+        if (img == null || img.sprite == null) return;
+
+        int emoIndex = System.Array.IndexOf(emoticonList, img.sprite);
+        if (emoIndex < 0) return;
+
+        selectedEquippedEmo = emoIndex;
+
+    }
+
+    public void SetUserInfoUI(string nickname, int level, float exp, int[] equippedEmoIndices, int balloonIndex, int iconIndex)
     {
         ApplyBasicInfo(nickname, level, exp);
         ApplyEquippedEmotes(equippedEmoIndices);
         ApplyBalloon(balloonIndex);
+        ApplyIcon(iconIndex);
     }
 
     private void ApplyBasicInfo(string nickname, int level, float exp)
@@ -91,7 +128,7 @@ public class MyPageUserInfo : MonoBehaviour
             }
             else
             {
-                img.sprite = null;  // 빈 칸 처리
+                img.sprite = null;  
                 img.enabled = false;
             }
         }
@@ -111,6 +148,23 @@ public class MyPageUserInfo : MonoBehaviour
         {
             myBalloon.sprite = null;
             myBalloon.enabled = false;
+        }
+    }
+
+    private void ApplyIcon(int idx)
+    {
+        if (myIconImages == null) return;
+
+        bool valid = idx >= 0 && iconList != null && idx < iconList.Length;
+        if (valid)
+        {
+            myIconImages.sprite = iconList[idx];
+            myIconImages.enabled = true;
+        }
+        else
+        {
+            myIconImages.sprite = null;
+            myIconImages.enabled = false;
         }
     }
 
@@ -237,6 +291,82 @@ public class MyPageUserInfo : MonoBehaviour
 
             var go = Instantiate(emoticonSettingButtonPrefab, emoticonSettingParent);
             go.name = $"EmoteBtn_{idx}";
+
+            Image icon = null;
+            var images = go.GetComponentsInChildren<Image>(true);
+            foreach (var img in images)
+            {
+                string n = img.name.ToLowerInvariant();
+                if (n.Contains("icon"))
+                {
+                    icon = img;
+                    break;
+                }
+            }
+            if (icon == null && images.Length > 0) icon = images[0];
+
+            if (icon != null)
+            {
+                icon.sprite = sprite;
+                icon.enabled = true;
+                icon.preserveAspect = true;
+            }
+
+            var btn = go.GetComponent<Button>();
+            if (btn == null)
+                btn = go.AddComponent<Button>();
+
+            btn.onClick.AddListener(() =>
+            {
+                OnOwnedEmoClicked(idx);
+            });
+        }
+    }
+
+    private void OnOwnedEmoClicked(int emoIndex)
+    {
+        if (selectedEquippedEmo == -1)
+            return;
+        SendEmoChange(selectedEquippedEmo, emoIndex);
+
+        selectedEquippedEmo = -1;
+    }
+
+    private void SendEmoChange(int from, int to)
+    {
+        myPageSender.SendEmoChange(
+            NetworkConnector.Instance.UserNickname,
+            from,
+            to
+        );
+    }
+
+    public void BuildOwnedIconButtons(List<int> ownedIconIndexes)
+    {
+        if (iconSettingParent == null || iconSettingParent == null)
+        {
+            Debug.LogWarning("[IconSetting] Parent 또는 Prefab이 연결되지 않았습니다.");
+            return;
+        }
+
+        for (int i = iconSettingParent.childCount - 1; i >= 0; i--)
+            Destroy(iconSettingParent.GetChild(i).gameObject);
+
+        if (ownedIconIndexes == null || ownedIconIndexes.Count == 0)
+            return;
+
+        ownedIconIndexes.Sort();
+
+        foreach (int idx in ownedIconIndexes)
+        {
+            if (idx < 0 || iconList == null || idx >= iconList.Length)
+                continue;
+
+            var sprite = iconList[idx];
+            if (sprite == null) continue;
+
+            var go = Instantiate(iconSettingButtonPrefab, iconSettingParent);
+            go.name = $"IconBtn_{idx}";
 
             Image icon = null;
             var images = go.GetComponentsInChildren<Image>(true);

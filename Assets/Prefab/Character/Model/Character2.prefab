@@ -1582,6 +1582,8 @@ MonoBehaviour:
   isDead: 0
   isWeaponMode: 0
   waterDamage: 10
+  weaponButtonUI: {fileID: 0}
+  balloonButtonUI: {fileID: 0}
 --- !u!136 &-7367193744780468040
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1601,7 +1603,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Height: 1.75
   m_Direction: 1
   m_Center: {x: 0, y: 0.75, z: 0}
