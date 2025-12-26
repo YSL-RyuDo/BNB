@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+
 public class MyPageUserInfo : MonoBehaviour
 {
     [SerializeField] private MyPageSender myPageSender;
@@ -34,6 +35,8 @@ public class MyPageUserInfo : MonoBehaviour
     public Transform characterRateParent;
     public GameObject characterRatePrefab;
 
+    public Transform CharacterWinLossFullParent;
+
     public GameObject[] characterModelings;
     public Sprite[] CharacterList;
     public RawImage characterModelingIamge;
@@ -52,6 +55,7 @@ public class MyPageUserInfo : MonoBehaviour
     {
         userExpBar.interactable = false;
         myPageSender.SendGetInfo(NetworkConnector.Instance.UserNickname);
+        myPageSender.SendGetCharWinLoss(NetworkConnector.Instance.UserNickname);
         exitButton.onClick.AddListener(() => LoadLobbyScene());
 
         for (int i = 0; i < myEmoticonImages.Length; i++)
@@ -204,6 +208,32 @@ public class MyPageUserInfo : MonoBehaviour
     private void BuildCharacterRateItem(int charIndex, int win, int lose)
     {
         var go = Instantiate(characterRatePrefab, characterRateParent);
+
+        var texts = go.GetComponentsInChildren<TextMeshProUGUI>(true);
+        TextMeshProUGUI nameT = null, recordT = null, rateT = null;
+        foreach (var t in texts)
+        {
+            string n = t.name.ToLowerInvariant();
+            if (nameT == null && (n.Contains("name") || n.Contains("char") || n.Contains("index"))) nameT = t;
+            else if (recordT == null && n.Contains("record")) recordT = t;
+            else if (rateT == null && (n.Contains("rate") || n.Contains("win"))) rateT = t;
+        }
+        if (nameT == null && texts.Length > 0) nameT = texts[0];
+        if (recordT == null && texts.Length > 1) recordT = texts[1];
+        if (rateT == null && texts.Length > 2) rateT = texts[2];
+
+        float rate = (win + lose) > 0 ? (win * 100f / (win + lose)) : 0f;
+
+        if (nameT) nameT.text = $"Char {charIndex}";
+        if (recordT) recordT.text = $"{win}W {lose}L";
+        if (rateT) rateT.text = rate.ToString("0.0", CultureInfo.InvariantCulture) + "%";
+
+        TrySetCharacterIcon(go, charIndex);
+    }
+
+    public void BuildFullCharacterRateItem(int charIndex, int win, int lose)
+    {
+        var go = Instantiate(characterRatePrefab, CharacterWinLossFullParent);
 
         var texts = go.GetComponentsInChildren<TextMeshProUGUI>(true);
         TextMeshProUGUI nameT = null, recordT = null, rateT = null;

@@ -13,7 +13,7 @@ public class MyPageReceiver : MonoBehaviour, IMessageHandler
     // 메시지 구독
     private readonly string[] commands =
     {
-        "SETINFO", "WINRATE", "GETMYEMO", "GETMYBALLOON", "GETMYICON"
+        "SETINFO", "WINRATE", "GETMYEMO", "GETMYBALLOON", "GETMYICON", "CHAR_WINLOSS"
     };
 
     private void OnEnable()
@@ -45,6 +45,7 @@ public class MyPageReceiver : MonoBehaviour, IMessageHandler
             case "WINRATE": HandleWinRateMessage(message); break;
             case "GETMYEMO": HandleGetMyEmoMessage(message); break;
             case "GETMYICON": HandleGetMyIconMessage(message); break;
+            case "CHAR_WINLOSS":HandleCharWinLossMessage(message); break;
         }
     }
 
@@ -113,6 +114,32 @@ public class MyPageReceiver : MonoBehaviour, IMessageHandler
         }
 
         userInfo.SetWinRateUI(nickname, totalWin, totalLose, top3Triples);
+    }
+
+
+    private void HandleCharWinLossMessage(string message)
+    {
+        if (!message.StartsWith("CHAR_WINLOSS|")) return;
+
+        string data = message.Substring("CHAR_WINLOSS|".Length).Trim();
+        string[] p = data.Split(',');
+
+        if (p.Length < 1 + 7 * 2)
+        {
+            Debug.LogError($"[CHAR_WINLOSS] 데이터 부족: {data}");
+            return;
+        }
+
+        string nickname = p[0].Trim();
+
+        int idx = 1;
+        for (int charIndex = 0; charIndex < 7; charIndex++)
+        {
+            int win = TryInt(p[idx++], 0);
+            int lose = TryInt(p[idx++], 0);
+
+            userInfo.BuildFullCharacterRateItem(charIndex, win, lose);
+        }
     }
 
     private void HandleGetMyEmoMessage(string message)

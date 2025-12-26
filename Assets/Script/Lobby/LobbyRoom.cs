@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Xml.Serialization;
 
 
 public class LobbyRoom : MonoBehaviour
@@ -35,6 +36,7 @@ public class LobbyRoom : MonoBehaviour
     public Button createButton;
     public Button logoutButton;
     public Button myPageButton;
+    public Button shopButton;
 
     public Sprite coopSprite;
     public Sprite passwordSprite;
@@ -86,6 +88,7 @@ public class LobbyRoom : MonoBehaviour
         OnPasswordToggleChanged(passwordToggle.isOn);
 
         myPageButton.onClick.AddListener(LoadMyPageScene);
+        shopButton.onClick.AddListener(LoadShopScene);
 
         createButton.onClick.AddListener(OnCreateButtonClicked);
         confirmPasswordButton.onClick.AddListener(OnConfirmPasswordClicked);
@@ -351,5 +354,10 @@ public class LobbyRoom : MonoBehaviour
     private void LoadMyPageScene()
     {
         SceneManager.LoadScene("MyPageScene");
+    }
+
+    private void LoadShopScene()
+    {
+        SceneManager.LoadScene("ShopScene");
     }
 }

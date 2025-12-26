@@ -6,26 +6,37 @@ using TMPro;
 using UnityEngine;
 using System.Threading.Tasks;
 
-public class MyPageSender : MonoBehaviour
+
+public class ShopSender : MonoBehaviour
 {
-
-
-    // 유저 정보 요청
-    public async void SendGetInfo(string nickname)
+    // 보유 리스트
+    public async void SendGetCoin(string nickname)
     {
-        string message = $"GETINFO|{nickname}\n";
+        string message = $"GET_COIN|{nickname}\n";
         await SendToServer(message);
     }
 
-    public async void SendEmoChange(string nickname, int from, int to)
+    public async void SendGetStoreCharList(string nickname)
     {
-        string msg = $"EMO_CHANGE|{nickname},{from},{to}\n";
-        await SendToServer(msg);
+        string message = $"GET_STORE_CHAR_LIST|{nickname}\n";
+        await SendToServer(message);
     }
 
-    public async void SendGetCharWinLoss(string nickname)
+    public async void SendGetStoreBalloonList(string nickname)
     {
-        string message = $"GET_CHAR_WINLOSS|{nickname}\n";
+        string message = $"GET_STORE_BALLOON_LIST|{nickname}\n";
+        await SendToServer(message);
+    }
+
+    public async void SendGetStoreEmoList(string nickname)
+    {
+        string message = $"GET_STORE_EMO_LIST|{nickname}\n";
+        await SendToServer(message);
+    }
+
+    public async void SendGetStoreIconList(string nickname)
+    {
+        string message = $"GET_STORE_ICON_LIST|{nickname}\n";
         await SendToServer(message);
     }
 
@@ -50,5 +61,4 @@ public class MyPageSender : MonoBehaviour
             return false;
         }
     }
-
 }
