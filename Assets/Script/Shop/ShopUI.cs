@@ -21,6 +21,14 @@ public class ShopUI : MonoBehaviour
     public TextMeshProUGUI coin0Text;
     public TextMeshProUGUI coin1Text;
 
+    public GameObject[] characterModelings;
+    public RawImage characterModelingIamge;
+    private GameObject currentCharacterModel;
+    public TextMeshProUGUI characterPriceText3D;
+
+    public Image characterImage;
+    public TextMeshProUGUI characterPriceText2D;
+
     public Sprite[] characterImages;
     public Sprite[] balloonImages;
     public Sprite[] emoImages;
@@ -28,6 +36,8 @@ public class ShopUI : MonoBehaviour
 
     public GameObject itemPrefab;
     public Transform itemParent;
+
+    public GameObject background3D;
 
     public struct StoreItemData
     {
@@ -68,7 +78,19 @@ public class ShopUI : MonoBehaviour
 
     private void ShowCharacterTab()
     {
-        ShowItems(characterItems, characterImages);
+        ClearItems();
+
+        foreach (var data in characterItems)
+        {
+            GameObject go = Instantiate(itemPrefab, itemParent);
+            ShopItemUI ui = go.GetComponent<ShopItemUI>();
+
+            ui.Set(
+                characterImages[data.index],
+                data,
+                OnCharacterItemClicked
+            );
+        }
     }
 
     private void ShowBalloonTab()
@@ -96,15 +118,46 @@ public class ShopUI : MonoBehaviour
         foreach (var data in list)
         {
             GameObject go = Instantiate(itemPrefab, itemParent);
+            ShopItemUI ui = go.GetComponent<ShopItemUI>();
 
-            ShopItemUI itemUI = go.GetComponent<ShopItemUI>();
-            itemUI.Set(
+            ui.Set(
                 sprites[data.index],
-                data.owned,
-                data.price,
-                data.priceType
+                data,
+                null  
             );
         }
+    }
+
+
+
+    private void OnCharacterItemClicked(StoreItemData data)
+    {
+        characterImage.sprite = characterImages[data.index];
+
+        background3D.SetActive(true);
+
+        characterPriceText2D.text = data.owned
+            ? "보유중"
+            : $"{data.price:N0} {data.priceType}";
+
+
+        characterPriceText3D.text = data.owned
+                  ? "보유중"
+                  : $"{data.price:N0} {data.priceType}";
+
+        SpawnCharacterModel(data.index);
+    }
+
+    private void SpawnCharacterModel(int index)
+    {
+        if (currentCharacterModel != null)
+            Destroy(currentCharacterModel);
+
+        currentCharacterModel = Instantiate(
+            characterModelings[index],
+            Vector3.zero,
+            Quaternion.Euler(0, 180f, 0)
+        );
     }
 
     public void SetCharacterItems(List<StoreItemData> list)
