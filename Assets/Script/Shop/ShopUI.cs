@@ -17,6 +17,7 @@ public class ShopUI : MonoBehaviour
     public Button balloonButton;
     public Button emoButton;
     public Button iconButton;
+    public Button buyButton;
 
     public TextMeshProUGUI coin0Text;
     public TextMeshProUGUI coin1Text;
@@ -52,6 +53,12 @@ public class ShopUI : MonoBehaviour
     private List<StoreItemData> emoItems = new();
     private List<StoreItemData> iconItems = new();
 
+    private enum ShopTab { Character, Balloon, Emo, Icon}
+    private ShopTab currentTab;
+
+    private int selectedIndex = -1;
+    private bool selectedOwned;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -61,12 +68,15 @@ public class ShopUI : MonoBehaviour
         balloonButton.onClick.AddListener(ShowBalloonTab);
         emoButton.onClick.AddListener(ShowEmoTab);
         iconButton.onClick.AddListener(ShowIconTab);
+        buyButton.onClick.AddListener(BuyItem);
 
         shopSender.SendGetCoin(NetworkConnector.Instance.UserNickname);
         shopSender.SendGetStoreCharList(NetworkConnector.Instance.UserNickname);
         shopSender.SendGetStoreBalloonList(NetworkConnector.Instance.UserNickname);
         shopSender.SendGetStoreEmoList(NetworkConnector.Instance.UserNickname);
         shopSender.SendGetStoreIconList(NetworkConnector.Instance.UserNickname);
+
+        currentTab = ShopTab.Character;
     }
 
 
@@ -76,8 +86,19 @@ public class ShopUI : MonoBehaviour
         coin1Text.text = $"coin1: {coin1:N0}";
     }
 
+    private void ResetSelection()
+    {
+        selectedIndex = -1;
+        selectedOwned = false;
+
+        buyButton.interactable = false;
+    }
+
     private void ShowCharacterTab()
     {
+        currentTab = ShopTab.Character;
+        ResetSelection();
+
         ClearItems();
 
         foreach (var data in characterItems)
@@ -95,23 +116,26 @@ public class ShopUI : MonoBehaviour
 
     private void ShowBalloonTab()
     {
+        currentTab = ShopTab.Balloon;
+        ResetSelection();
         ShowItems(balloonItems, balloonImages);
     }
 
     private void ShowEmoTab()
     {
+        currentTab = ShopTab.Emo;
+        ResetSelection();
         ShowItems(emoItems, emoImages);
     }
 
     private void ShowIconTab()
     {
+        currentTab = ShopTab.Icon;
+        ResetSelection();
         ShowItems(iconItems, iconImages);
     }
 
-    private void ShowItems(
-    List<StoreItemData> list,
-    Sprite[] sprites
-)
+    private void ShowItems(List<StoreItemData> list, Sprite[] sprites)
     {
         ClearItems();
 
@@ -128,10 +152,13 @@ public class ShopUI : MonoBehaviour
         }
     }
 
-
-
     private void OnCharacterItemClicked(StoreItemData data)
     {
+
+        selectedIndex = data.index;
+        selectedOwned = data.owned;
+        buyButton.interactable = !data.owned;
+
         characterImage.sprite = characterImages[data.index];
 
         background3D.SetActive(true);
@@ -147,6 +174,7 @@ public class ShopUI : MonoBehaviour
 
         SpawnCharacterModel(data.index);
     }
+
 
     private void SpawnCharacterModel(int index)
     {
@@ -191,5 +219,32 @@ public class ShopUI : MonoBehaviour
     private void LoadLobbyScene()
     {
         SceneManager.LoadScene("LobbyScene");
+    }
+
+    private void BuyItem()
+    {
+        if (selectedIndex < 0) return;
+        if (selectedOwned) return;
+
+        string nick = NetworkConnector.Instance.UserNickname;
+
+        switch (currentTab)
+        {
+            case ShopTab.Character:
+                shopSender.SendBuyChar(nick, selectedIndex);
+                break;
+
+            case ShopTab.Balloon:
+                shopSender.SendBuyBalloon(nick, selectedIndex);
+                break;
+
+            case ShopTab.Emo:
+                shopSender.SendBuyEmo(nick, selectedIndex);
+                break;
+
+            case ShopTab.Icon:
+                shopSender.SendBuyIcon(nick, selectedIndex);
+                break;
+        }
     }
 }

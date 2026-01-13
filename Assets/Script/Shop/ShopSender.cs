@@ -40,6 +40,34 @@ public class ShopSender : MonoBehaviour
         await SendToServer(message);
     }
 
+
+    public async void SendBuyChar(string nickname, int index)
+    {
+        string message = $"BUY_CHAR|{nickname},{index}\n";
+        await SendToServer(message);
+    }
+
+
+    public async void SendBuyBalloon(string nickname, int index)
+    {
+        string message = $"BUY_BALLOON|{nickname},{index}\n";
+        await SendToServer(message);
+    }
+
+
+    public async void SendBuyEmo(string nickname, int index)
+    {
+        string message = $"BUY_EMO|{nickname},{index}\n";
+        await SendToServer(message);
+    }
+
+
+    public async void SendBuyIcon(string nickname, int index)
+    {
+        string message = $"BUY_ICON|{nickname},{index}\n";
+        await SendToServer(message);
+    }
+
     public async Task<bool> SendToServer(string message)
     {
         var stream = NetworkConnector.Instance.Stream;

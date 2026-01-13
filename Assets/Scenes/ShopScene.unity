@@ -4738,6 +4738,7 @@ MonoBehaviour:
   balloonButton: {fileID: 2090872912}
   emoButton: {fileID: 242417118}
   iconButton: {fileID: 2059007165}
+  buyButton: {fileID: 1371078265}
   coin0Text: {fileID: 233714453}
   coin1Text: {fileID: 1552673984}
   characterModelings:
