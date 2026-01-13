@@ -39,6 +39,7 @@ public class ShopUI : MonoBehaviour
     public Transform itemParent;
 
     public GameObject background3D;
+    public GameObject buyTab;
 
     public struct StoreItemData
     {
@@ -118,24 +119,24 @@ public class ShopUI : MonoBehaviour
     {
         currentTab = ShopTab.Balloon;
         ResetSelection();
-        ShowItems(balloonItems, balloonImages);
+        ShowItems(balloonItems, balloonImages, OnNonCharacterItemClicked);
     }
 
     private void ShowEmoTab()
     {
         currentTab = ShopTab.Emo;
         ResetSelection();
-        ShowItems(emoItems, emoImages);
+        ShowItems(emoItems, emoImages, OnNonCharacterItemClicked);
     }
 
     private void ShowIconTab()
     {
         currentTab = ShopTab.Icon;
         ResetSelection();
-        ShowItems(iconItems, iconImages);
+        ShowItems(iconItems, iconImages, OnNonCharacterItemClicked);
     }
 
-    private void ShowItems(List<StoreItemData> list, Sprite[] sprites)
+    private void ShowItems(List<StoreItemData> list, Sprite[] sprites, System.Action<StoreItemData> onClick)
     {
         ClearItems();
 
@@ -147,14 +148,13 @@ public class ShopUI : MonoBehaviour
             ui.Set(
                 sprites[data.index],
                 data,
-                null  
+                onClick
             );
         }
     }
 
     private void OnCharacterItemClicked(StoreItemData data)
     {
-
         selectedIndex = data.index;
         selectedOwned = data.owned;
         buyButton.interactable = !data.owned;
@@ -173,6 +173,15 @@ public class ShopUI : MonoBehaviour
                   : $"{data.price:N0} {data.priceType}";
 
         SpawnCharacterModel(data.index);
+    }
+
+    private void OnNonCharacterItemClicked(StoreItemData data)
+    {
+        selectedIndex = data.index;
+        selectedOwned = data.owned;
+        buyButton.interactable = !data.owned;
+
+        buyTab.SetActive(true);
     }
 
 
@@ -246,5 +255,17 @@ public class ShopUI : MonoBehaviour
                 shopSender.SendBuyIcon(nick, selectedIndex);
                 break;
         }
+
+        selectedOwned = true;
+        buyButton.interactable = false;
+
+        switch (currentTab)
+        {
+            case ShopTab.Character: ShowCharacterTab(); break;
+            case ShopTab.Balloon: ShowBalloonTab(); break;
+            case ShopTab.Emo: ShowEmoTab(); break;
+            case ShopTab.Icon: ShowIconTab(); break;
+        }
+
     }
 }

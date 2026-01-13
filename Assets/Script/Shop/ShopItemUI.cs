@@ -16,9 +16,7 @@ public class ShopItemUI : MonoBehaviour
     private int price;
     private string priceType;
 
-    public void Set(Sprite sprite,
-        StoreItemData data,
-        System.Action<StoreItemData> onClick)
+    public void Set(Sprite sprite, StoreItemData data, System.Action<StoreItemData> onClick)
     {
         index = data.index;
         owned = data.owned;
