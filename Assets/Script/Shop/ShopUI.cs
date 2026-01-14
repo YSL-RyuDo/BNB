@@ -203,20 +203,53 @@ public class ShopUI : MonoBehaviour
         ShowCharacterTab();
     }
 
+    //public void SetBalloonItems(List<StoreItemData> list)
+    //{
+    //    balloonItems = list;
+    //}
+
     public void SetBalloonItems(List<StoreItemData> list)
     {
         balloonItems = list;
+
+        if (currentTab == ShopTab.Balloon)
+        {
+            ShowBalloonTab();
+        }
     }
+
+
+    //public void SetEmoItems(List<StoreItemData> list)
+    //{
+    //    emoItems = list;
+    //}
 
     public void SetEmoItems(List<StoreItemData> list)
     {
         emoItems = list;
+
+        if (currentTab == ShopTab.Emo)
+        {
+            ShowEmoTab();
+        }
     }
+
+
+    //public void SetIconItems(List<StoreItemData> list)
+    //{
+    //    iconItems = list;
+    //}
 
     public void SetIconItems(List<StoreItemData> list)
     {
         iconItems = list;
+
+        if (currentTab == ShopTab.Icon)
+        {
+            ShowIconTab();
+        }
     }
+
 
     private void ClearItems()
     {
@@ -229,6 +262,45 @@ public class ShopUI : MonoBehaviour
     {
         SceneManager.LoadScene("LobbyScene");
     }
+
+    //private void BuyItem()
+    //{
+    //    if (selectedIndex < 0) return;
+    //    if (selectedOwned) return;
+
+    //    string nick = NetworkConnector.Instance.UserNickname;
+
+    //    switch (currentTab)
+    //    {
+    //        case ShopTab.Character:
+    //            shopSender.SendBuyChar(nick, selectedIndex);
+    //            break;
+
+    //        case ShopTab.Balloon:
+    //            shopSender.SendBuyBalloon(nick, selectedIndex);
+    //            break;
+
+    //        case ShopTab.Emo:
+    //            shopSender.SendBuyEmo(nick, selectedIndex);
+    //            break;
+
+    //        case ShopTab.Icon:
+    //            shopSender.SendBuyIcon(nick, selectedIndex);
+    //            break;
+    //    }
+
+    //    selectedOwned = true;
+    //    buyButton.interactable = false;
+
+    //    switch (currentTab)
+    //    {
+    //        case ShopTab.Character: ShowCharacterTab(); break;
+    //        case ShopTab.Balloon: ShowBalloonTab(); break;
+    //        case ShopTab.Emo: ShowEmoTab(); break;
+    //        case ShopTab.Icon: ShowIconTab(); break;
+    //    }
+
+    //}
 
     private void BuyItem()
     {
@@ -256,16 +328,7 @@ public class ShopUI : MonoBehaviour
                 break;
         }
 
-        selectedOwned = true;
         buyButton.interactable = false;
-
-        switch (currentTab)
-        {
-            case ShopTab.Character: ShowCharacterTab(); break;
-            case ShopTab.Balloon: ShowBalloonTab(); break;
-            case ShopTab.Emo: ShowEmoTab(); break;
-            case ShopTab.Icon: ShowIconTab(); break;
-        }
-
     }
+
 }
