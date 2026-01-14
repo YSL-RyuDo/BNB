@@ -2322,7 +2322,7 @@ GameObject:
   - component: {fileID: 1234270157}
   - component: {fileID: 1234270156}
   m_Layer: 5
-  m_Name: CharacterImage
+  m_Name: ItemImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4823,7 +4823,9 @@ MonoBehaviour:
   itemPrefab: {fileID: 7584703468902459798, guid: 4213d1b159454144293bbdfa4e39fccc, type: 3}
   itemParent: {fileID: 1498028034}
   background3D: {fileID: 1536639471}
+  background2D: {fileID: 1623019360}
   buyTab: {fileID: 2092077528}
+  buyTabImage: {fileID: 1234270156}
 --- !u!114 &1887695344
 MonoBehaviour:
   m_ObjectHideFlags: 0

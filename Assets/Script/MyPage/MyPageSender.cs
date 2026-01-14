@@ -23,6 +23,18 @@ public class MyPageSender : MonoBehaviour
         await SendToServer(msg);
     }
 
+    public async void SendIconChange(string nickname, int from, int to)
+    {
+        string msg = $"ICON_CHANGE|{nickname},{from},{to}\n";
+        await SendToServer(msg);
+    }
+
+    public async void SendBalloonChange(string nickname, int from, int to)
+    {
+        string msg = $"BALLOON_CHANGE|{nickname},{from},{to}\n";
+        await SendToServer(msg);
+    }
+
     public async void SendGetCharWinLoss(string nickname)
     {
         string message = $"GET_CHAR_WINLOSS|{nickname}\n";

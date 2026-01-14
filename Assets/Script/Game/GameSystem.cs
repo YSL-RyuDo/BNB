@@ -148,6 +148,16 @@ public class GameSystem : MonoBehaviour
             return;
         }
 
+        if (string.IsNullOrEmpty(playerId)) return;
+
+        playerId = playerId.Trim();
+
+        var existing = userInfoContent.Find($"UserInfo_{playerId}");
+        if (existing != null)
+        {
+            return;
+        }
+
         GameObject uiObj = Instantiate(userInfo, userInfoContent);
         uiObj.name = $"UserInfo_{playerId}";
         Image characterImage = uiObj.transform.Find("CharacterImage")?.GetComponent<Image>();

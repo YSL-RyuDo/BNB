@@ -23,6 +23,8 @@ public class MyPageUserInfo : MonoBehaviour
 
     public Image myBalloon;
     public Sprite[] balloonList;
+    public Transform balloonSettingParent;
+    public GameObject balloonSettingButtonPrefab;
 
     public Image myIconImages;
     public Sprite[] iconList;
@@ -49,7 +51,9 @@ public class MyPageUserInfo : MonoBehaviour
     [SerializeField]
     private int selectedEquippedEmo = -1;
 
-
+    [SerializeField]
+    private int currentIconIndex = -1;
+    private int currentBalloonIndex = -1;
 
     private void Start()
     {
@@ -85,12 +89,16 @@ public class MyPageUserInfo : MonoBehaviour
 
     }
 
+
     public void SetUserInfoUI(string nickname, int level, float exp, int[] equippedEmoIndices, int balloonIndex, int iconIndex)
     {
         ApplyBasicInfo(nickname, level, exp);
         ApplyEquippedEmotes(equippedEmoIndices);
         ApplyBalloon(balloonIndex);
         ApplyIcon(iconIndex);
+
+        currentIconIndex = iconIndex;
+        currentBalloonIndex = balloonIndex;
     }
 
     private void ApplyBasicInfo(string nickname, int level, float exp)
@@ -357,18 +365,14 @@ public class MyPageUserInfo : MonoBehaviour
     {
         if (selectedEquippedEmo == -1)
             return;
-        SendEmoChange(selectedEquippedEmo, emoIndex);
+
+        myPageSender.SendEmoChange(
+           NetworkConnector.Instance.UserNickname,
+           selectedEquippedEmo,
+           emoIndex
+       );
 
         selectedEquippedEmo = -1;
-    }
-
-    private void SendEmoChange(int from, int to)
-    {
-        myPageSender.SendEmoChange(
-            NetworkConnector.Instance.UserNickname,
-            from,
-            to
-        );
     }
 
     public void BuildOwnedIconButtons(List<int> ownedIconIndexes)
@@ -417,7 +421,110 @@ public class MyPageUserInfo : MonoBehaviour
                 icon.enabled = true;
                 icon.preserveAspect = true;
             }
+
+            var btn = go.GetComponent<Button>();
+            if(btn == null)
+            {
+                btn = go.AddComponent<Button>();
+            }
+
+            int currentIndex = idx;
+            btn.onClick.AddListener(() =>
+            {
+                OnOwnedIconClicked(currentIndex);
+            });
         }
+
+    }
+
+    private void OnOwnedIconClicked(int iconIndex)
+    {
+        if (currentIconIndex == -1)
+            return;
+
+        myPageSender.SendIconChange(
+           NetworkConnector.Instance.UserNickname,
+           currentIconIndex,
+           iconIndex
+       );
+
+        currentIconIndex = iconIndex;
+    }
+
+    public void BuildOwnedBalloonButtons(List<int> ownedBalloonIndexes)
+    {
+        if (balloonSettingParent == null || balloonSettingParent == null)
+        {
+            Debug.LogWarning("[BalloonSetting] Parent 또는 Prefab이 연결되지 않았습니다.");
+            return;
+        }
+
+        for (int i = balloonSettingParent.childCount - 1; i >= 0; i--)
+            Destroy(balloonSettingParent.GetChild(i).gameObject);
+
+        if (ownedBalloonIndexes == null || ownedBalloonIndexes.Count == 0)
+            return;
+
+        ownedBalloonIndexes.Sort();
+
+        foreach (int idx in ownedBalloonIndexes)
+        {
+            if (idx < 0 || balloonList == null || idx >= balloonList.Length)
+                continue;
+
+            var sprite = balloonList[idx];
+            if (sprite == null) continue;
+
+            var go = Instantiate(balloonSettingButtonPrefab, balloonSettingParent);
+            go.name = $"IconBtn_{idx}";
+
+            Image balloon = null;
+            var images = go.GetComponentsInChildren<Image>(true);
+            foreach (var img in images)
+            {
+                string n = img.name.ToLowerInvariant();
+                if (n.Contains("icon"))
+                {
+                    balloon = img;
+                    break;
+                }
+            }
+            if (balloon == null && images.Length > 0) balloon = images[0];
+
+            if (balloon != null)
+            {
+                balloon.sprite = sprite;
+                balloon.enabled = true;
+                balloon.preserveAspect = true;
+            }
+
+            var btn = go.GetComponent<Button>();
+            if (btn == null)
+            {
+                btn = go.AddComponent<Button>();
+            }
+
+            int currentIndex = idx;
+            btn.onClick.AddListener(() =>
+            {
+                OnOwnedBalloonClicked(currentIndex);
+            });
+        }
+
+    }
+
+    private void OnOwnedBalloonClicked(int balloonIndex)
+    {
+        if (currentBalloonIndex == -1)
+            return;
+
+        myPageSender.SendBalloonChange(
+           NetworkConnector.Instance.UserNickname,
+           currentBalloonIndex,
+            balloonIndex
+       );
+
+        currentBalloonIndex = balloonIndex;
     }
 
     private void LoadLobbyScene()

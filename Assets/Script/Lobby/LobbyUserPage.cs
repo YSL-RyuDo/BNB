@@ -20,19 +20,23 @@ public class LobbyUserPage : MonoBehaviour
     public Sprite[] CharacterList;
 
 
+    public Image myIcon;
+    public Sprite[] iconList;
+
     public Image[] myEmoticonImages;
     public Sprite[] emoticonList;
 
     public Image myBalloon;
     public Sprite[] balloonList;
 
-    public void SetUserInfoUI(string nickname, int level, int[] equippedEmoIndices, int balloonIndex)
+    public void SetUserInfoUI(string nickname, int level, int icon, int[] equippedEmoIndices, int balloonIndex)
     {
         if (userNameText) userNameText.text = nickname;
         if (userLevelText) userLevelText.text = $"LV. {level}";
 
         ApplyEquippedEmotes(equippedEmoIndices);
         ApplyBalloon(balloonIndex);
+        ApplyIcon(icon);
     }
 
     public void SetWinRateUI(string nickname, int totalWin, int totalLose, List<int[]> top3Triples)
@@ -152,6 +156,23 @@ public class LobbyUserPage : MonoBehaviour
         {
             myBalloon.sprite = null;
             myBalloon.enabled = false;
+        }
+    }
+
+    private void ApplyIcon(int idx)
+    {
+        if(myIcon == null) return;
+
+        bool valid = idx >= 0 && iconList != null && idx < iconList.Length;
+        if(valid)
+        {
+            myIcon.sprite = iconList[idx];
+            myIcon.enabled = true;
+        }
+        else
+        {
+            myIcon.sprite = null;
+            myIcon.enabled = false;
         }
     }
 }

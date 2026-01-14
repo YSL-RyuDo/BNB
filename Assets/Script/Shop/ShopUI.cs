@@ -39,7 +39,9 @@ public class ShopUI : MonoBehaviour
     public Transform itemParent;
 
     public GameObject background3D;
+    public GameObject background2D;
     public GameObject buyTab;
+    public Image buyTabImage;
 
     public struct StoreItemData
     {
@@ -173,6 +175,8 @@ public class ShopUI : MonoBehaviour
                   : $"{data.price:N0} {data.priceType}";
 
         SpawnCharacterModel(data.index);
+
+        buyTabImage.sprite = characterImages[data.index];
     }
 
     private void OnNonCharacterItemClicked(StoreItemData data)
@@ -180,6 +184,23 @@ public class ShopUI : MonoBehaviour
         selectedIndex = data.index;
         selectedOwned = data.owned;
         buyButton.interactable = !data.owned;
+
+        Sprite preview = null;
+
+        switch (currentTab)
+        {
+            case ShopTab.Icon:
+                preview = iconImages[data.index] ;
+                break;
+            case ShopTab.Emo:
+                preview = emoImages[data.index];
+                break;
+            case ShopTab.Balloon:
+                preview = balloonImages[data.index];
+                break;
+        }
+
+        buyTabImage.sprite = preview;
 
         buyTab.SetActive(true);
     }
@@ -327,6 +348,10 @@ public class ShopUI : MonoBehaviour
                 shopSender.SendBuyIcon(nick, selectedIndex);
                 break;
         }
+
+        buyTab.SetActive(false);
+        background2D.SetActive(false);
+        background3D.SetActive(false);  
 
         buyButton.interactable = false;
     }

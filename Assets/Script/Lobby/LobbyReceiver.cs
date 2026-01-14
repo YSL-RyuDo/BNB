@@ -430,6 +430,8 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
 
         int level = TryInt(p[1], 1);
 
+        int icon = TryInt(p[3], 1);
+
         int[] equippedEmos = new int[4];
         equippedEmos[0] = TryInt(p[4], -1);
         equippedEmos[1] = TryInt(p[5], -1);
@@ -438,7 +440,7 @@ public class LobbyReceiver : MonoBehaviour, IMessageHandler
 
         int balloonIndex = TryInt(p[8], -1);
 
-        userPage.SetUserInfoUI(nickname, level, equippedEmos, balloonIndex);
+        userPage.SetUserInfoUI(nickname, level, icon, equippedEmos, balloonIndex);
 
     }
 
