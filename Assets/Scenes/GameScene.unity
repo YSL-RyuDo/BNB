@@ -4022,10 +4022,41 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   emoticonPrefabs:
-  - {fileID: 21300000, guid: f6d52959367473b4db22be6aa790e775, type: 3}
-  - {fileID: 21300000, guid: e151c9c4219332d4294bd3904acad498, type: 3}
-  - {fileID: 21300000, guid: 020da06c26d92cb45ac024a5f4bf7263, type: 3}
-  - {fileID: 21300000, guid: 727180a0ffd31994ea4f4fff1514902f, type: 3}
+  - {fileID: 21300000, guid: 0ab494c7031e3b14d8650692f58fa597, type: 3}
+  - {fileID: 21300000, guid: 5d80809a4517ed146a2834743a87757c, type: 3}
+  - {fileID: 21300000, guid: d3557fc082602804189277eae107c3d8, type: 3}
+  - {fileID: 21300000, guid: 27547c67e599a7f4c9ce3e061520f33f, type: 3}
+  - {fileID: 21300000, guid: 3fe2493fa6e8a57479063e342a840533, type: 3}
+  - {fileID: 21300000, guid: 47f05e23b3fdd504ca4f7e85b7f91bfb, type: 3}
+  - {fileID: 21300000, guid: 6c336964fd8866941aa97baba33efb1d, type: 3}
+  - {fileID: 21300000, guid: d3b0e84c6b2bec6449045988de7716dc, type: 3}
+  - {fileID: 21300000, guid: 2ebf7454a74eadb4da718d50b4020f05, type: 3}
+  - {fileID: 21300000, guid: 6bff8eb4f2df94e46a24088cf7995fec, type: 3}
+  - {fileID: 21300000, guid: b5500c6609c50d64aa0abf21c04ff637, type: 3}
+  - {fileID: 21300000, guid: 0f1381d95e64e5641907fd8fbbc42034, type: 3}
+  - {fileID: 21300000, guid: b99d8459a4b87364abe9968d4e43ac81, type: 3}
+  - {fileID: 21300000, guid: 682c0622225bbc24e96ce26b96854bd8, type: 3}
+  - {fileID: 21300000, guid: c729cf8c1c60c6240a81173dbc2f738c, type: 3}
+  - {fileID: 21300000, guid: fbc5bd5c45f8ece41a4d91eb9f0bf367, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
+  - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
   - {fileID: 21300000, guid: 217fd2ebd30da46459c225fac9621cf6, type: 3}
   emoticonButtons:
   - {fileID: 945357028}
