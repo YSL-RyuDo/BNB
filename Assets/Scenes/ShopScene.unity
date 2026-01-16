@@ -4754,13 +4754,13 @@ MonoBehaviour:
   characterImage: {fileID: 22143484}
   characterPriceText2D: {fileID: 447759553}
   characterImages:
-  - {fileID: 21300000, guid: e86430e1940c4d14295171d56770b838, type: 3}
-  - {fileID: 21300000, guid: 40a00bffeca6e3b41815ba5308e06d55, type: 3}
-  - {fileID: 21300000, guid: 1461ceb2c0ac5c64fa7854cf5074a6dc, type: 3}
-  - {fileID: 21300000, guid: 0b3ff08b77649664cad2f7eeebad2327, type: 3}
-  - {fileID: 21300000, guid: 1597ea1ff1ab9bd498a20dd82b637e51, type: 3}
-  - {fileID: 21300000, guid: 7060ae16fa78d7f4db73d9135203bc37, type: 3}
-  - {fileID: 21300000, guid: 4fb06d94b763ffe499ea7ddd554e823f, type: 3}
+  - {fileID: 21300000, guid: 5e7a52a11971bb943a544e792ad27c1a, type: 3}
+  - {fileID: 21300000, guid: 321b3bed7fe674c47a7a8fa3bb7972ae, type: 3}
+  - {fileID: 21300000, guid: 09eb8eae255aa1b45baa42587b3ca0f7, type: 3}
+  - {fileID: 21300000, guid: c5ce2e0ab3d90d349961509fa10f6709, type: 3}
+  - {fileID: 21300000, guid: 39b9c2c19a971534e8a90d9d8f77398a, type: 3}
+  - {fileID: 21300000, guid: 4dc015be4d55aab4fa3820f11b37fa6d, type: 3}
+  - {fileID: 21300000, guid: ff211660202378d439ca57fee63c8735, type: 3}
   balloonImages:
   - {fileID: 21300000, guid: 60368f0d714a5c64593acaaa0629a965, type: 3}
   - {fileID: 21300000, guid: 7bc376f9b27a4ac448a055a2fb718550, type: 3}
