@@ -3922,8 +3922,8 @@ MonoBehaviour:
   coopUserResultParent: {fileID: 882411161}
   lobbyButton: {fileID: 120260978}
   coopLobbyButton: {fileID: 1454039524}
-  movingSpeedThreshold: 0.05
-  animSmooth: 10
+  walkThreshold: 0.001
+  stopTimeout: 0.1
 --- !u!4 &2119840883
 Transform:
   m_ObjectHideFlags: 0
