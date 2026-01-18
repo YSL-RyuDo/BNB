@@ -23,11 +23,17 @@ public class LocalPlayerController : MonoBehaviour
     public UnityEngine.UI.Button weaponButtonUI;
     public UnityEngine.UI.Button balloonButtonUI;
 
+    Animator anim;
+
+    [SerializeField] private float animDamp = 15f;
+    [SerializeField] private float moveThreshold = 0.1f;
+
     private Dictionary<KeyCode, Action> keyDownActions = new();
 
 
     void Start()
     {
+        anim = GetComponent<Animator>();
         myNick = NetworkConnector.Instance.UserNickname;
         string characterObjectName = $"Character_{myNick}";
 
@@ -76,6 +82,7 @@ public class LocalPlayerController : MonoBehaviour
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
 
+
         inputDirection = new Vector3(h, 0, v).normalized;
     }
 
@@ -94,6 +101,13 @@ public class LocalPlayerController : MonoBehaviour
             rb.MoveRotation(targetRot);
 
             TrySendPosition();
+        }
+
+        if(anim != null)
+        {
+            bool isMoving = inputDirection.magnitude > moveThreshold;
+
+            anim.SetBool("isWalk", isMoving);
         }
     }
 
@@ -114,6 +128,10 @@ public class LocalPlayerController : MonoBehaviour
             {
                 if (NetworkConnector.Instance.CurrentUserCharacterIndices.TryGetValue(myNick, out int idx))
                 {
+                    if (anim != null)
+                    {
+                        anim.SetTrigger("isAttack");
+                    }
                     if (idx == 0)
                     {
                         GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
@@ -305,6 +323,7 @@ public class LocalPlayerController : MonoBehaviour
             {
                 Debug.Log("[LocalPlayerController] 공격 쿨다운 중...");
             }
+
         }
         else
         {

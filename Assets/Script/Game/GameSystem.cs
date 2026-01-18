@@ -41,6 +41,11 @@ public class GameSystem : MonoBehaviour
     private static bool startRanOnce = false;
     private static bool mapRequestedOnce = false;
 
+    private readonly Dictionary<string, Vector3> lastPosMap = new();
+    [SerializeField] private float walkThreshold = 0.001f;
+    private readonly Dictionary<string, float> lastMoveRecvTime = new();
+    [SerializeField] private float stopTimeout = 0.1f;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -88,6 +93,31 @@ public class GameSystem : MonoBehaviour
         coopLobbyButton.onClick.AddListener(() => OnCoopLobbyButtonClicked(nickName));
     }
 
+    void Update()
+    {
+        float now = Time.time;
+
+        if (lastMoveRecvTime.Count == 0) return;
+        var keys = new List<string>(lastMoveRecvTime.Keys);
+
+        foreach (var username in keys)
+        {
+            if (!lastMoveRecvTime.TryGetValue(username, out float lastTime))
+                continue;
+
+            if (now - lastTime > stopTimeout)
+            {
+                GameObject obj = GameObject.Find($"Character_{username}");
+                if (obj == null) continue;
+
+                Animator anim = obj.GetComponent<Animator>();
+                if (anim == null) continue;
+
+                anim.SetBool("isWalk", false);
+            }
+        }
+    }
+
     public void HandleMoveResult(string message)
     {
         // 메시지 포맷: MOVE_RESULT|username,x,z
@@ -120,6 +150,29 @@ public class GameSystem : MonoBehaviour
         {
             Vector3 currentPos = playerObj.transform.position;
             Vector3 newPos = new Vector3(x, currentPos.y, z);
+
+            Animator anim = playerObj.GetComponent<Animator>();
+            if (anim != null)
+            {
+                lastMoveRecvTime[username] = Time.time;
+
+                if (!lastPosMap.TryGetValue(username, out Vector3 lastPos))
+                {
+                    lastPosMap[username] = newPos;
+                    anim.SetBool("isWalk", false);
+                }
+                else
+                {
+                    bool isWalk = (newPos - lastPos).sqrMagnitude > walkThreshold;
+                    anim.SetBool("isWalk", isWalk);
+                    lastPosMap[username] = newPos;
+                }
+            }
+            else
+            {
+                lastPosMap[username] = newPos;
+                lastMoveRecvTime[username] = Time.time;
+            }
 
             // 이동 방향 벡터 (현재 위치에서 새 위치로)
             Vector3 direction = newPos - currentPos;
@@ -349,6 +402,11 @@ public class GameSystem : MonoBehaviour
         GameObject target = GameObject.Find($"Character_{nickname}");
         if (target != null)
         {
+            Animator anim = target.GetComponent<Animator>();
+            if(anim != null)
+            {
+                anim.SetTrigger("isDeath");
+            }
             target.SetActive(false);
         }
     }

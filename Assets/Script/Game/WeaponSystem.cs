@@ -121,6 +121,14 @@ public class WeaponSystem : MonoBehaviour
 
         string weaponName = "";
 
+        GameObject attackerObj = GameObject.Find($"Character_{attackerNick}");
+        Animator anim = attackerObj.GetComponent<Animator>();
+
+        if (anim != null)
+        {
+            anim.SetTrigger("isAttack");
+        }
+
         if (charIndex == 0)
         {
             weaponName = $"{attackerNick}_Sword";
@@ -143,9 +151,9 @@ public class WeaponSystem : MonoBehaviour
                 maceScript.attackerNick = attackerNick;
                 maceScript.swingDuration = 0.5f;
 
-                GameObject attackerObj = GameObject.Find($"Character_{attackerNick}");
                 if (attackerObj != null)
                     maceScript.targetTransform = attackerObj.transform;
+               
             }
         }
         else if (charIndex == 4)
