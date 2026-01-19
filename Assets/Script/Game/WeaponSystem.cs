@@ -136,12 +136,12 @@ public class WeaponSystem : MonoBehaviour
         else if (charIndex == 1)
         {
             weaponName = $"{attackerNick}_Arrow";
-        }    
-        else if(charIndex==2)
+        }
+        else if (charIndex == 2)
         {
             weaponName = $"{attackerNick}_Spell";
         }
-        else if(charIndex == 3)
+        else if (charIndex == 3)
         {
             weaponName = $"{attackerNick}_Mace";
 
@@ -153,7 +153,6 @@ public class WeaponSystem : MonoBehaviour
 
                 if (attackerObj != null)
                     maceScript.targetTransform = attackerObj.transform;
-               
             }
         }
         else if (charIndex == 4)
@@ -181,6 +180,7 @@ public class WeaponSystem : MonoBehaviour
         {
             weaponName = $"{attackerNick}_Laser";
         }
+
         weaponObj.name = weaponName;
         Debug.Log($"[WeaponSystem] 원격 공격: {attackerNick}, 캐릭터 {charIndex} 무기 생성");
     }
@@ -209,5 +209,4 @@ public class WeaponSystem : MonoBehaviour
 
         Debug.Log($"[WeaponSystem] 원격 레이저 공격: {attackerNick}, 길이: {laserLength}");
     }
-
 }

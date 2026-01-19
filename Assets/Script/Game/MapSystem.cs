@@ -88,7 +88,7 @@ public class MapSystem : MonoBehaviour
                             for (int height = 1; height <= wallHeight; height++)
                             {
                                 Vector3 pos = new Vector3(x, height, z);
-                                GameObject tile = Instantiate(tilePrefabs[5], pos, Quaternion.identity);
+                                GameObject tile = Instantiate(tilePrefabs[5], pos, Quaternion.Euler(0, 180, 0));
                                 tile.name = $"{tilePrefabs[5].name}_{x}_{z}_h{height}"; // 좌표 포함
                                 tile.transform.SetParent(mapParent.transform);
 
@@ -114,7 +114,7 @@ public class MapSystem : MonoBehaviour
                         if (tileIndex >= 0 && tileIndex < tilePrefabs.Length)
                         {
                             Vector3 pos = new Vector3(x, yOffset, z);
-                            GameObject tile = Instantiate(tilePrefabs[tileIndex], pos, Quaternion.identity);
+                            GameObject tile = Instantiate(tilePrefabs[tileIndex], pos, Quaternion.Euler(0, 180, 0));
                             tile.name = $"{tilePrefabs[tileIndex].name}_{x}_{z}"; // 이름 변경
                             tile.transform.SetParent(mapParent.transform);
 

@@ -62,6 +62,13 @@ public class RoomSystem : MonoBehaviour
         {
             await stream.WriteAsync(getCharacterBytes, 0, getCharacterBytes.Length);
         }
+
+        string refreshMsg = $"REFRESH_ROOM|{client.CurrentRoomName}\n";
+        byte[] refreshBytes = Encoding.UTF8.GetBytes(refreshMsg);
+        if (client.Stream != null && client.Stream.CanWrite)
+        {
+            await client.Stream.WriteAsync(refreshBytes, 0, refreshBytes.Length);
+        }
     }
 
 

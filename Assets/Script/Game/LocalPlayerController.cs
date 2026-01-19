@@ -30,6 +30,8 @@ public class LocalPlayerController : MonoBehaviour
 
     private Dictionary<KeyCode, Action> keyDownActions = new();
 
+    private bool pendingAttack = false;
+    private int pendingWeaponIdx = -1;
 
     void Start()
     {
@@ -128,195 +130,13 @@ public class LocalPlayerController : MonoBehaviour
             {
                 if (NetworkConnector.Instance.CurrentUserCharacterIndices.TryGetValue(myNick, out int idx))
                 {
+                    pendingAttack = true;
+                    pendingWeaponIdx = idx;
+
                     if (anim != null)
                     {
                         anim.SetTrigger("isAttack");
-                    }
-                    if (idx == 0)
-                    {
-                        GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
-                        if (prefab != null)
-                        {
-                            Vector3 attackPosition = transform.position + transform.forward * 0.8f + Vector3.up * 0.5f;
-                            Quaternion attackRotation = transform.rotation;
-
-                            GameObject sword = Instantiate(prefab, attackPosition, attackRotation);
-                            sword.transform.parent = null;
-                            sword.name = $"{myNick}_Sword";
-
-                            SendWeaponAttackPacket(idx, attackPosition, attackRotation.eulerAngles.y);
-
-                            WeaponSystem.Instance.StartCooldown(1.5f);
-                            Debug.Log("[Sword Attack] 캐릭터 인덱스 0번 → 검 휘두름");
-                        }
-                    }
-                    else if (idx == 1)
-                    {
-                        GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
-                        if (prefab != null)
-                        {
-                            Vector3 attackPosition = transform.position + transform.forward * 1.5f + Vector3.up * 0.5f;
-                            Quaternion attackRotation = transform.rotation;
-
-                            GameObject arrow = Instantiate(prefab, attackPosition, attackRotation);
-
-                            arrow.transform.parent = null;
-                            arrow.name = $"{myNick}_Arrow";
-
-                            SendWeaponAttackPacket(idx, attackPosition, attackRotation.eulerAngles.y);
-
-                            WeaponSystem.Instance.StartCooldown(1.5f);
-                        }
-                    }
-                    else if (idx == 2)
-                    {
-                        GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
-                        if (prefab != null)
-                        {
-                            Vector3 attackPosition = transform.position + transform.forward * 1.5f + Vector3.up * 0.5f;
-                            Quaternion attackRotation = transform.rotation;
-
-                            GameObject spell = Instantiate(prefab, attackPosition, attackRotation);
-
-                            spell.transform.parent = null;
-                            spell.name = $"{myNick}_Spell";
-
-                            SendWeaponAttackPacket(idx, attackPosition, attackRotation.eulerAngles.y);
-
-                            WeaponSystem.Instance.StartCooldown(1.5f);
-                        }
-                    }
-                    else if (idx == 3)
-                    {
-                        GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
-                        if (prefab != null)
-                        {
-                            Vector3 startOffset = -transform.right * 1.5f + Vector3.up * 0.5f;
-                            GameObject mace = Instantiate(prefab, transform.position + startOffset, Quaternion.identity);
-                            mace.transform.parent = null;
-                            mace.name = $"{myNick}_Mace";
-
-                            Mace maceScript = mace.GetComponent<Mace>();
-                            if (maceScript != null)
-                            {
-                                maceScript.swingDuration = 0.5f;
-                                maceScript.targetTransform = transform; // 캐릭터 Transform 넘김
-                                maceScript.attackerNick = myNick;
-                            }
-
-                            SendWeaponAttackPacket(idx, transform.position, transform.eulerAngles.y);
-
-                            WeaponSystem.Instance.StartCooldown(1.5f);
-                            Debug.Log("[Mace Attack] 캐릭터 인덱스 3번 → 원형 공격");
-                        }
-                    }
-                    else if (idx == 4)
-                    {
-                        GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
-                        if (prefab != null)
-                        {
-                            Vector3 attackPosition = transform.position + transform.forward * 1.5f + Vector3.up * 0.5f;
-                            Quaternion attackRotation = transform.rotation;
-
-                            GameObject melody = Instantiate(prefab, attackPosition, attackRotation);
-
-                            melody.transform.parent = null;
-                            melody.name = $"{myNick}_Melody";
-
-                            Melody melodyScript = melody.GetComponent<Melody>();
-                            if (melodyScript != null)
-                            {
-                                melodyScript.attackerNick = myNick;
-                            }
-
-                            SendWeaponAttackPacket(idx, attackPosition, attackRotation.eulerAngles.y);
-
-                            WeaponSystem.Instance.StartCooldown(1.5f);
-                        }
-                    }
-                    else if (idx == 5)
-                    {
-                        GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
-                        if (prefab != null)
-                        {
-                            Vector3 spawnPosition = transform.position + transform.forward * 0.8f + Vector3.up * 0.5f;
-
-                            Quaternion attackRotation = transform.rotation;
-                            GameObject pitchfork = Instantiate(prefab, spawnPosition, attackRotation);
-                            pitchfork.transform.parent = null;
-                            pitchfork.name = $"{myNick}_Pitchfork";
-
-                            Pitchfork pfScript = pitchfork.GetComponent<Pitchfork>();
-                            if (pfScript != null)
-                            {
-                                pfScript.attackerNick = myNick;
-
-                                Vector3 forward = transform.forward;
-                                forward.y = 0f;
-                                if (forward == Vector3.zero)
-                                    forward = Vector3.forward;
-                                forward.Normalize();
-
-                                pfScript.targetRot = Quaternion.LookRotation(forward) * Quaternion.Euler(0f, -90f, 0f);
-                            }
-
-                            SendWeaponAttackPacket(idx, spawnPosition, transform.eulerAngles.y);
-
-                            WeaponSystem.Instance.StartCooldown(2f);
-                            Debug.Log("[Pitchfork Attack] 캐릭터 인덱스 5번 → 앞에서 생성 후 휘두름");
-                        }
-                    }
-                    else if (idx == 6)
-                    {
-                        GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
-                        if (prefab != null)
-                        {
-                            Vector3 spawnPosition = transform.position + transform.forward * 0.8f + Vector3.up * 0.5f;
-                            Quaternion attackRotation = transform.rotation;
-
-                            // 1. RaycastAll 해서 충돌 모두 검사, 캐릭터 충돌은 무시하고 벽, 블록, 바닥 중 최소 거리 찾기
-                            float maxLength = 15f;
-                            Vector3 direction = transform.forward;
-                            RaycastHit[] hits = Physics.RaycastAll(spawnPosition, direction, maxLength);
-
-                            float laserLength = maxLength;
-                            foreach (var hit in hits)
-                            {
-                                // 캐릭터 태그 무시
-                                if (hit.collider.CompareTag("Player"))
-                                    continue;
-
-                                // 벽, 블록, 바닥 중 가장 가까운 충돌 거리 갱신
-                                if (hit.collider.CompareTag("Wall") || hit.collider.CompareTag("Block") || hit.collider.CompareTag("Ground"))
-                                {
-                                    if (hit.distance < laserLength)
-                                    {
-                                        laserLength = hit.distance;
-                                    }
-                                }
-                            }
-
-                            // 2. 레이저 프리팹 생성
-                            GameObject scepterLaser = Instantiate(prefab, spawnPosition, attackRotation);
-                            scepterLaser.transform.parent = null;
-                            scepterLaser.name = $"{myNick}_Laser";
-
-                            // 3. 레이저 길이와 공격자 닉네임 세팅
-                            var laserScript = scepterLaser.GetComponent<Laser>();
-                            if (laserScript != null)
-                            {
-                                laserScript.attackerNick = myNick;
-                                laserScript.SetLength(laserLength);
-                            }
-
-                            // 4. 네트워크 공격 메시지 전송
-                            SendWeaponAttackPacket(idx, spawnPosition, attackRotation.eulerAngles.y, laserLength);
-
-                            WeaponSystem.Instance.StartCooldown(2.0f);
-                            Debug.Log("[Scepter Laser Attack] 캐릭터 인덱스 6번 → 레이저 발사");
-                        }
-                    }
-
+                    }            
                 }
             }
             else
@@ -361,7 +181,205 @@ public class LocalPlayerController : MonoBehaviour
             }
         }
     
-}
+    }
+
+    public void AnimEvent_SpawnWeapon()
+    {
+        if (!pendingAttack) return;
+        if (WeaponSystem.Instance.isCooldown) return; 
+
+        int idx = pendingWeaponIdx;
+        pendingAttack = false;
+        pendingWeaponIdx = -1;
+
+        if (idx < 0) return;
+
+        if (idx == 0)
+        {
+            GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
+            if (prefab != null)
+            {
+                Vector3 attackPosition = transform.position + transform.forward * 0.8f + Vector3.up * 0.5f;
+                Quaternion attackRotation = transform.rotation;
+
+                GameObject sword = Instantiate(prefab, attackPosition, attackRotation);
+                sword.transform.parent = null;
+                sword.name = $"{myNick}_Sword";
+
+                SendWeaponAttackPacket(idx, attackPosition, attackRotation.eulerAngles.y);
+
+                WeaponSystem.Instance.StartCooldown(1.5f);
+                Debug.Log("[Sword Attack] 캐릭터 인덱스 0번 → 검 휘두름");
+            }
+        }
+        else if (idx == 1)
+        {
+            GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
+            if (prefab != null)
+            {
+                Vector3 attackPosition = transform.position + transform.forward * 1.5f + Vector3.up * 0.5f;
+                Quaternion attackRotation = transform.rotation;
+
+                GameObject arrow = Instantiate(prefab, attackPosition, attackRotation);
+
+                arrow.transform.parent = null;
+                arrow.name = $"{myNick}_Arrow";
+
+                SendWeaponAttackPacket(idx, attackPosition, attackRotation.eulerAngles.y);
+
+                WeaponSystem.Instance.StartCooldown(1.5f);
+            }
+        }
+        else if (idx == 2)
+        {
+            GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
+            if (prefab != null)
+            {
+                Vector3 attackPosition = transform.position + transform.forward * 1.5f + Vector3.up * 0.5f;
+                Quaternion attackRotation = transform.rotation;
+
+                GameObject spell = Instantiate(prefab, attackPosition, attackRotation);
+
+                spell.transform.parent = null;
+                spell.name = $"{myNick}_Spell";
+
+                SendWeaponAttackPacket(idx, attackPosition, attackRotation.eulerAngles.y);
+
+                WeaponSystem.Instance.StartCooldown(1.5f);
+            }
+        }
+        else if (idx == 3)
+        {
+            GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
+            if (prefab != null)
+            {
+                Vector3 startOffset = -transform.right * 1.5f + Vector3.up * 0.5f;
+                GameObject mace = Instantiate(prefab, transform.position + startOffset, Quaternion.identity);
+                mace.transform.parent = null;
+                mace.name = $"{myNick}_Mace";
+
+                Mace maceScript = mace.GetComponent<Mace>();
+                if (maceScript != null)
+                {
+                    maceScript.swingDuration = 0.5f;
+                    maceScript.targetTransform = transform; // 캐릭터 Transform 넘김
+                    maceScript.attackerNick = myNick;
+                }
+
+                SendWeaponAttackPacket(idx, transform.position, transform.eulerAngles.y);
+
+                WeaponSystem.Instance.StartCooldown(1.5f);
+                Debug.Log("[Mace Attack] 캐릭터 인덱스 3번 → 원형 공격");
+            }
+        }
+        else if (idx == 4)
+        {
+            GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
+            if (prefab != null)
+            {
+                Vector3 attackPosition = transform.position + transform.forward * 1.5f + Vector3.up * 0.5f;
+                Quaternion attackRotation = transform.rotation;
+
+                GameObject melody = Instantiate(prefab, attackPosition, attackRotation);
+
+                melody.transform.parent = null;
+                melody.name = $"{myNick}_Melody";
+
+                Melody melodyScript = melody.GetComponent<Melody>();
+                if (melodyScript != null)
+                {
+                    melodyScript.attackerNick = myNick;
+                }
+
+                SendWeaponAttackPacket(idx, attackPosition, attackRotation.eulerAngles.y);
+
+                WeaponSystem.Instance.StartCooldown(1.5f);
+            }
+        }
+        else if (idx == 5)
+        {
+            GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
+            if (prefab != null)
+            {
+                Vector3 spawnPosition = transform.position + transform.forward * 0.8f + Vector3.up * 0.5f;
+
+                Quaternion attackRotation = transform.rotation;
+                GameObject pitchfork = Instantiate(prefab, spawnPosition, attackRotation);
+                pitchfork.transform.parent = null;
+                pitchfork.name = $"{myNick}_Pitchfork";
+
+                Pitchfork pfScript = pitchfork.GetComponent<Pitchfork>();
+                if (pfScript != null)
+                {
+                    pfScript.attackerNick = myNick;
+
+                    Vector3 forward = transform.forward;
+                    forward.y = 0f;
+                    if (forward == Vector3.zero)
+                        forward = Vector3.forward;
+                    forward.Normalize();
+
+                    pfScript.targetRot = Quaternion.LookRotation(forward) * Quaternion.Euler(0f, -90f, 0f);
+                }
+
+                SendWeaponAttackPacket(idx, spawnPosition, transform.eulerAngles.y);
+
+                WeaponSystem.Instance.StartCooldown(2f);
+                Debug.Log("[Pitchfork Attack] 캐릭터 인덱스 5번 → 앞에서 생성 후 휘두름");
+            }
+        }
+        else if (idx == 6)
+        {
+            GameObject prefab = WeaponSystem.Instance.GetWeaponPrefab(idx);
+            if (prefab != null)
+            {
+                Vector3 spawnPosition = transform.position + transform.forward * 0.8f + Vector3.up * 0.5f;
+                Quaternion attackRotation = transform.rotation;
+
+                // 1. RaycastAll 해서 충돌 모두 검사, 캐릭터 충돌은 무시하고 벽, 블록, 바닥 중 최소 거리 찾기
+                float maxLength = 15f;
+                Vector3 direction = transform.forward;
+                RaycastHit[] hits = Physics.RaycastAll(spawnPosition, direction, maxLength);
+
+                float laserLength = maxLength;
+                foreach (var hit in hits)
+                {
+                    // 캐릭터 태그 무시
+                    if (hit.collider.CompareTag("Player"))
+                        continue;
+
+                    // 벽, 블록, 바닥 중 가장 가까운 충돌 거리 갱신
+                    if (hit.collider.CompareTag("Wall") || hit.collider.CompareTag("Block") || hit.collider.CompareTag("Ground"))
+                    {
+                        if (hit.distance < laserLength)
+                        {
+                            laserLength = hit.distance;
+                        }
+                    }
+                }
+
+                // 2. 레이저 프리팹 생성
+                GameObject scepterLaser = Instantiate(prefab, spawnPosition, attackRotation);
+                scepterLaser.transform.parent = null;
+                scepterLaser.name = $"{myNick}_Laser";
+
+                // 3. 레이저 길이와 공격자 닉네임 세팅
+                var laserScript = scepterLaser.GetComponent<Laser>();
+                if (laserScript != null)
+                {
+                    laserScript.attackerNick = myNick;
+                    laserScript.SetLength(laserLength);
+                }
+
+                // 4. 네트워크 공격 메시지 전송
+                SendWeaponAttackPacket(idx, spawnPosition, attackRotation.eulerAngles.y, laserLength);
+
+                WeaponSystem.Instance.StartCooldown(2.0f);
+                Debug.Log("[Scepter Laser Attack] 캐릭터 인덱스 6번 → 레이저 발사");
+            }
+        }
+    }
+
 
     private async void SendWeaponAttackPacket(int idx, Vector3 pos, float rotationY, float? extraValue = null)
     {

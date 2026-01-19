@@ -3966,7 +3966,7 @@ MonoBehaviour:
   - {fileID: 863330603906094049, guid: 011030ef22446234e898033477d923b8, type: 3}
   - {fileID: 863330603906094049, guid: e62f600f111e4c44585f566adbcd4417, type: 3}
   - {fileID: 863330603906094049, guid: bf092c87107a6ba47a1510bfb72c275d, type: 3}
-  - {fileID: 863330603906094049, guid: a8ffbf73e0f35ab4b961b32baf541255, type: 3}
+  - {fileID: 863330603906094049, guid: bf092c87107a6ba47a1510bfb72c275d, type: 3}
 --- !u!114 &2119840885
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3981,9 +3981,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterPrefabs:
   - {fileID: 7943763458730182082, guid: d4fbb42d18b5dd7489918b4f04851575, type: 3}
-  - {fileID: 5352958571798197664, guid: 687702b612e8fa14bae2430a970c6a40, type: 3}
-  - {fileID: 5352958571798197664, guid: e6da2ca60f44c9a46a44cfc8b1b1dbd3, type: 3}
-  - {fileID: 5352958571798197664, guid: e44d9b4136e2e8349b363d4bed2a65ea, type: 3}
+  - {fileID: 5736821534539167554, guid: 1b08c46837e7a224d80fdc54fa25bdef, type: 3}
+  - {fileID: 7760278702488643378, guid: 230347603c4713c46be202aec9e3cd14, type: 3}
+  - {fileID: 7925251540139501514, guid: 589dd5e45b5937e45bfbd4eba52081f9, type: 3}
   - {fileID: 5352958571798197664, guid: c18b0be8daba89f418afc4ca77e534e1, type: 3}
   - {fileID: 5352958571798197664, guid: 08e7c1cd1a88a824993e6c8e06786677, type: 3}
   - {fileID: 5352958571798197664, guid: 1507ec202fc7dde4a9ff954a2a2d2754, type: 3}
