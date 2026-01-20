@@ -31,7 +31,7 @@ public class LobbyUserInfo : MonoBehaviour
     public void SetUserInfoUI(string nickname, int level, float exp)
     {
         userNameText.text = nickname;
-        userLevelText.text = $"Level {level}";
+        userLevelText.text = $"LV.{level}";
         maxExp = level * 100;
         float currentExp = Mathf.Clamp(exp, 0f, maxExp);
         float percent = (maxExp > 0f) ? (currentExp / maxExp) * 100f : 0f;

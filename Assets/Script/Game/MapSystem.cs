@@ -10,6 +10,10 @@ public class MapSystem : MonoBehaviour
 
     public GameObject[] map1Prefabs; // 0,1,2 ÇÁ¸®ÆÕ
     public GameObject[] map2Prefabs;
+
+    [SerializeField]
+    private GameObject[] backGroundPlane;
+
     int wallHeight = 5;
 
     private void Awake()
@@ -25,9 +29,11 @@ public class MapSystem : MonoBehaviour
         {
             case "Map1":
                 tilePrefabs = map1Prefabs;
+                backGroundPlane[0].SetActive(true);
                 break;
             case "Map2":
                 tilePrefabs = map2Prefabs;
+                backGroundPlane[1].SetActive(true);
                 break;
             default:
                 Debug.LogError("¾Ë ¼ö ¾ø´Â ¸Ê ÀÌ¸§: " + mapName);

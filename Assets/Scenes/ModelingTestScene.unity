@@ -360,6 +360,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Knight
       objectReference: {fileID: 0}
+    - target: {fileID: 8895819235500803049, guid: d4fbb42d18b5dd7489918b4f04851575, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: a1e3f9bf8e6a7dd4897f591e4fd4ffc6, type: 2}
     m_RemovedComponents:
     - {fileID: 4861965953411811290, guid: d4fbb42d18b5dd7489918b4f04851575, type: 3}
     m_RemovedGameObjects: []

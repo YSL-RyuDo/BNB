@@ -92,6 +92,8 @@ public class LobbyRoom : MonoBehaviour
 
         createButton.onClick.AddListener(OnCreateButtonClicked);
         confirmPasswordButton.onClick.AddListener(OnConfirmPasswordClicked);
+
+        logoutButton.onClick.AddListener(OnLogoutButtonClicked);
     }
 
     public void UpdateRoomList(List<LobbyRoomData> rooms)
@@ -324,6 +326,21 @@ public class LobbyRoom : MonoBehaviour
         var image = passwordInputField.GetComponent<Image>();
         if (image != null)
             image.color = isOn ? Color.white : new Color(0.85f, 0.85f, 0.85f);
+    }
+
+    private void OnLogoutButtonClicked()
+    {
+        string nickname = NetworkConnector.Instance.UserNickname;
+
+        if (string.IsNullOrEmpty(nickname))
+        {
+            Debug.LogWarning("닉네임이 없어 로그아웃을 보낼 수 없습니다.");
+            return;
+        }
+
+        lobbySender.SendLogout(nickname);
+
+        SceneManager.LoadScene("LoginScene");
     }
 
     public Sprite GetSpriteForMap(string mapName)
