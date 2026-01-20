@@ -524,54 +524,106 @@ public class NetworkConnector : MonoBehaviour
                     }
                     break;
                 }
+            //case "WEAPON_ATTACK":
+            //    {
+            //        if (parts.Length < 5)
+            //        {
+            //            Debug.LogWarning("[WEAPON_ATTACK] 메시지 포맷 오류");
+            //            break;
+            //        }
+
+            //        string attackerNick = parts[1];
+            //        int charIndex = int.Parse(parts[2]);
+
+            //        // 위치 파싱
+            //        string[] posTokens = parts[3].Split(',');
+            //        Vector3 attackPos = new Vector3(
+            //            float.Parse(posTokens[0]),
+            //            float.Parse(posTokens[1]),
+            //            float.Parse(posTokens[2])
+            //        );
+
+            //        float rotY = float.Parse(parts[4]);
+            //        Quaternion attackRot = Quaternion.Euler(0f, rotY, 0f);
+
+            //        GameObject attackerObj = GameObject.Find($"Character_{attackerNick}");
+            //        if (attackerObj != null)
+            //        {
+            //            Animator anim = attackerObj.GetComponent<Animator>();
+            //            if (anim != null)
+            //            {
+            //                anim.SetTrigger("isAttack");
+            //            }
+            //        }
+
+            //        if (charIndex == 6)
+            //        {
+            //            float laserLength = float.Parse(parts[5]);
+            //            WeaponSystem.Instance.HandleRemoteLaserAttack(
+            //                attackerNick, charIndex, attackPos, attackRot, laserLength
+            //            );
+            //        }
+            //        else
+            //        {
+            //            WeaponSystem.Instance.HandleRemoteWeaponAttack(
+            //                attackerNick, charIndex, attackPos, attackRot
+            //            );
+            //        }
+
+            //        break;
+            //    }
             case "WEAPON_ATTACK":
                 {
-                    if (parts.Length < 5)
-                    {
-                        Debug.LogWarning("[WEAPON_ATTACK] 메시지 포맷 오류");
-                        break;
-                    }
+                    if (parts.Length < 5) break;
 
                     string attackerNick = parts[1];
                     int charIndex = int.Parse(parts[2]);
 
-                    // 위치 파싱
                     string[] posTokens = parts[3].Split(',');
-                    if (posTokens.Length != 3)
-                    {
-                        Debug.LogWarning("[WEAPON_ATTACK] 위치 파싱 오류");
-                        break;
-                    }
                     Vector3 attackPos = new Vector3(
                         float.Parse(posTokens[0]),
                         float.Parse(posTokens[1]),
                         float.Parse(posTokens[2])
                     );
 
-                    // 회전 Y 파싱
                     float rotY = float.Parse(parts[4]);
                     Quaternion attackRot = Quaternion.Euler(0f, rotY, 0f);
 
-                    if (charIndex == 6) // 레이저 무기인 경우
-                    {
-                        if (parts.Length < 6)
-                        {
-                            Debug.LogWarning("[WEAPON_ATTACK] 레이저 공격 메시지에 길이 정보가 없음");
-                            break;
-                        }
-                        float laserLength = float.Parse(parts[5]);
+                    float extra = -1f;
+                    if (charIndex == 6 && parts.Length >= 6)
+                        extra = float.Parse(parts[5]);
 
-                        WeaponSystem.Instance.HandleRemoteLaserAttack(attackerNick, charIndex, attackPos, attackRot, laserLength);
-                        Debug.Log($"[WEAPON_ATTACK] {attackerNick} 캐릭터 {charIndex} 레이저 무기 공격 생성됨 (길이: {laserLength})");
-                    }
-                    else // 일반 무기
+                    WeaponSystem.Instance.CachePendingAttack(
+                        attackerNick,
+                        charIndex,
+                        attackPos,
+                        attackRot,
+                        extra
+                    );
+
+                    GameObject attackerObj = GameObject.Find($"Character_{attackerNick}");
+                    if (attackerObj != null)
                     {
-                        WeaponSystem.Instance.HandleRemoteWeaponAttack(attackerNick, charIndex, attackPos, attackRot);
-                        Debug.Log($"[WEAPON_ATTACK] {attackerNick} 캐릭터 {charIndex} 무기 공격 생성됨");
+                        Animator anim = attackerObj.GetComponent<Animator>();
+                        if (anim != null)
+                        {
+                            anim.SetTrigger("isAttack");
+                        }
+                        LocalPlayerController lpc =
+                            attackerObj.GetComponent<LocalPlayerController>();
+                        if (lpc != null)
+                        {
+                            lpc.InvokeSpawnFallbackFromNetwork(attackerNick, 0.15f);
+                        }
+                    }
+                    else
+                    {
+                        WeaponSystem.Instance.SpawnCachedWeaponIfExists(attackerNick);
                     }
 
                     break;
                 }
+
             case "DAMAGE":
                 {
                     string targetNick = parts[1];
@@ -580,6 +632,26 @@ public class NetworkConnector : MonoBehaviour
                     GameSystem.Instance.DamagePlayer(targetNick, damage);
                     break;
                 }
+            case "MELODY_SPAWN":
+                {
+                    string attackerNick = parts[1];
+
+                    string[] pos = parts[2].Split(',');
+                    Vector3 spawnPos = new Vector3(
+                        float.Parse(pos[0]),
+                        float.Parse(pos[1]),
+                        float.Parse(pos[2])
+                    );
+
+                    float rotY = float.Parse(parts[3]);
+                    Quaternion rot = Quaternion.Euler(0, rotY, 0);
+
+                    WeaponSystem.Instance.SpawnMelodyFromServer(
+                        attackerNick, spawnPos, rot
+                    );
+                    break;
+                }
+
             case "MELODY_MOVE":
                 {
                     if (parts.Length < 4)

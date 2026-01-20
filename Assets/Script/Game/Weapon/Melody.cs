@@ -5,13 +5,14 @@ public class Melody : MonoBehaviour
 {
     public float speed = 5.0f;
     public float lifetime = 1.5f;
-    public float collisionCooldown = 0.1f; // 0.3초간 충돌 무시
+    public float collisionCooldown = 0.1f;
 
     private Rigidbody rb;
-    private float timer = 0f;
-    private float collisionTimer = 0f; // 충돌 쿨다운 타이머
+    private float timer;
+    private float collisionTimer;
 
-    public string attackerNick;
+    public string attackerNick;   // 반드시 생성 시 세팅되어야 함
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -21,100 +22,85 @@ public class Melody : MonoBehaviour
         timer = lifetime;
         collisionTimer = 0f;
     }
+
     void FixedUpdate()
     {
-        SendPositionToServer();
+        if (NetworkConnector.Instance.UserNickname == attackerNick)
+        {
+            SendPositionToServer();
+        }
     }
-
 
     void Update()
     {
         timer -= Time.deltaTime;
         if (timer <= 0f)
         {
-            NotifyDestroyToServer();
+            if (NetworkConnector.Instance.UserNickname == attackerNick)
+                NotifyDestroyToServer();
+
             Destroy(gameObject);
         }
 
         if (collisionTimer > 0f)
-        {
             collisionTimer -= Time.deltaTime;
-        }
     }
 
     void SendPositionToServer()
     {
         Vector3 pos = transform.position;
-        Quaternion rot = transform.rotation;
+        float rotY = transform.eulerAngles.y;
 
-        string myNick = NetworkConnector.Instance.UserNickname;
-        string msg = $"MELODY_MOVE|{myNick}|{pos.x:F2},{pos.y:F2},{pos.z:F2}|{rot.eulerAngles.y:F2}\n";
+        string msg = $"MELODY_MOVE|{attackerNick}|{pos.x:F2},{pos.y:F2},{pos.z:F2}|{rotY:F2}\n";
         byte[] bytes = Encoding.UTF8.GetBytes(msg);
         NetworkConnector.Instance.Stream.Write(bytes, 0, bytes.Length);
     }
 
     void NotifyDestroyToServer()
     {
-        string myNick = NetworkConnector.Instance.UserNickname;
-        string msg = $"MELODY_DESTROY|{myNick}\n";
+        string msg = $"MELODY_DESTROY|{attackerNick}\n";
         byte[] bytes = Encoding.UTF8.GetBytes(msg);
         NetworkConnector.Instance.Stream.Write(bytes, 0, bytes.Length);
     }
 
-
     private void OnTriggerEnter(Collider other)
     {
-        // 충돌 쿨다운 중이면 무시
         if (collisionTimer > 0f)
             return;
 
+        // 벽 반사
         if (other.CompareTag("Ground") || other.CompareTag("Block") || other.CompareTag("Wall"))
         {
-            Vector3 incoming = rb.velocity.normalized;
-            Vector3 collisionPoint = other.ClosestPoint(transform.position);
-            Vector3 collisionNormal = (transform.position - collisionPoint).normalized;
-            Vector3 reflect = Vector3.Reflect(incoming, collisionNormal);
+            Vector3 reflect = Vector3.Reflect(rb.velocity.normalized,
+                (transform.position - other.ClosestPoint(transform.position)).normalized);
 
             rb.velocity = reflect * speed * 0.8f;
+
             if (reflect != Vector3.zero)
                 transform.rotation = Quaternion.LookRotation(reflect);
 
             timer = lifetime;
-
-            collisionTimer = collisionCooldown; // 충돌 무시 쿨다운 설정
-
-            Debug.Log($"[Melody] {other.tag}와 충돌 → 반사 & 타이머 리셋");
+            collisionTimer = collisionCooldown;
             return;
         }
 
+        if (!other.name.StartsWith("Character_"))
+            return;
 
+        string hitPlayerName = other.name.Replace("Character_", "").Trim();
 
-        if (other.name.StartsWith("Character_"))
-        {
-            string myNickname = NetworkConnector.Instance.UserNickname;
-            string hitPlayerName = other.name.Replace("Character_", "").Trim();
+        if (hitPlayerName == attackerNick)
+            return;
 
-            if (!this.name.StartsWith(myNickname + "_"))
-                return; // 내가 만든 무기가 아니면 무시 (자기 무기로만 판정함)
+        if (NetworkConnector.Instance.UserNickname != attackerNick)
+            return;
 
+        int weaponIndex = 4;
+        string attackMsg = $"HIT|{weaponIndex}|{attackerNick}|{hitPlayerName}\n";
+        byte[] bytes = Encoding.UTF8.GetBytes(attackMsg);
+        NetworkConnector.Instance.Stream.Write(bytes, 0, bytes.Length);
 
-            if (hitPlayerName == attackerNick.Trim())
-            {
-                Debug.Log($"[Melody] 자기 자신({attackerNick})과 충돌, 데미지 무시");
-                Destroy(gameObject);
-                NotifyDestroyToServer();
-                return;
-            }
-
-            int weaponIndex = 4;
-            string attackMsg = $"HIT|{weaponIndex}|{myNickname}|{hitPlayerName}\n";
-            byte[] bytes = Encoding.UTF8.GetBytes(attackMsg);
-            NetworkConnector.Instance.Stream.Write(bytes, 0, bytes.Length);
-
-            Debug.Log($"[Melody] {attackerNick}가 {hitPlayerName} 공격 (무기:{weaponIndex})");
-
-            Destroy(gameObject);
-            NotifyDestroyToServer();
-        }
+        NotifyDestroyToServer();
+        Destroy(gameObject);
     }
 }

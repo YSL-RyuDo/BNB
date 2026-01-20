@@ -11,6 +11,7 @@ public class Pitchfork : MonoBehaviour
     public string attackerNick;
     void Start()
     {
+        Debug.Log($"[DEBUG][Pitchfork Start] {name} pos={transform.position}, rot={transform.eulerAngles}");
         Quaternion baseRot = transform.rotation;
 
         // 기준 회전을 정면 기준으로 -90도 눕힌 상태로 시작
@@ -31,6 +32,7 @@ public class Pitchfork : MonoBehaviour
 
         if (t >= 1f)
         {
+            Debug.Log($"[DEBUG][Pitchfork Destroy] {name}");
             Destroy(gameObject);
         }
     }
@@ -38,7 +40,12 @@ public class Pitchfork : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log($"[DEBUG][Pitchfork Trigger] hit={other.name}, tag={other.tag}");
+
         string myNickname = NetworkConnector.Instance.UserNickname;
+
+        if (other.name == $"Character_{myNickname}")
+            return;
 
         if (!this.name.StartsWith(myNickname + "_"))
             return;

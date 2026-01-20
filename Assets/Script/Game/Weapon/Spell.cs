@@ -38,6 +38,9 @@ public class Spell : MonoBehaviour
 
             string myNick = NetworkConnector.Instance.UserNickname;
 
+            if (other.name == $"Character_{myNickname}")
+                return;
+
             if (hitPlayerName != myNick)
             {
                 int weaponIndex = 2;

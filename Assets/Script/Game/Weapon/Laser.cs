@@ -48,6 +48,9 @@ public class Laser : MonoBehaviour
     {
         string myNickname = NetworkConnector.Instance.UserNickname;
 
+        if (other.name == $"Character_{myNickname}")
+            return;
+
         if (!this.name.StartsWith(myNickname + "_"))
             return;
 

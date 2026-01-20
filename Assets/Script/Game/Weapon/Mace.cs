@@ -17,7 +17,7 @@ public class Mace : MonoBehaviour
         if (targetTransform == null) return;
 
         elapsed += Time.deltaTime;
-        angle += speed * Time.deltaTime;
+        angle -= speed * Time.deltaTime;
         float rad = angle * Mathf.Deg2Rad;
 
         Vector3 center = targetTransform.position + Vector3.up * 0.5f;
@@ -35,6 +35,8 @@ public class Mace : MonoBehaviour
     {
         string myNickname = NetworkConnector.Instance.UserNickname;
 
+        if (other.name == $"Character_{myNickname}")
+            return;
 
         if (!name.StartsWith(attackerNick + "_"))
             return;

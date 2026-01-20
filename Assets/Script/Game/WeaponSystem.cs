@@ -7,28 +7,45 @@ public class WeaponSystem : MonoBehaviour
 {
     public static WeaponSystem Instance;
 
+    [Header("UI")]
     public Button weaponButton;
     public Sprite[] weaponImageArray;
+
+    [Header("Weapon Prefabs")]
     public GameObject[] weaponPrefabs;
+
     public bool isCooldown = false;
-    HashSet<string> hitPlayers = new HashSet<string>();
+
+    struct PendingAttack
+    {
+        public string attackerNick;
+        public int charIndex;
+        public Vector3 position;
+        public Quaternion rotation;
+        public float extra; // 레이저 길이, 없으면 -1
+    }
+
+    private Dictionary<string, PendingAttack> pendingAttacks = new();
 
     private void Awake()
     {
         if (Instance == null)
             Instance = this;
         else
+        {
             Destroy(gameObject);
+            return;
+        }
     }
 
-    public void Start()
+    private void Start()
     {
-        string myNickname = NetworkConnector.Instance.UserNickname;
+        string myNick = NetworkConnector.Instance.UserNickname;
 
-        int charIndex = 0;
-        NetworkConnector.Instance.CurrentUserCharacterIndices.TryGetValue(myNickname, out charIndex);
+        if (!NetworkConnector.Instance.CurrentUserCharacterIndices
+            .TryGetValue(myNick, out int charIndex))
+            charIndex = 0;
 
-        // 버튼 이미지 설정
         if (weaponButton != null && weaponImageArray != null)
         {
             if (charIndex >= 0 && charIndex < weaponImageArray.Length)
@@ -37,7 +54,8 @@ public class WeaponSystem : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"[WeaponSystem] 캐릭터 인덱스 {charIndex}가 weaponImageArray 범위를 초과함");
+                Debug.LogWarning(
+                    $"[WeaponSystem] 캐릭터 인덱스 {charIndex}가 weaponImageArray 범위를 벗어남");
             }
         }
     }
@@ -45,12 +63,139 @@ public class WeaponSystem : MonoBehaviour
     public GameObject GetWeaponPrefab(int index)
     {
         if (index >= 0 && index < weaponPrefabs.Length)
-        {
             return weaponPrefabs[index];
+
+        Debug.LogWarning($"[WeaponSystem] 무기 프리팹 없음: {index}");
+        return null;
+    }
+
+    public void CachePendingAttack(
+        string attackerNick,
+        int charIndex,
+        Vector3 position,
+        Quaternion rotation,
+        float extra = -1f)
+    {
+        pendingAttacks[attackerNick] = new PendingAttack
+        {
+            attackerNick = attackerNick,
+            charIndex = charIndex,
+            position = position,
+            rotation = rotation,
+            extra = extra
+        };
+    }
+
+    public void SpawnCachedWeapon(string characterObjectName)
+    {
+        string attackerNick = characterObjectName.Replace("Character_", "");
+
+        if (!pendingAttacks.TryGetValue(attackerNick, out var data))
+            return;
+
+        if (data.charIndex == 6)
+        {
+            HandleRemoteLaserAttack(
+                data.attackerNick,
+                data.charIndex,
+                data.position,
+                data.rotation,
+                data.extra
+            );
+        }
+        else
+        {
+            HandleRemoteWeaponAttack(
+                data.attackerNick,
+                data.charIndex,
+                data.position,
+                data.rotation
+            );
         }
 
-        Debug.LogWarning($"[WeaponSystem] 인덱스 {index}에 해당하는 무기 프리팹이 없음");
-        return null;
+        pendingAttacks.Remove(attackerNick);
+    }
+
+    public void HandleRemoteWeaponAttack(
+        string attackerNick,
+        int charIndex,
+        Vector3 position,
+        Quaternion rotation)
+    {
+        GameObject prefab = GetWeaponPrefab(charIndex);
+        if (prefab == null)
+            return;
+        
+        GameObject weaponObj = Instantiate(prefab, position, rotation);
+        weaponObj.transform.parent = null;
+        Debug.Log($"[DEBUG][Spawn] weapon={charIndex}, name={weaponObj.name}, pos={weaponObj.transform.position}, rot={weaponObj.transform.eulerAngles}");
+        //Debug.Break();
+
+        GameObject attackerObj = GameObject.Find($"Character_{attackerNick}");
+
+        switch (charIndex)
+        {
+            case 0:
+                weaponObj.name = $"{attackerNick}_Sword";
+                break;
+
+            case 1:
+                weaponObj.name = $"{attackerNick}_Arrow";
+                break;
+
+            case 2:
+                weaponObj.name = $"{attackerNick}_Spell";
+                break;
+
+            case 3:
+                weaponObj.name = $"{attackerNick}_Mace";
+                var mace = weaponObj.GetComponent<Mace>();
+                if (mace != null && attackerObj != null)
+                {
+                    mace.attackerNick = attackerNick;
+                    mace.targetTransform = attackerObj.transform;
+                }
+                break;
+            case 5:
+                weaponObj.name = $"{attackerNick}_Pitchfork";
+                if (attackerObj != null)
+                {
+                    weaponObj.transform.position =
+                        attackerObj.transform.position
+                        + attackerObj.transform.forward * 1.3f
+                        + Vector3.up * 0.4f;
+                }
+                break;
+        }
+
+        if (attackerNick == NetworkConnector.Instance.UserNickname)
+            StartCooldown(1.5f);
+    }
+
+    public void HandleRemoteLaserAttack(
+        string attackerNick,
+        int charIndex,
+        Vector3 position,
+        Quaternion rotation,
+        float laserLength)
+    {
+        GameObject prefab = GetWeaponPrefab(charIndex);
+        if (prefab == null)
+            return;
+
+        GameObject laserObj = Instantiate(prefab, position, rotation);
+        laserObj.transform.parent = null;
+        laserObj.name = $"{attackerNick}_Laser";
+
+        Laser laser = laserObj.GetComponent<Laser>();
+        if (laser != null)
+        {
+            laser.attackerNick = attackerNick;
+            laser.SetLength(laserLength);
+        }
+
+        if (attackerNick == NetworkConnector.Instance.UserNickname)
+            StartCooldown(2.0f);
     }
 
     public void StartCooldown(float duration)
@@ -62,151 +207,75 @@ public class WeaponSystem : MonoBehaviour
     private IEnumerator CooldownRoutine(float duration)
     {
         isCooldown = true;
+
         if (weaponButton != null)
             weaponButton.interactable = false;
 
-        float elapsed = 0f;
-        while (elapsed < duration)
-        {
-            float fillAmount = 1f - (elapsed / duration);  // 남은 시간 비율
-
-            if (weaponButton != null)
-            {
-                Transform mask = weaponButton.transform.Find("CooldownMask");
-                if (mask != null)
-                {
-                    Image maskImg = mask.GetComponent<Image>();
-                    if (maskImg != null)
-                    {
-                        maskImg.fillAmount = fillAmount;
-                        maskImg.enabled = true;
-                    }
-                }
-            }
-
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
+        yield return new WaitForSeconds(duration);
 
         if (weaponButton != null)
-        {
             weaponButton.interactable = true;
-
-            Transform mask = weaponButton.transform.Find("CooldownMask");
-            if (mask != null)
-            {
-                Image maskImg = mask.GetComponent<Image>();
-                if (maskImg != null)
-                {
-                    maskImg.fillAmount = 0f;
-                    maskImg.enabled = false;
-                }
-            }
-        }
 
         isCooldown = false;
     }
 
-    public void HandleRemoteWeaponAttack(string attackerNick, int charIndex, Vector3 position, Quaternion rotation)
+    public void SpawnMelodyFromServer(
+    string attackerNick,
+    Vector3 pos,
+    Quaternion rot)
     {
-        GameObject prefab = GetWeaponPrefab(charIndex);
-        if (prefab == null)
-        {
-            Debug.LogWarning("[WeaponSystem] 무기 프리팹 없음, charIndex: " + charIndex);
-            return;
-        }
+        GameObject prefab = GetWeaponPrefab(4);
+        if (prefab == null) return;
 
-        GameObject weaponObj = Instantiate(prefab, position, rotation);
-        weaponObj.transform.parent = null;
+        GameObject obj = Instantiate(prefab, pos, rot);
+        obj.name = $"{attackerNick}_Melody";
 
-        string weaponName = "";
-
-        GameObject attackerObj = GameObject.Find($"Character_{attackerNick}");
-        Animator anim = attackerObj.GetComponent<Animator>();
-
-        if (anim != null)
-        {
-            anim.SetTrigger("isAttack");
-        }
-
-        if (charIndex == 0)
-        {
-            weaponName = $"{attackerNick}_Sword";
-        }
-        else if (charIndex == 1)
-        {
-            weaponName = $"{attackerNick}_Arrow";
-        }
-        else if (charIndex == 2)
-        {
-            weaponName = $"{attackerNick}_Spell";
-        }
-        else if (charIndex == 3)
-        {
-            weaponName = $"{attackerNick}_Mace";
-
-            Mace maceScript = weaponObj.GetComponent<Mace>();
-            if (maceScript != null)
-            {
-                maceScript.attackerNick = attackerNick;
-                maceScript.swingDuration = 0.5f;
-
-                if (attackerObj != null)
-                    maceScript.targetTransform = attackerObj.transform;
-            }
-        }
-        else if (charIndex == 4)
-        {
-            weaponName = $"{attackerNick}_Melody";
-
-            Melody melodyScript = weaponObj.GetComponent<Melody>();
-            if (melodyScript != null)
-            {
-                if (attackerNick != NetworkConnector.Instance.UserNickname)
-                {
-                    Destroy(melodyScript); // 아예 컴포넌트 삭제
-                }
-                else
-                {
-                    melodyScript.attackerNick = attackerNick;
-                }
-            }
-        }
-        else if (charIndex == 5)
-        {
-            weaponName = $"{attackerNick}_Pitchfork";
-        }
-        else if (charIndex == 6)
-        {
-            weaponName = $"{attackerNick}_Laser";
-        }
-
-        weaponObj.name = weaponName;
-        Debug.Log($"[WeaponSystem] 원격 공격: {attackerNick}, 캐릭터 {charIndex} 무기 생성");
+        Melody melody = obj.GetComponent<Melody>();
+        if (melody != null)
+            melody.attackerNick = attackerNick;
     }
 
-    public void HandleRemoteLaserAttack(string attackerNick, int charIndex, Vector3 position, Quaternion rotation, float laserLength)
+    public void InvokeSpawnFallback(string attackerNick, float delay)
     {
-        GameObject prefab = GetWeaponPrefab(charIndex);
-        if (prefab == null)
+        StartCoroutine(SpawnFallbackRoutine(attackerNick, delay));
+    }
+
+    private IEnumerator SpawnFallbackRoutine(string attackerNick, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (pendingAttacks.ContainsKey(attackerNick))
         {
-            Debug.LogWarning("[WeaponSystem] 무기 프리팹 없음, charIndex: " + charIndex);
+            Debug.Log($"[Fallback] {attackerNick} 무기 강제 생성");
+            SpawnCachedWeaponIfExists(attackerNick);
+        }
+    }
+
+    public void SpawnCachedWeaponIfExists(string attackerNick)
+    {
+        if (!pendingAttacks.TryGetValue(attackerNick, out var data))
             return;
-        }
 
-        GameObject laserObj = Instantiate(prefab, position, rotation);
-        laserObj.transform.parent = null;
-
-        string weaponName = $"{attackerNick}_Laser";
-        laserObj.name = weaponName;
-
-        Laser laserScript = laserObj.GetComponent<Laser>();
-        if (laserScript != null)
+        if (data.charIndex == 6)
         {
-            laserScript.attackerNick = attackerNick;
-            laserScript.SetLength(laserLength); // 레이저 길이 세팅 메서드 필요
+            HandleRemoteLaserAttack(
+                data.attackerNick,
+                data.charIndex,
+                data.position,
+                data.rotation,
+                data.extra
+            );
+        }
+        else
+        {
+            HandleRemoteWeaponAttack(
+                data.attackerNick,
+                data.charIndex,
+                data.position,
+                data.rotation
+            );
         }
 
-        Debug.Log($"[WeaponSystem] 원격 레이저 공격: {attackerNick}, 길이: {laserLength}");
+        pendingAttacks.Remove(attackerNick);
     }
 }

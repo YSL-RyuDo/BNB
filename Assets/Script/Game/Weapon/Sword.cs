@@ -40,6 +40,9 @@ public class Sword : MonoBehaviour
     {
         string myNickname = NetworkConnector.Instance.UserNickname;
 
+        if (other.name == $"Character_{myNickname}")
+            return;
+
         // 공격 무기라면 이름이 "{공격자}_Sword" 형식일 것
         if (!this.name.StartsWith(myNickname + "_"))
             return; // 내가 만든 무기가 아니면 무시 (자기 무기로만 판정함)

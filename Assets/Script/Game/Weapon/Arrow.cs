@@ -27,9 +27,14 @@ public class Arrow : MonoBehaviour
         // 캐릭터와 충돌한 경우
         if (other.name.StartsWith("Character_"))
         {
+
+
             string hitPlayerName = other.name.Replace("Character_", "");
 
             string myNick = NetworkConnector.Instance.UserNickname;
+
+            if (other.name == $"Character_{myNick}")
+                return;
 
             if (!this.name.StartsWith(myNick + "_"))
                 return; // 내가 만든 무기가 아니면 무시 (자기 무기로만 판정함)
