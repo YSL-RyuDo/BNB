@@ -46,10 +46,13 @@ public class CharacterSystem : MonoBehaviour
         targetPositions[playerId] = spawnPos;
 
         Debug.Log($"캐릭터 생성됨: {playerId} 캐릭터 인덱스: {characterIndex}, 위치({x}, {y}), 층({layer})");
+        var renderer = character.GetComponentInChildren<SkinnedMeshRenderer>();
 
-        Outline outline = character.AddComponent<Outline>();
+        var outline = renderer.gameObject.AddComponent<Outline>();
         outline.OutlineMode = Outline.Mode.OutlineAll;
-        outline.OutlineWidth = 5f;
+        float width = 5f * (Screen.height / 1080f);
+        width = Mathf.Clamp(width, 2f, 10f);  
+        outline.OutlineWidth = width;
 
         var nc = NetworkConnector.Instance;
         string myNick = nc.UserNickname;

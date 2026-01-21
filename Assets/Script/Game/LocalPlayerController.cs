@@ -197,6 +197,8 @@ public class LocalPlayerController : MonoBehaviour
                 .TryGetValue(myNick, out int idx))
                 return;
 
+            WeaponSystem.Instance.StartCooldown(2.0f);           
+
             //anim?.SetTrigger("isAttack");
             //spawnInvoked = false;
             //Invoke(nameof(FallbackSpawnWeapon), 0.15f);

@@ -400,13 +400,14 @@ public class GameSystem : MonoBehaviour
 
         // 캐릭터 비활성화
         GameObject target = GameObject.Find($"Character_{nickname}");
+        Animator anim = target.GetComponent<Animator>();
+        if (anim != null)
+        {
+            anim.SetTrigger("isDeath");
+        }
+
         if (target != null)
         {
-            Animator anim = target.GetComponent<Animator>();
-            if(anim != null)
-            {
-                anim.SetTrigger("isDeath");
-            }
             target.SetActive(false);
         }
     }
