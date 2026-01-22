@@ -164,8 +164,23 @@ public class RoomUI : MonoBehaviour
             if (up.Length >= 2) int.TryParse(up[1], out charIndex);
             NetworkConnector.Instance.SetOrUpdateUserCharacter(nickname, charIndex);
 
-            string team = (up.Length >= 3 && !string.IsNullOrWhiteSpace(up[2])) ? up[2].Trim() : "None";
+            string team = "None";
+
+            if (up.Length >= 3 && !string.IsNullOrWhiteSpace(up[2]))
+            {
+                team = up[2].Trim();
+            }
+            else
+            {
+                if (NetworkConnector.Instance.UserTeams.TryGetValue(nickname, out var prevTeam) &&
+                    !string.IsNullOrWhiteSpace(prevTeam) && prevTeam != "None")
+                {
+                    team = prevTeam;
+                }
+            }
+
             userTeamMap[nickname] = team;
+
             if (string.Equals(team, "Blue", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(team, "Red", StringComparison.OrdinalIgnoreCase))
             {

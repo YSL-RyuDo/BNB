@@ -50,7 +50,7 @@ public class CharacterSystem : MonoBehaviour
 
         var outline = character.gameObject.AddComponent<Outline>();
         outline.OutlineMode = Outline.Mode.OutlineAll;
-        float width = 5f * (Screen.height / 1080f);
+        float width = 3f * (Screen.height / 1080f);
         width = Mathf.Clamp(width, 2f, 10f);  
         outline.OutlineWidth = width;
 

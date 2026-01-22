@@ -122,6 +122,8 @@ public class WeaponSystem : MonoBehaviour
         Vector3 position,
         Quaternion rotation)
     {
+        Debug.Log($"[SPAWN CALL] attacker={attackerNick}, idx={charIndex}\n{System.Environment.StackTrace}");
+
         GameObject prefab = GetWeaponPrefab(charIndex);
         if (prefab == null)
             return;

@@ -197,7 +197,7 @@ public class LocalPlayerController : MonoBehaviour
                 .TryGetValue(myNick, out int idx))
                 return;
 
-           // WeaponSystem.Instance.StartCooldown(2.0f);           
+            // WeaponSystem.Instance.StartCooldown(2.0f);           
 
             //anim?.SetTrigger("isAttack");
             //spawnInvoked = false;
@@ -593,6 +593,9 @@ public class LocalPlayerController : MonoBehaviour
 
     private IEnumerator SpawnFallbackRoutine(string attackerNick, float delay)
     {
+        if (attackerNick == NetworkConnector.Instance.UserNickname)
+            yield break;
+
         yield return new WaitForSeconds(delay);
 
         // 애니메이션 이벤트가 호출되지 않았을 때만 실행
