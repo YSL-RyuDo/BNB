@@ -4597,7 +4597,7 @@ Transform:
   m_GameObject: {fileID: 1799687778}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.7, z: -2}
+  m_LocalPosition: {x: 0, y: 1.06, z: -2.256}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4742,25 +4742,25 @@ MonoBehaviour:
   coin0Text: {fileID: 233714453}
   coin1Text: {fileID: 1552673984}
   characterModelings:
-  - {fileID: 7943763458730182082, guid: d4fbb42d18b5dd7489918b4f04851575, type: 3}
-  - {fileID: 5736821534539167554, guid: 1b08c46837e7a224d80fdc54fa25bdef, type: 3}
-  - {fileID: 7760278702488643378, guid: 230347603c4713c46be202aec9e3cd14, type: 3}
-  - {fileID: 7925251540139501514, guid: 589dd5e45b5937e45bfbd4eba52081f9, type: 3}
-  - {fileID: 5352958571798197664, guid: 75fff36c2c83fde49af9b72fa1d6bd21, type: 3}
-  - {fileID: 5352958571798197664, guid: 5ac10fe0f7732e74baf7ed4c48e400b8, type: 3}
-  - {fileID: 5352958571798197664, guid: 498ec9ad791b11f4fb58a151ddcc455a, type: 3}
+  - {fileID: 7943763458730182082, guid: b14e640bda9df0a46b8aed8d5efbaf1b, type: 3}
+  - {fileID: 5736821534539167554, guid: a2cddd233e6583c4189c2353ba3bc2d9, type: 3}
+  - {fileID: 7760278702488643378, guid: 15e9c8e62b232664faf1e2edfd5c22bb, type: 3}
+  - {fileID: 7925251540139501514, guid: 9ec7136bd2681424f81b9f433f8aa54d, type: 3}
+  - {fileID: 5352958571798197664, guid: c18b0be8daba89f418afc4ca77e534e1, type: 3}
+  - {fileID: 5352958571798197664, guid: 08e7c1cd1a88a824993e6c8e06786677, type: 3}
+  - {fileID: 5352958571798197664, guid: 1507ec202fc7dde4a9ff954a2a2d2754, type: 3}
   characterModelingIamge: {fileID: 1601481616}
   characterPriceText3D: {fileID: 1204311065}
   characterImage: {fileID: 22143484}
   characterPriceText2D: {fileID: 447759553}
   characterImages:
-  - {fileID: 21300000, guid: 5e7a52a11971bb943a544e792ad27c1a, type: 3}
-  - {fileID: 21300000, guid: 321b3bed7fe674c47a7a8fa3bb7972ae, type: 3}
-  - {fileID: 21300000, guid: 09eb8eae255aa1b45baa42587b3ca0f7, type: 3}
-  - {fileID: 21300000, guid: c5ce2e0ab3d90d349961509fa10f6709, type: 3}
-  - {fileID: 21300000, guid: 39b9c2c19a971534e8a90d9d8f77398a, type: 3}
-  - {fileID: 21300000, guid: 4dc015be4d55aab4fa3820f11b37fa6d, type: 3}
-  - {fileID: 21300000, guid: ff211660202378d439ca57fee63c8735, type: 3}
+  - {fileID: 21300000, guid: 1e0f34fc98830e14a91275007b7a21a4, type: 3}
+  - {fileID: 21300000, guid: f96e8d9d9003da149b545ffd566e58f3, type: 3}
+  - {fileID: 21300000, guid: 8243117e0b917b24996ff4319aeb5f15, type: 3}
+  - {fileID: 21300000, guid: 1095e49b8dbc80d40af051b4a4495297, type: 3}
+  - {fileID: 21300000, guid: 904d4f57cd03b8c47a5294f13ab3d24c, type: 3}
+  - {fileID: 21300000, guid: 9100a47bd4d128b4c8493618fc663eea, type: 3}
+  - {fileID: 21300000, guid: ed45b50d6fc5819419b063cb9c8e9f50, type: 3}
   balloonImages:
   - {fileID: 21300000, guid: 60368f0d714a5c64593acaaa0629a965, type: 3}
   - {fileID: 21300000, guid: 7bc376f9b27a4ac448a055a2fb718550, type: 3}
