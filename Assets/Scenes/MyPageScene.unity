@@ -3861,6 +3861,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: f4e57331321427c4c9419c661e4ba2c0, type: 3}
   - {fileID: 21300000, guid: f4e57331321427c4c9419c661e4ba2c0, type: 3}
   - {fileID: 21300000, guid: f4e57331321427c4c9419c661e4ba2c0, type: 3}
+  - {fileID: 21300000, guid: f4e57331321427c4c9419c661e4ba2c0, type: 3}
+  - {fileID: 21300000, guid: f4e57331321427c4c9419c661e4ba2c0, type: 3}
   balloonSettingParent: {fileID: 301010156}
   balloonSettingButtonPrefab: {fileID: 2269905935962731227, guid: 749868e257b30be4c945fcfa1ed6e09f, type: 3}
   myIconImages: {fileID: 412735253}
