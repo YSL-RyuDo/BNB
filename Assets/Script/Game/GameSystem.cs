@@ -46,6 +46,10 @@ public class GameSystem : MonoBehaviour
     private readonly Dictionary<string, float> lastMoveRecvTime = new();
     [SerializeField] private float stopTimeout = 0.1f;
 
+    [SerializeField]
+    private GameObject[] backGroundPlane;
+
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -439,6 +443,17 @@ public class GameSystem : MonoBehaviour
         var nc = NetworkConnector.Instance;
         bool isCoop = (nc != null && nc.IsCoopMode);
 
+        if (backGroundPlane == null) return;
+
+        for(int i = 0; i < backGroundPlane.Length; i++)
+        {
+            var go = backGroundPlane[i];
+            if (go == null) continue;
+
+            var source = go.GetComponent<AudioSource>();
+            source.Stop();
+        }
+
         // 패널 활성/비활성
         if (isCoop && coopGameResultPanel != null)
         {
@@ -700,4 +715,5 @@ public class GameSystem : MonoBehaviour
         startRanOnce = false;
         mapRequestedOnce = false;
     }
+
 }

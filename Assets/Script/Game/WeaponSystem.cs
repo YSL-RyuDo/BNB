@@ -14,6 +14,8 @@ public class WeaponSystem : MonoBehaviour
     [Header("Weapon Prefabs")]
     public GameObject[] weaponPrefabs;
 
+
+
     public bool isCooldown = false;
 
     struct PendingAttack
@@ -133,6 +135,8 @@ public class WeaponSystem : MonoBehaviour
         Debug.Log($"[DEBUG][Spawn] weapon={charIndex}, name={weaponObj.name}, pos={weaponObj.transform.position}, rot={weaponObj.transform.eulerAngles}");
         //Debug.Break();
 
+        PlayWeaponSound(weaponObj);
+
         GameObject attackerObj = GameObject.Find($"Character_{attackerNick}");
 
         switch (charIndex)
@@ -189,6 +193,8 @@ public class WeaponSystem : MonoBehaviour
         laserObj.transform.parent = null;
         laserObj.name = $"{attackerNick}_Laser";
 
+        PlayWeaponSound(laserObj);
+
         Laser laser = laserObj.GetComponent<Laser>();
         if (laser != null)
         {
@@ -231,6 +237,8 @@ public class WeaponSystem : MonoBehaviour
 
         GameObject obj = Instantiate(prefab, pos, rot);
         obj.name = $"{attackerNick}_Melody";
+
+        PlayWeaponSound(obj);
 
         Melody melody = obj.GetComponent<Melody>();
         if (melody != null)
@@ -279,5 +287,15 @@ public class WeaponSystem : MonoBehaviour
         }
 
         pendingAttacks.Remove(attackerNick);
+    }
+
+    private void PlayWeaponSound(GameObject weaponObj)
+    {
+        if (weaponObj == null) return;
+
+        var source = weaponObj.GetComponent<AudioSource>();
+        if (source == null) return;
+
+        source.Play();
     }
 }
