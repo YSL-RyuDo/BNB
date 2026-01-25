@@ -46,6 +46,7 @@ public class LobbyUserList : MonoBehaviour
 
     private void OnClickUserButton_NoParam()
     {
+        ButtonSoundManager.Instance?.PlayClick();
         var clicked = EventSystem.current?.currentSelectedGameObject;
         if (clicked == null)
         {
@@ -83,6 +84,7 @@ public class LobbyUserList : MonoBehaviour
     }
     public void OnClickUserButton(string nickname)
     {
+        ButtonSoundManager.Instance?.PlayClick();
         LastRequestedNickname = nickname?.Trim();
         userPage.SetActive(true);
         lobbySender.SendGetUserPageInfo(nickname);

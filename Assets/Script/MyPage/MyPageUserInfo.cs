@@ -79,6 +79,7 @@ public class MyPageUserInfo : MonoBehaviour
 
     private void OnEquippedEmoClicked(int slotIndex)
     {
+        ButtonSoundManager.Instance?.PlayClick();
         var img = myEmoticonImages[slotIndex];
         if (img == null || img.sprite == null) return;
 
@@ -363,6 +364,7 @@ public class MyPageUserInfo : MonoBehaviour
 
     private void OnOwnedEmoClicked(int emoIndex)
     {
+        ButtonSoundManager.Instance?.PlayClick();
         if (selectedEquippedEmo == -1)
             return;
 
@@ -439,6 +441,7 @@ public class MyPageUserInfo : MonoBehaviour
 
     private void OnOwnedIconClicked(int iconIndex)
     {
+        ButtonSoundManager.Instance?.PlayClick();
         if (currentIconIndex == -1)
             return;
 
@@ -515,6 +518,7 @@ public class MyPageUserInfo : MonoBehaviour
 
     private void OnOwnedBalloonClicked(int balloonIndex)
     {
+        ButtonSoundManager.Instance?.PlayClick();
         if (currentBalloonIndex == -1)
             return;
 

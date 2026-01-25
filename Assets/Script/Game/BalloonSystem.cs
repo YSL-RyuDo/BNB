@@ -16,6 +16,12 @@ public class BalloonSystem : MonoBehaviour
     public GameObject[] waterPrefabs;
     private bool isCooldown = false;
     HashSet<string> hitPlayers = new HashSet<string>(); // 중복 방지용
+
+    [SerializeField] private AudioSource source;
+    [SerializeField] private AudioClip installClip;
+    [SerializeField] private AudioClip poppingClip;
+
+
     private void Awake()
     {
         if (Instance == null)
@@ -104,6 +110,8 @@ public class BalloonSystem : MonoBehaviour
         GameObject balloon = Instantiate(balloonPrefabs[type], spawnPos, Quaternion.identity);
         balloon.tag = "Balloon";
         Debug.Log($"[BalloonSystem] {username} 님 풍선 설치됨: 타입 {type} at {spawnPos}");
+
+        PlayingClip(installClip);
 
         if (username == NetworkConnector.Instance.UserNickname)
         {
@@ -349,6 +357,8 @@ public class BalloonSystem : MonoBehaviour
         // 룸리더가 발견한 블록 이름 저장용 리스트
         List<string> blocksToDestroy = new List<string>();
 
+        PlayingClip(poppingClip);
+
         // 물 생성 및 충돌 검사
         foreach (var direction in directions)
         {
@@ -420,4 +430,10 @@ public class BalloonSystem : MonoBehaviour
         }
     }
 
+
+    private void PlayingClip(AudioClip clip)
+    {
+        if (source == null || clip == null) return;
+        source.PlayOneShot(clip);
+    }
 }

@@ -15,6 +15,7 @@ public class LobbyLogout : MonoBehaviour
 
     private async void OnLogoutClicked()
     {
+        ButtonSoundManager.Instance?.PlayClick();
         try
         {
             var stream = NetworkConnector.Instance.Stream;

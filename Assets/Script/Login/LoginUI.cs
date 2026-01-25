@@ -33,6 +33,7 @@ public class LoginUI : MonoBehaviour
 
     private async void OnLoginClicked()
     {
+        ButtonSoundManager.Instance?.PlayClick();
         string id = inputID.text.Trim();
         string pw = inputPassword.text.Trim();
         await AuthSender.SendLoginRequest(id, pw);
@@ -40,12 +41,14 @@ public class LoginUI : MonoBehaviour
 
     private void OnRegisterClicked()
     {
+        ButtonSoundManager.Instance?.PlayClick();
         loginImage.SetActive(false);
         registerImage.SetActive(true);
     }
 
     private void OnExitClicked()
     {
+        ButtonSoundManager.Instance?.PlayClick();
         Application.Quit();
     }
 }

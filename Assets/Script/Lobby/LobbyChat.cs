@@ -24,6 +24,7 @@ public class LobbyChat : MonoBehaviour
 
     private void OnsendClicked()
     {
+        ButtonSoundManager.Instance?.PlayClick();
         if (string.IsNullOrEmpty(messageInputField.text))
         {
             return;

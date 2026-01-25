@@ -35,6 +35,7 @@ public class RegisterUI : MonoBehaviour
 
     private async void OnRegisterClicked()
     {
+        ButtonSoundManager.Instance?.PlayClick();
         string id = inputID.text.Trim();
         string pw = inputPassword.text.Trim();
         string nickname = inputNickname.text.Trim();
@@ -46,6 +47,7 @@ public class RegisterUI : MonoBehaviour
 
     private void OnLoginClicked()
     {
+        ButtonSoundManager.Instance?.PlayClick();
         loginImage.SetActive(true);
         registerImage.SetActive(false);
     }

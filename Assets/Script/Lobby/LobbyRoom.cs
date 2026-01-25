@@ -79,6 +79,7 @@ public class LobbyRoom : MonoBehaviour
 
             map.mapButton.onClick.AddListener(() =>
             {
+                ButtonSoundManager.Instance?.PlayClick();
                 previewImage.sprite = localMap.previewSprite;
                 NetworkConnector.Instance.SelectedMap = localMap.mapName;
             });
@@ -190,6 +191,7 @@ public class LobbyRoom : MonoBehaviour
 
     private void OnConfirmPasswordClicked()
     {
+        ButtonSoundManager.Instance?.PlayClick();
         string password = EnterpasswordInputField.text.Trim();
 
         if (string.IsNullOrEmpty(pendingRoomName))
@@ -204,6 +206,7 @@ public class LobbyRoom : MonoBehaviour
 
     public void OnRoomButtonClicked(string roomName)
     {
+        ButtonSoundManager.Instance?.PlayClick();
         roomName = roomName.Trim();
 
         Debug.Log($"¹æ Å¬¸¯µÊ: {roomName}");
@@ -231,6 +234,7 @@ public class LobbyRoom : MonoBehaviour
 
     private async void OnCreateButtonClicked()
     {
+        ButtonSoundManager.Instance?.PlayClick();
         if (isCreatingRoom) return;
         isCreatingRoom = true;
 
@@ -330,6 +334,7 @@ public class LobbyRoom : MonoBehaviour
 
     private void OnLogoutButtonClicked()
     {
+        ButtonSoundManager.Instance?.PlayClick();
         string nickname = NetworkConnector.Instance.UserNickname;
 
         if (string.IsNullOrEmpty(nickname))
@@ -370,11 +375,13 @@ public class LobbyRoom : MonoBehaviour
 
     private void LoadMyPageScene()
     {
+        ButtonSoundManager.Instance?.PlayClick();
         SceneManager.LoadScene("MyPageScene");
     }
 
     private void LoadShopScene()
     {
+        ButtonSoundManager.Instance?.PlayClick();
         SceneManager.LoadScene("ShopScene");
     }
 }

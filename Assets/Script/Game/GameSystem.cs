@@ -49,6 +49,10 @@ public class GameSystem : MonoBehaviour
     [SerializeField]
     private GameObject[] backGroundPlane;
 
+    [SerializeField] private AudioSource resultAudioSource;
+    [SerializeField] private AudioClip winClip;
+    [SerializeField] private AudioClip loseClip;
+
 
     private void Awake()
     {
@@ -441,6 +445,7 @@ public class GameSystem : MonoBehaviour
     public void OpenResultPanel()
     {
         var nc = NetworkConnector.Instance;
+        string myNick = NetworkConnector.Instance.UserNickname;
         bool isCoop = (nc != null && nc.IsCoopMode);
 
         if (backGroundPlane == null) return;
@@ -452,6 +457,34 @@ public class GameSystem : MonoBehaviour
 
             var source = go.GetComponent<AudioSource>();
             source.Stop();
+        }
+
+        if (!isCoop)
+        {
+            bool isWin = (myNick == winnerNickname);
+
+            if (resultAudioSource != null)
+            {
+                resultAudioSource.Stop();
+                resultAudioSource.clip = isWin ? winClip : loseClip;
+                resultAudioSource.Play();
+            }
+
+        }
+        else
+        {
+            string myTeam = null;
+            if (nc.UserTeams != null)
+                nc.UserTeams.TryGetValue(myNick, out myTeam);
+
+            bool isWin = (!string.IsNullOrEmpty(myTeam) && myTeam == winnerTeam);
+
+            if (resultAudioSource != null)
+            {
+                resultAudioSource.Stop();
+                resultAudioSource.clip = isWin ? winClip : loseClip;
+                resultAudioSource.Play();
+            }
         }
 
         // 패널 활성/비활성
@@ -535,6 +568,7 @@ public class GameSystem : MonoBehaviour
 
             return;
         }
+
 
         if (string.IsNullOrEmpty(winnerTeam))
         {
