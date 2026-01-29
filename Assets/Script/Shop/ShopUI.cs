@@ -45,6 +45,14 @@ public class ShopUI : MonoBehaviour
 
     public Toggle ownedToggle;
 
+    [SerializeField] private TextMeshProUGUI characterInfoText2D;
+    [SerializeField] private TextMeshProUGUI characterInfoText3D;
+    [SerializeField] private TextMeshProUGUI characterNameText2D;
+    [SerializeField] private TextMeshProUGUI characterNameText3D;
+
+    public string[] characterInfo;
+    public string[] characterName;
+
     public struct StoreItemData
     {
         public int index;
@@ -177,6 +185,12 @@ public class ShopUI : MonoBehaviour
         characterImage.sprite = characterImages[data.index];
 
         background3D.SetActive(true);
+
+        characterInfoText3D.text = characterInfo[data.index];
+        characterNameText3D.text = characterName[data.index];
+        characterInfoText2D.text = characterInfo[data.index];
+        characterNameText2D.text = characterName[data.index];
+
 
         characterPriceText2D.text = data.owned
             ? "º¸À¯Áß"

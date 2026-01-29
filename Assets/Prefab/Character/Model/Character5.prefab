@@ -1584,6 +1584,8 @@ MonoBehaviour:
   waterDamage: 10
   weaponButtonUI: {fileID: 0}
   balloonButtonUI: {fileID: 0}
+  animDamp: 15
+  moveThreshold: 0.1
 --- !u!136 &-205487279585951348
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1632,7 +1634,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 116
   m_CollisionDetection: 3
 --- !u!1 &5691243874327788079
 GameObject:
