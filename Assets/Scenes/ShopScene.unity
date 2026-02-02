@@ -156,8 +156,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 39, y: 24}
-  m_SizeDelta: {x: 750, y: 750}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 860, y: 540}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &22143484
 MonoBehaviour:
@@ -597,6 +597,74 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 168346145}
   m_CullTransparentMesh: 1
+--- !u!1 &180490089
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 180490091}
+  - component: {fileID: 180490090}
+  m_Layer: 0
+  m_Name: Video
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!328 &180490090
+VideoPlayer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 180490089}
+  m_Enabled: 1
+  m_VideoClip: {fileID: 32900000, guid: 52190e0db482d6245b13626cd9873309, type: 3}
+  m_TargetCameraAlpha: 1
+  m_TargetCamera3DLayout: 0
+  m_TargetCamera: {fileID: 0}
+  m_TargetTexture: {fileID: 8400000, guid: 5ba1541fb4ddadc468761a0927a3ea57, type: 2}
+  m_TimeReference: 0
+  m_TargetMaterialRenderer: {fileID: 0}
+  m_TargetMaterialProperty: <noninit>
+  m_RenderMode: 2
+  m_AspectRatio: 2
+  m_DataSource: 0
+  m_TimeUpdateMode: 2
+  m_PlaybackSpeed: 1
+  m_AudioOutputMode: 2
+  m_TargetAudioSources:
+  - {fileID: 0}
+  m_DirectAudioVolumes:
+  - 1
+  m_Url: 
+  m_EnabledAudioTracks: 01
+  m_DirectAudioMutes: 00
+  m_ControlledAudioTrackCount: 1
+  m_PlayOnAwake: 1
+  m_SkipOnDrop: 1
+  m_Looping: 1
+  m_WaitForFirstFrame: 1
+  m_FrameReadyEventEnabled: 0
+  m_VideoShaders: []
+--- !u!4 &180490091
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 180490089}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 807.8399, y: 563.74365, z: -2.7075243}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &195895947
 GameObject:
   m_ObjectHideFlags: 0
@@ -1235,7 +1303,7 @@ MonoBehaviour:
   m_text: CharacterName
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 4c4a5bb674f4cda4394bb34b4bd570a4, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: -7085883538683654282, guid: 4c4a5bb674f4cda4394bb34b4bd570a4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1298,7 +1366,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &350070968
@@ -3137,7 +3205,7 @@ MonoBehaviour:
   m_text: CharacterName
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 4c4a5bb674f4cda4394bb34b4bd570a4, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: -7085883538683654282, guid: 4c4a5bb674f4cda4394bb34b4bd570a4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3200,7 +3268,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &1443995145
@@ -4891,7 +4959,7 @@ MonoBehaviour:
   characterPriceText2D: {fileID: 447759553}
   characterImages:
   - {fileID: 21300000, guid: 1e0f34fc98830e14a91275007b7a21a4, type: 3}
-  - {fileID: 21300000, guid: f96e8d9d9003da149b545ffd566e58f3, type: 3}
+  - {fileID: 21300000, guid: 21801ab13c9868d47bc38ae77c656dd6, type: 3}
   - {fileID: 21300000, guid: 8243117e0b917b24996ff4319aeb5f15, type: 3}
   - {fileID: 21300000, guid: 1095e49b8dbc80d40af051b4a4495297, type: 3}
   - {fileID: 21300000, guid: 904d4f57cd03b8c47a5294f13ab3d24c, type: 3}
@@ -5825,3 +5893,4 @@ SceneRoots:
   - {fileID: 284794803}
   - {fileID: 1587910782}
   - {fileID: 1887695342}
+  - {fileID: 180490091}
