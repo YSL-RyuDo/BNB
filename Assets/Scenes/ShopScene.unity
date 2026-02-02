@@ -4951,8 +4951,8 @@ MonoBehaviour:
   - {fileID: 7760278702488643378, guid: 15e9c8e62b232664faf1e2edfd5c22bb, type: 3}
   - {fileID: 7925251540139501514, guid: 9ec7136bd2681424f81b9f433f8aa54d, type: 3}
   - {fileID: 5352958571798197664, guid: c18b0be8daba89f418afc4ca77e534e1, type: 3}
-  - {fileID: 5352958571798197664, guid: 08e7c1cd1a88a824993e6c8e06786677, type: 3}
-  - {fileID: 5352958571798197664, guid: 1507ec202fc7dde4a9ff954a2a2d2754, type: 3}
+  - {fileID: 5736821534539167554, guid: 756a64149ec318b4596abd378ef10463, type: 3}
+  - {fileID: 5736821534539167554, guid: 807287716f554be4e971e88479bb6065, type: 3}
   characterModelingIamge: {fileID: 1601481616}
   characterPriceText3D: {fileID: 1204311065}
   characterImage: {fileID: 22143484}
