@@ -4955,7 +4955,7 @@ MonoBehaviour:
   characterPriceText2D: {fileID: 447759553}
   characterImages:
   - {fileID: 21300000, guid: 1e0f34fc98830e14a91275007b7a21a4, type: 3}
-  - {fileID: 21300000, guid: 21801ab13c9868d47bc38ae77c656dd6, type: 3}
+  - {fileID: 21300000, guid: f96e8d9d9003da149b545ffd566e58f3, type: 3}
   - {fileID: 21300000, guid: 8243117e0b917b24996ff4319aeb5f15, type: 3}
   - {fileID: 21300000, guid: 1095e49b8dbc80d40af051b4a4495297, type: 3}
   - {fileID: 21300000, guid: 904d4f57cd03b8c47a5294f13ab3d24c, type: 3}
