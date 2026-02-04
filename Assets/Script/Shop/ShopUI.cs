@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.EventSystems;
+using UnityEngine.Video;
 
 public class ShopUI : MonoBehaviour
 {
@@ -27,7 +28,7 @@ public class ShopUI : MonoBehaviour
     private GameObject currentCharacterModel;
     public TextMeshProUGUI characterPriceText3D;
 
-    public Image characterImage;
+    //public Image characterImage;
     public TextMeshProUGUI characterPriceText2D;
 
     public Sprite[] characterImages;
@@ -49,6 +50,10 @@ public class ShopUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI characterInfoText3D;
     [SerializeField] private TextMeshProUGUI characterNameText2D;
     [SerializeField] private TextMeshProUGUI characterNameText3D;
+
+    //[SerializeField] private RawImage videoImage;
+    [SerializeField] private VideoPlayer videoPlayer;
+    [SerializeField] private VideoClip[] characterVideo;
 
     public string[] characterInfo;
     public string[] characterName;
@@ -182,7 +187,9 @@ public class ShopUI : MonoBehaviour
         selectedOwned = data.owned;
         buyButton.interactable = !data.owned;
 
-        characterImage.sprite = characterImages[data.index];
+        //characterImage.sprite = characterImages[data.index];
+
+        videoPlayer.clip = characterVideo[data.index];
 
         background3D.SetActive(true);
 
