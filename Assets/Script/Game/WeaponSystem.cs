@@ -219,7 +219,38 @@ public class WeaponSystem : MonoBehaviour
         if (weaponButton != null)
             weaponButton.interactable = false;
 
-        yield return new WaitForSeconds(duration);
+        Image maskImg = null;
+        if (weaponButton != null)
+        {
+            Transform mask = weaponButton.transform.Find("CooldownMask");
+            if (mask != null)
+                maskImg = mask.GetComponent<Image>();
+        }
+
+        float elapsed = 0f;
+
+        if (maskImg != null)
+        {
+            maskImg.enabled = true;
+            maskImg.fillAmount = 1f;
+        }
+
+        while (elapsed < duration)
+        {
+            float fillAmount = 1f - (elapsed / duration);
+
+            if (maskImg != null)
+                maskImg.fillAmount = fillAmount;
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (maskImg != null)
+        {
+            maskImg.fillAmount = 0f;
+            maskImg.enabled = false;
+        }
 
         if (weaponButton != null)
             weaponButton.interactable = true;
