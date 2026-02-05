@@ -821,6 +821,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: -113836532305646168, guid: 641bc467f27bc1d4d858ba802b06c70f, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 5690861364667a849a56a85cc388957d, type: 2}
     - target: {fileID: 9171100556185337, guid: 641bc467f27bc1d4d858ba802b06c70f, type: 3}
       propertyPath: m_Layer
       value: 6
@@ -1359,6 +1363,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 104.069
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: ffb5ee4db4f9b4b4cb4225d6158558b8, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ff19a98d4545775468723f585e5d9377, type: 2}
     - target: {fileID: 919132149155446097, guid: ffb5ee4db4f9b4b4cb4225d6158558b8, type: 3}
       propertyPath: m_Name
       value: king mangto
@@ -1425,6 +1433,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 177aec61daf54f445840ada183b9ef66, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 1f257d65f6bfac44c9dbc7e30e5ad5b7, type: 2}
     - target: {fileID: 919132149155446097, guid: 177aec61daf54f445840ada183b9ef66, type: 3}
       propertyPath: m_Name
       value: king crown
