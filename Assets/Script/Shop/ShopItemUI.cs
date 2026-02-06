@@ -28,8 +28,9 @@ public class ShopItemUI : MonoBehaviour
         if (data.owned)
         {
             priceText.text = "º¸À¯Áß";
-            button.interactable = false;
+            button.interactable = true;
             button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => onClick?.Invoke(data));
         }
         else
         {

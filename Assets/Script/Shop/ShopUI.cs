@@ -19,6 +19,8 @@ public class ShopUI : MonoBehaviour
     public Button emoButton;
     public Button iconButton;
     public Button buyButton;
+    public Button buy2D;
+    public Button buy3D;
 
     public TextMeshProUGUI coin0Text;
     public TextMeshProUGUI coin1Text;
@@ -26,6 +28,7 @@ public class ShopUI : MonoBehaviour
     public GameObject[] characterModelings;
     public RawImage characterModelingIamge;
     private GameObject currentCharacterModel;
+
     public TextMeshProUGUI characterPriceText3D;
 
     //public Image characterImage;
@@ -48,8 +51,15 @@ public class ShopUI : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI characterInfoText2D;
     [SerializeField] private TextMeshProUGUI characterInfoText3D;
+
     [SerializeField] private TextMeshProUGUI characterNameText2D;
     [SerializeField] private TextMeshProUGUI characterNameText3D;
+
+    [SerializeField] private TextMeshProUGUI characterSkillText2D;
+    [SerializeField] private TextMeshProUGUI characterSkillText3D;
+
+    [SerializeField] private TextMeshProUGUI characterStoryText3D;
+    [SerializeField] private TextMeshProUGUI characterStoryText2D;
 
     //[SerializeField] private RawImage videoImage;
     [SerializeField] private VideoPlayer videoPlayer;
@@ -57,6 +67,9 @@ public class ShopUI : MonoBehaviour
 
     public string[] characterInfo;
     public string[] characterName;
+
+    public string[] characterSkill;
+    public string[] characterStory;
 
     public struct StoreItemData
     {
@@ -198,6 +211,11 @@ public class ShopUI : MonoBehaviour
         characterInfoText2D.text = characterInfo[data.index];
         characterNameText2D.text = characterName[data.index];
 
+        characterSkillText2D.text = characterSkill[data.index];
+        characterSkillText3D.text = characterSkill[data.index];
+
+        characterStoryText2D.text = characterStory[data.index];
+        characterStoryText3D.text = characterStory[data.index];
 
         characterPriceText2D.text = data.owned
             ? "보유중"
@@ -207,6 +225,9 @@ public class ShopUI : MonoBehaviour
         characterPriceText3D.text = data.owned
                   ? "보유중"
                   : $"{data.price:N0} {data.priceType}";
+
+        buy2D.gameObject.SetActive(!data.owned);
+        buy3D.gameObject.SetActive(!data.owned);
 
         SpawnCharacterModel(data.index);
 
