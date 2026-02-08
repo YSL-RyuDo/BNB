@@ -162,6 +162,19 @@ public class WeaponSystem : MonoBehaviour
                     mace.targetTransform = attackerObj.transform;
                 }
                 break;
+            case 4:
+                weaponObj.name = $"{attackerNick}_Melody";
+
+                var melody = weaponObj.GetComponent<Melody>();
+                if (melody != null)
+                {
+                    melody.attackerNick = attackerNick;
+                }
+                else
+                {
+                    Debug.LogError("[Spawn] Melody prefab에 Melody 컴포넌트가 없습니다.");
+                }
+                break;
             case 5:
                 weaponObj.name = $"{attackerNick}_Pitchfork";
                 if (attackerObj != null)

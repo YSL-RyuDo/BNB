@@ -3138,7 +3138,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1482298762}
   - component: {fileID: 1482298761}
-  - component: {fileID: 1482298760}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -3146,14 +3145,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &1482298760
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1482298759}
-  m_Enabled: 1
 --- !u!20 &1482298761
 Camera:
   m_ObjectHideFlags: 0
@@ -4865,7 +4856,7 @@ MonoBehaviour:
   - {fileID: 5736821534539167554, guid: 1b08c46837e7a224d80fdc54fa25bdef, type: 3}
   - {fileID: 7760278702488643378, guid: 230347603c4713c46be202aec9e3cd14, type: 3}
   - {fileID: 7925251540139501514, guid: 589dd5e45b5937e45bfbd4eba52081f9, type: 3}
-  - {fileID: 5352958571798197664, guid: c18b0be8daba89f418afc4ca77e534e1, type: 3}
+  - {fileID: 5736821534539167554, guid: b379525ad877a404b9450e950e8a1f9d, type: 3}
   - {fileID: 5736821534539167554, guid: 9ccddbb398c412c4eb4a13defc78325c, type: 3}
   - {fileID: 5736821534539167554, guid: a4d45209c8953a347884976d23403fbd, type: 3}
   characterAliveImage:

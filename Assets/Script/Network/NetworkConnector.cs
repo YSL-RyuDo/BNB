@@ -602,9 +602,15 @@ public class NetworkConnector : MonoBehaviour
                     );
 
                     GameObject attackerObj = GameObject.Find($"Character_{attackerNick}");
+
+                    Debug.Log($"[WEAPON_ATTACK] attackerNick=<{attackerNick}> " +
+                                $"findName=<Character_{attackerNick}> " +
+                                $"found={(attackerObj != null)} " +
+                                $"objName={(attackerObj != null ? attackerObj.name : "NULL")} ");
                     if (attackerObj != null)
                     {
                         Animator anim = attackerObj.GetComponent<Animator>();
+                        Debug.Log($"[WEAPON_ATTACK] Animator on root={(anim != null)} " + $"rootHasAnimator={(attackerObj.GetComponent<Animator>() != null)} " + $"childHasAnimator={(attackerObj.GetComponentInChildren<Animator>(true) != null)}");
                         if (anim != null)
                         {
                             anim.SetTrigger("isAttack");
@@ -613,11 +619,12 @@ public class NetworkConnector : MonoBehaviour
                             attackerObj.GetComponent<LocalPlayerController>();
                         if (lpc != null)
                         {
-                            lpc.InvokeSpawnFallbackFromNetwork(attackerNick, 0.15f);
+                            lpc.InvokeSpawnFallbackFromNetwork(attackerNick, 2.0f);
                         }
                     }
                     else
                     {
+                        Debug.LogError($"[WEAPON_ATTACK] attackerObj NULL -> 즉시 스폰 발생! attackerNick={attackerNick}");
                         WeaponSystem.Instance.SpawnCachedWeaponIfExists(attackerNick);
                     }
 

@@ -208,15 +208,15 @@ public class LocalPlayerController : MonoBehaviour
             float rotY = transform.eulerAngles.y;
 
             // ===== 멜로디 전용 처리 =====
-            if (idx == 4)
-            {
-                string msg =
-                    $"MELODY_SPAWN|{myNick}|{attackPos.x:F2},{attackPos.y:F2},{attackPos.z:F2}|{rotY:F2}\n";
+            //if (idx == 4)
+            //{
+            //    string msg =
+            //        $"MELODY_SPAWN|{myNick}|{attackPos.x:F2},{attackPos.y:F2},{attackPos.z:F2}|{rotY:F2}\n";
 
-                byte[] bytes = Encoding.UTF8.GetBytes(msg);
-                NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
-                return;
-            }
+            //    byte[] bytes = Encoding.UTF8.GetBytes(msg);
+            //    NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
+            //    return;
+            //}
 
             // ===== 레이저 =====
             if (idx == 6)
