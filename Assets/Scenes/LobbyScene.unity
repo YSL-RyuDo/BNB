@@ -10555,13 +10555,13 @@ MonoBehaviour:
   isOccupied: 
   mapList:
   - mapName: Map1
-    previewSprite: {fileID: 21300000, guid: 91e9eda677b706a43b50051ab85502ae, type: 3}
+    previewSprite: {fileID: 21300000, guid: 2f39d91939b0b6d40a78bb1688672795, type: 3}
     mapButton: {fileID: 3805881882778880908}
   - mapName: Map2
-    previewSprite: {fileID: 21300000, guid: c4b70a2887375c146b77af56d04b5cb7, type: 3}
+    previewSprite: {fileID: 21300000, guid: 47b9ce88e851848408adff756692012e, type: 3}
     mapButton: {fileID: 9039889886033344793}
   - mapName: Map3
-    previewSprite: {fileID: 21300000, guid: 0bbbc87cb0357864abb3ef89c601b0dd, type: 3}
+    previewSprite: {fileID: 21300000, guid: 3e1da0208806a4c4e8c3f7ba4268d72a, type: 3}
     mapButton: {fileID: 1729897147080471310}
   previewImage: {fileID: 4404130221398082215}
   passwordToggle: {fileID: 1710490763670848835}
