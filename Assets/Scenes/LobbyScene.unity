@@ -10565,7 +10565,7 @@ MonoBehaviour:
     previewSprite: {fileID: 21300000, guid: 47b9ce88e851848408adff756692012e, type: 3}
     mapButton: {fileID: 9039889886033344793}
   - mapName: Map3
-    previewSprite: {fileID: 21300000, guid: 3e1da0208806a4c4e8c3f7ba4268d72a, type: 3}
+    previewSprite: {fileID: 21300000, guid: aa466863fd90cdb4f94bf1bf5fa8add6, type: 3}
     mapButton: {fileID: 1729897147080471310}
   previewImage: {fileID: 4404130221398082215}
   passwordToggle: {fileID: 1710490763670848835}
@@ -13075,7 +13075,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 3e1da0208806a4c4e8c3f7ba4268d72a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: aa466863fd90cdb4f94bf1bf5fa8add6, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
