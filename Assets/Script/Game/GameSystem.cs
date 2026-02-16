@@ -540,8 +540,27 @@ public class GameSystem : MonoBehaviour
                 if (nameText != null)
                 {
                     nameText.text = nick;
-                    nameText.color = (nick == winnerNickname) ? Color.yellow : Color.black;
+
+                    Color winColor = new Color(1f, 0.65f, 0f);   // °ñµå ¿À·»Áö
+                    Color loseColor = new Color(0.5f, 0f, 0.2f); // ¿ÍÀÎ»ö
+
+                    bool isWinner = (nick == winnerNickname);
+
+                    nameText.color = isWinner ? winColor : loseColor;
+
+                    if (isWinner)
+                    {
+                        nameText.outlineWidth = 0.25f;
+                        nameText.outlineColor = Color.black;
+                        nameText.fontStyle = TMPro.FontStyles.Bold;
+                    }
+                    else
+                    {
+                        nameText.outlineWidth = 0f;
+                        nameText.fontStyle = TMPro.FontStyles.Normal;
+                    }
                 }
+
 
                 if (rewardMap != null && rewardMap.TryGetValue(nick, out RewardData data))
                 {
@@ -617,8 +636,27 @@ public class GameSystem : MonoBehaviour
             if (nameText != null)
             {
                 nameText.text = nick;
-                nameText.color = isWinnerSide ? Color.yellow : Color.black;
+
+                Color winColor = new Color(1f, 0.65f, 0f);   // °ñµå ¿À·»Áö
+                Color loseColor = new Color(0.5f, 0f, 0.2f); // ¿ÍÀÎ»ö
+
+                bool isWinner = (nick == winnerNickname);
+
+                nameText.color = isWinner ? winColor : loseColor;
+
+                if (isWinner)
+                {
+                    nameText.outlineWidth = 0.25f;
+                    nameText.outlineColor = Color.black;
+                    nameText.fontStyle = TMPro.FontStyles.Bold;
+                }
+                else
+                {
+                    nameText.outlineWidth = 0f;
+                    nameText.fontStyle = TMPro.FontStyles.Normal;
+                }
             }
+
 
             if (rewardMap != null && rewardMap.TryGetValue(nick, out RewardData data))
             {
