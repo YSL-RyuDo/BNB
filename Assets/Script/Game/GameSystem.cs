@@ -541,7 +541,7 @@ public class GameSystem : MonoBehaviour
                 {
                     nameText.text = nick;
 
-                    Color winColor = new Color(1f, 0.65f, 0f);   // °ñµå ¿À·»Áö
+                    Color winColor = new Color(0.0f, 0.5f, 0.2f);
                     Color loseColor = new Color(0.5f, 0f, 0.2f); // ¿ÍÀÎ»ö
 
                     bool isWinner = (nick == winnerNickname);
@@ -551,7 +551,7 @@ public class GameSystem : MonoBehaviour
                     if (isWinner)
                     {
                         nameText.outlineWidth = 0.25f;
-                        nameText.outlineColor = Color.black;
+                        nameText.outlineColor = Color.white;
                         nameText.fontStyle = TMPro.FontStyles.Bold;
                     }
                     else
@@ -637,7 +637,7 @@ public class GameSystem : MonoBehaviour
             {
                 nameText.text = nick;
 
-                Color winColor = new Color(1f, 0.65f, 0f);   // °ñµå ¿À·»Áö
+                Color winColor = new Color(0.0f, 0.5f, 0.2f);
                 Color loseColor = new Color(0.5f, 0f, 0.2f); // ¿ÍÀÎ»ö
 
                 bool isWinner = (nick == winnerNickname);
@@ -647,7 +647,7 @@ public class GameSystem : MonoBehaviour
                 if (isWinner)
                 {
                     nameText.outlineWidth = 0.25f;
-                    nameText.outlineColor = Color.black;
+                    nameText.outlineColor = Color.white;
                     nameText.fontStyle = TMPro.FontStyles.Bold;
                 }
                 else
