@@ -5320,10 +5320,10 @@ MonoBehaviour:
   - {fileID: 32900000, guid: dd049c6449824ad4083fd19bcbea96bd, type: 3}
   - {fileID: 32900000, guid: 1b913a7649b5ee548aa52647f10a4ef5, type: 3}
   - {fileID: 32900000, guid: a3a308ed84a420141944b6e61efdbf2c, type: 3}
-  - {fileID: 32900000, guid: 1b913a7649b5ee548aa52647f10a4ef5, type: 3}
-  - {fileID: 32900000, guid: 1b913a7649b5ee548aa52647f10a4ef5, type: 3}
-  - {fileID: 32900000, guid: 1b913a7649b5ee548aa52647f10a4ef5, type: 3}
-  - {fileID: 32900000, guid: 1b913a7649b5ee548aa52647f10a4ef5, type: 3}
+  - {fileID: 32900000, guid: a3a308ed84a420141944b6e61efdbf2c, type: 3}
+  - {fileID: 32900000, guid: 60866eb5fe5b26d47a11e0ff4892cd4e, type: 3}
+  - {fileID: 32900000, guid: 60866eb5fe5b26d47a11e0ff4892cd4e, type: 3}
+  - {fileID: 32900000, guid: dd049c6449824ad4083fd19bcbea96bd, type: 3}
   characterInfo:
   - "\uCAC4\uBCF4 \uAE30\uC0AC"
   - "\uC218\uC804\uC99D \uAD81\uC218"
