@@ -1,6 +1,8 @@
 # Slap Squad
 
-[English](README.md), [Korean](README.ko.md), [Japanese](README.ja.md)
+<!-- portfolio-languages -->
+[![English](https://ysl-ryudo.github.io/assets/diagrams/language-en.svg)](README.md) [![한국어](https://ysl-ryudo.github.io/assets/diagrams/language-ko.svg)](README.ko.md) [![日本語（選択中）](https://ysl-ryudo.github.io/assets/diagrams/language-ja-current.svg)](README.ja.md)
+<!-- /portfolio-languages -->
 
 水風船の戦闘、試合報酬、アイテムショップがつながるチーム制作のマルチプレイヤーゲームです。
 
@@ -17,15 +19,21 @@
 
 [Slap Squad, OFY Studio](https://www.youtube.com/watch?v=1LMGsY_qY_8), [Early development demo](https://www.youtube.com/watch?v=MI5NtNU9eP8)
 
+## ゲーム内の実装
+
+[![2つのクライアントが同じルームでキャラクターを選び、ホストの開始要求で試合に進みます。](https://ysl-ryudo.github.io/assets/gameplay/slapsquad-room.webp)](https://ysl-ryudo.github.io/assets/gameplay/slapsquad-room.webp)
+
+2つのクライアントが同じルームでキャラクターを選び、ホストの開始要求で試合に進みます。
+
+[![ローカルサーバーでの2クライアントプレイ。キャラクター状態、水風船、障害物、ダメージ更新が連動します。](https://ysl-ryudo.github.io/assets/gameplay/slapsquad-combat.webp)](https://ysl-ryudo.github.io/assets/gameplay/slapsquad-combat.webp)
+
+ローカルサーバーでの2クライアントプレイ。キャラクター状態、水風船、障害物、ダメージ更新が連動します。
+
 ## ゲーム全体で担当した実装
 
-C++サーバーに加え、Unityの7種の武器、移動・戦闘変更、マップ・水風船、試合結果、通信連携を担当しました。クライアントは別のプログラマーとの共同制作です。共同ゲームコードとShopUIの自分の変更を、他メンバーのロビー・ショップ・プロフィールUIと区別します。
+C++サーバーとUnityの7種の武器を実装し、移動、水風船とマップの相互作用、試合結果、通信連携を担当しました。ショップUIでは返却されたアイテムデータに従って所有状態を更新するよう変更しました。
 
-**プレイの流れ**
-
-アカウント → ルーム・キャラクター・チーム → マップと戦闘 → 脱落と勝者 → 報酬と復帰 → ショップとプロフィール
-
-ソースリンクは確認した版に固定し、担当リンクは自分のマージ以外の変更を示します。共同ファイルは単独著作を意味しません。非公開ソースには閲覧権限が必要です。
+[![担当実装の流れ](https://ysl-ryudo.github.io/assets/diagrams/bnb-flow-ja.svg)](https://ysl-ryudo.github.io/assets/diagrams/bnb-flow-ja.svg)
 
 ### 7種の武器動作
 
@@ -41,13 +49,13 @@ Arrow、Laser、Mace、Melody、Pitchfork、Spell、Swordの動作を実装し�
 
 ### 水風船と破壊可能なマップ
 
-水風船設置・クールダウン・重複設置確認・水の伝播、マップとブロック更新を担当しました。サーバーはルームリーダーモデルでワールド更新を扱い、全マップのサーバーシミュレーションとは区別します。
+水風船設置、クールダウン、重複設置確認、水の伝播、マップとブロック更新を担当しました。サーバーはルームリーダーモデルでワールド更新を中継します。
 
 [BalloonSystem.cs (main)](https://github.com/YSL-RyuDo/BNB/blob/8a3defa6001cf741eceb322f11d7c8c6f7dd9bd7/Assets/Script/Game/BalloonSystem.cs), [担当変更 95b28f2](https://github.com/YSL-RyuDo/BNB/commit/95b28f22b7e88ed2c801e6d47a61ca573bcbc8a5), [MapSystem.cs (main)](https://github.com/YSL-RyuDo/BNB/blob/8a3defa6001cf741eceb322f11d7c8c6f7dd9bd7/Assets/Script/Game/MapSystem.cs), [担当変更 95b28f2](https://github.com/YSL-RyuDo/BNB/commit/95b28f22b7e88ed2c801e6d47a61ca573bcbc8a5)
 
 ### ルーム準備とシーン遷移
 
-キャラクター選択・チーム編成・ホストの開始要求を試合に接続しました。NetworkConnectorで遷移前後の選択、試合シーン移動、キャッシュ状態を扱いました。RoomUIは共同UI内の担当変更として示します。
+キャラクター選択、チーム編成、ホストの開始要求を試合へ接続しました。NetworkConnectorで遷移前後の選択、試合シーン移動、キャッシュ状態を扱いました。
 
 [RoomSystem.cs (main)](https://github.com/YSL-RyuDo/BNB/blob/8a3defa6001cf741eceb322f11d7c8c6f7dd9bd7/Assets/Script/Room/RoomSystem.cs), [担当変更 be42bb9](https://github.com/YSL-RyuDo/BNB/commit/be42bb99ced515ad702e9a15e9d95bd5e029839c), [NetworkConnector.cs (main)](https://github.com/YSL-RyuDo/BNB/blob/8a3defa6001cf741eceb322f11d7c8c6f7dd9bd7/Assets/Script/Network/NetworkConnector.cs), [担当変更 c79844d](https://github.com/YSL-RyuDo/BNB/commit/c79844d425e5c81e1c9549885e29deeeb66515cf)
 
@@ -63,14 +71,6 @@ CSV保存を使うサーバーのアカウント、ルーム、ショップ、�
 
 [Server.cpp (main)](https://github.com/YSL-RyuDo/BnBServer/blob/d2a360c07276ec057a92d1361e8ff84de743520c/TeamOFYServer/Server.cpp), [担当変更 e41da66](https://github.com/YSL-RyuDo/BnBServer/commit/e41da66566252a105da68d98087198e632c0e9b7), [ShopUI.cs (main)](https://github.com/YSL-RyuDo/BNB/blob/8a3defa6001cf741eceb322f11d7c8c6f7dd9bd7/Assets/Script/Shop/ShopUI.cs), [担当変更 57cedd2](https://github.com/YSL-RyuDo/BNB/commit/57cedd2e5c3b0dbbb7ea51b336602cc339630cea)
 
-## 担当した内容
-
-ゲーム・サーバーのパケット連携、水風船・ルームリーダー更新、購入UIを担当しました。
-
-結果・報酬フローとゲームプレイ連携に参加しました。チーム作品であり、全機能・素材の単独制作を意味しません。
-
-本プロジェクトの価格設定問題から発展したCISC-W 2025研究の筆頭著者・ポスター発表者です。
-
 ## 貢献の根拠
 
 [Water balloons / 물풍선 / 水風船](https://github.com/YSL-RyuDo/BNB/commit/95b28f22b7e88ed2c801e6d47a61ca573bcbc8a5)
@@ -79,7 +79,7 @@ CSV保存を使うサーバーのアカウント、ルーム、ショップ、�
 
 [Purchase UI / 구매 UI / 購入UI](https://github.com/YSL-RyuDo/BNB/commit/57cedd2e5c3b0dbbb7ea51b336602cc339630cea)
 
-コミットは記載した変更の根拠であり、貢献率の点数ではありません。外部素材・チームメンバーの貢献は区別します。
+外部素材・チームメンバーの貢献は区別します。
 
 ## 実装と設計
 
@@ -88,8 +88,6 @@ CSV保存を使うサーバーのアカウント、ルーム、ショップ、�
 パケット・ゲーム連携、ルームリーダー・水風船更新、ショップ・プロフィール処理を担当しました。別のCISC-W研究では仮想プレイヤーの行動を用い、固定価格と需要連動政策を比較しました。
 
 ## コードの動作と実装構造の理由
-
-確認した実装が扱う制約と利点・代償を説明します。設計効果の説明はコード分析であり、比較する全代案を当時試作したという意味ではありません。担当リンクは共同制作内の変更を示し、ソースの閲覧権限は維持します。
 
 ### 購入クリックだけでは所有状態を変えない理由
 
@@ -107,7 +105,7 @@ CSV保存を使うサーバーのアカウント、ルーム、ショップ、�
 
 **利点・代償と検証範囲**
 
-これは共同クライアント内の担当変更であり、ShopUI全体の単独実装を意味しません。所有表示を待つ分、失敗とタイムアウト対応も重要ですが、この差分だけで再試行処理の完成は示せません。後のVAISでは取引層でも再要求を扱います。
+返却データを待つことで未承認購入の確定を避けますが、処理中・失敗・タイムアウトの状態が必要です。後のVAISでは取引層まで再要求処理を拡張しました。
 
 [BNB 57cedd2e](https://github.com/YSL-RyuDo/BNB/commit/57cedd2e5c3b0dbbb7ea51b336602cc339630cea)
 
@@ -127,7 +125,7 @@ CSV保存を使うサーバーのアカウント、ルーム、ショップ、�
 
 **利点・代償と検証範囲**
 
-ゲーム全体をサーバー権威型シミュレーションとは説明しません。論文の仮想実験は実利用者の測定とは異なり、CNN価格モデルをBnBServerで運用した証拠でもありません。実装と研究はそれぞれの根拠で区別します。
+ルームリーダーの判定にはクライアントを信頼する境界が生じ、リーダー退出への対応も必要です。価格研究は仮想消費で固定価格と需要連動政策を比較し、CNN指標は消費パターンの分類精度です。
 
 [BNB 95b28f22](https://github.com/YSL-RyuDo/BNB/commit/95b28f22b7e88ed2c801e6d47a61ca573bcbc8a5), [BnBServer/ClientHandler.cpp](https://github.com/YSL-RyuDo/BnBServer/blob/5f5f067f7cdc6ef71ab11a4d869ad2e1b6fdc8a2/TeamOFYServer/ClientHandler.cpp), [BnBServer/StoreData.cpp](https://github.com/YSL-RyuDo/BnBServer/blob/5f5f067f7cdc6ef71ab11a4d869ad2e1b6fdc8a2/TeamOFYServer/StoreData.cpp)
 
@@ -146,10 +144,6 @@ Slap Squadの試合報酬に対するアイテム価格を検討したことが�
 Unity scene: [Assets/Scenes/LoginScene.unity](Assets/Scenes/LoginScene.unity)
 
 [BnBServer](https://github.com/YSL-RyuDo/BnBServer)
-
-## 開発・検証範囲
-
-過去の実装を整理したプロジェクトです。一部のワールド判断にルームリーダー側の入力を使うため、完全なサーバー権威型とは説明しません。価格研究は仮想プレイヤーによる実験で、分類精度は最適価格や実サービス売上の改善を意味しません。研究上の政策と実際のサーバー政策を同一視しません。
 
 CNN価格政策研究を「データで設計するゲーム経済」として発表。その後、研究を補完してCISC-W 2025のポスター発表につなげました。
 

@@ -1,6 +1,8 @@
 # 슬랩스쿼드, Slap Squad
 
-[English](README.md), [Korean](README.ko.md), [Japanese](README.ja.md)
+<!-- portfolio-languages -->
+[![English](https://ysl-ryudo.github.io/assets/diagrams/language-en.svg)](README.md) [![한국어 (현재 언어)](https://ysl-ryudo.github.io/assets/diagrams/language-ko-current.svg)](README.ko.md) [![日本語](https://ysl-ryudo.github.io/assets/diagrams/language-ja.svg)](README.ja.md)
+<!-- /portfolio-languages -->
 
 물풍선 전투와 경기 보상, 아이템 상점이 이어지는 팀 멀티플레이 게임입니다.
 
@@ -17,15 +19,21 @@
 
 [Slap Squad, OFY Studio](https://www.youtube.com/watch?v=1LMGsY_qY_8), [Early development demo](https://www.youtube.com/watch?v=MI5NtNU9eP8)
 
+## 게임에서 보는 구현
+
+[![두 클라이언트가 같은 방에서 캐릭터를 선택하고 방장의 시작 요청으로 경기에 진입합니다.](https://ysl-ryudo.github.io/assets/gameplay/slapsquad-room.webp)](https://ysl-ryudo.github.io/assets/gameplay/slapsquad-room.webp)
+
+두 클라이언트가 같은 방에서 캐릭터를 선택하고 방장의 시작 요청으로 경기에 진입합니다.
+
+[![로컬 서버의 두 클라이언트 플레이. 캐릭터 상태와 물풍선, 장애물, 피해량 갱신이 연결된 화면입니다.](https://ysl-ryudo.github.io/assets/gameplay/slapsquad-combat.webp)](https://ysl-ryudo.github.io/assets/gameplay/slapsquad-combat.webp)
+
+로컬 서버의 두 클라이언트 플레이. 캐릭터 상태와 물풍선, 장애물, 피해량 갱신이 연결된 화면입니다.
+
 ## 게임 전체에서 맡은 구현
 
-C++ 서버와 함께 Unity의 무기 7종, 이동과 전투 수정, 맵과 물풍선 처리, 경기 결과와 네트워크 연동을 담당했습니다. 클라이언트는 다른 프로그래머와 공동 개발했습니다. 공동 게임 코드와 ShopUI에서 제가 수정한 부분, 팀원의 로비와 상점, 프로필 UI 모듈을 구분합니다.
+C++ 서버와 Unity 무기 7종을 구현하고 이동, 물풍선과 맵 상호작용, 경기 결과와 네트워크 연동을 작업했습니다. 상점 UI에서는 반환된 아이템 데이터에 따라 소유 상태를 갱신하도록 수정했습니다.
 
-**플레이 흐름**
-
-계정 → 방, 캐릭터와 팀 구성 → 맵과 전투 → 탈락과 승자 판정 → 보상과 복귀 → 상점과 프로필
-
-소스 링크는 확인한 버전에 고정하고 기여 링크는 제가 작성한 병합 외 변경을 가리킵니다. 공동 파일을 연결했다고 단독 작성이라는 뜻은 아닙니다. 비공개 소스는 저장소 접근 권한이 필요합니다.
+[![담당 구현 흐름](https://ysl-ryudo.github.io/assets/diagrams/bnb-flow-ko.svg)](https://ysl-ryudo.github.io/assets/diagrams/bnb-flow-ko.svg)
 
 ### 무기 7종의 동작
 
@@ -41,13 +49,13 @@ Arrow, Laser, Mace, Melody, Pitchfork, Spell, Sword의 동작을 구현했습니
 
 ### 물풍선과 파괴 가능한 맵
 
-물풍선 배치와 쿨다운, 겹치는 배치 검사와 물줄기 전파, 맵과 블록 갱신을 작업했습니다. 서버에서는 룸 리더 모델에 맞춰 월드 관련 갱신을 처리하며, 맵 전체를 서버에서 시뮬레이션하는 구조와는 구분합니다.
+물풍선 배치와 쿨다운, 겹치는 배치 검사와 물줄기 전파, 맵과 블록 갱신을 작업했습니다. 서버는 룸 리더 모델에 맞춰 월드 갱신을 전달합니다.
 
 [BalloonSystem.cs (main)](https://github.com/YSL-RyuDo/BNB/blob/8a3defa6001cf741eceb322f11d7c8c6f7dd9bd7/Assets/Script/Game/BalloonSystem.cs), [내 변경 95b28f2](https://github.com/YSL-RyuDo/BNB/commit/95b28f22b7e88ed2c801e6d47a61ca573bcbc8a5), [MapSystem.cs (main)](https://github.com/YSL-RyuDo/BNB/blob/8a3defa6001cf741eceb322f11d7c8c6f7dd9bd7/Assets/Script/Game/MapSystem.cs), [내 변경 95b28f2](https://github.com/YSL-RyuDo/BNB/commit/95b28f22b7e88ed2c801e6d47a61ca573bcbc8a5)
 
 ### 방 준비와 씬 전환
 
-캐릭터 선택과 팀 구성, 방장의 시작 요청을 게임 진입에 연결했습니다. NetworkConnector에서 전환 전후의 캐릭터 선택과 경기 관련 씬 이동, 캐시 상태를 다뤘습니다. RoomUI는 공동 UI 안에서 제가 변경한 범위로 구분합니다.
+캐릭터 선택과 팀 구성, 방장의 시작 요청을 게임 진입에 연결했습니다. NetworkConnector에서 전환 전후의 캐릭터 선택과 경기 관련 씬 이동, 캐시 상태를 다뤘습니다.
 
 [RoomSystem.cs (main)](https://github.com/YSL-RyuDo/BNB/blob/8a3defa6001cf741eceb322f11d7c8c6f7dd9bd7/Assets/Script/Room/RoomSystem.cs), [내 변경 be42bb9](https://github.com/YSL-RyuDo/BNB/commit/be42bb99ced515ad702e9a15e9d95bd5e029839c), [NetworkConnector.cs (main)](https://github.com/YSL-RyuDo/BNB/blob/8a3defa6001cf741eceb322f11d7c8c6f7dd9bd7/Assets/Script/Network/NetworkConnector.cs), [내 변경 c79844d](https://github.com/YSL-RyuDo/BNB/commit/c79844d425e5c81e1c9549885e29deeeb66515cf)
 
@@ -63,14 +71,6 @@ CSV 저장을 사용하는 서버의 계정, 방, 상점과 프로필 처리를 
 
 [Server.cpp (main)](https://github.com/YSL-RyuDo/BnBServer/blob/d2a360c07276ec057a92d1361e8ff84de743520c/TeamOFYServer/Server.cpp), [내 변경 e41da66](https://github.com/YSL-RyuDo/BnBServer/commit/e41da66566252a105da68d98087198e632c0e9b7), [ShopUI.cs (main)](https://github.com/YSL-RyuDo/BNB/blob/8a3defa6001cf741eceb322f11d7c8c6f7dd9bd7/Assets/Script/Shop/ShopUI.cs), [내 변경 57cedd2](https://github.com/YSL-RyuDo/BNB/commit/57cedd2e5c3b0dbbb7ea51b336602cc339630cea)
 
-## 내 기여
-
-게임, 서버 패킷 연동, 물풍선, 룸 리더 갱신, 구매 UI를 작업했습니다.
-
-결과, 보상 흐름과 게임플레이 연동에 참여했습니다. 팀 프로젝트이며 전체 게임플레이와 에셋을 단독 제작했다는 의미가 아닙니다.
-
-이 프로젝트의 가격 결정 문제에서 출발한 CISC-W 2025 가격정책 연구의 제1저자이자 포스터 발표자입니다.
-
 ## 기여 근거
 
 [Water balloons / 물풍선 / 水風船](https://github.com/YSL-RyuDo/BNB/commit/95b28f22b7e88ed2c801e6d47a61ca573bcbc8a5)
@@ -79,8 +79,6 @@ CSV 저장을 사용하는 서버의 계정, 방, 상점과 프로필 처리를 
 
 [Purchase UI / 구매 UI / 購入UI](https://github.com/YSL-RyuDo/BNB/commit/57cedd2e5c3b0dbbb7ea51b336602cc339630cea)
 
-커밋은 설명한 변경의 근거이며 기여율 점수가 아닙니다. 외부 에셋과 팀원 작업의 크레딧은 구분합니다.
-
 ## 구현과 설계
 
 방, 게임 내 행동, 보상과 구매를 클라이언트, 서버 흐름으로 연결해야 했습니다. 이를 구현하면서 플레이어가 얻는 보상에 비해 아이템 가격을 어떻게 정해야 할지 고민하게 되었습니다.
@@ -88,8 +86,6 @@ CSV 저장을 사용하는 서버의 계정, 방, 상점과 프로필 처리를 
 패킷, 게임 연동, 룸 리더, 물풍선 갱신, 상점, 프로필 흐름을 작업했습니다. 별도의 CISC-W 연구에서는 가상 플레이어의 행동을 이용해 고정 가격과 수요 기반 조정 정책을 비교했습니다.
 
 ## 코드의 동작과 구현 방식을 택한 이유
-
-확인한 구현이 어떤 제약을 다루며 어떤 장단점이 생기는지 설명합니다. 설계 효과에 대한 설명은 코드 분석이며, 비교한 모든 대안을 당시 직접 구현했다는 뜻은 아닙니다. 기여 링크는 공동 프로젝트 안의 담당 변경을 가리키고 소스 링크는 기존 접근 권한을 유지합니다.
 
 ### 구매 클릭만으로 보유 상태를 바꾸지 않는 이유
 
@@ -107,7 +103,7 @@ CSV 저장을 사용하는 서버의 계정, 방, 상점과 프로필 처리를 
 
 **장단점과 검증 범위**
 
-공동 클라이언트 코드 안의 이 변경이 제 기여이며 ShopUI 전체의 단독 작성이라는 뜻은 아닙니다. 소유 표시를 기다리는 만큼 실패와 시간 초과 처리도 필요하지만, 이 패치만으로 재시도 처리가 완성되었다고 할 수는 없습니다. 이후 바이스의 구매 구조에서는 거래 계층에서도 재요청을 다룹니다.
+반환 데이터를 기다리면 승인되지 않은 구매를 확정하지 않지만 처리 중 표시, 실패와 시간 초과 처리가 필요합니다. 이후 바이스에서는 거래 계층까지 재요청 처리를 확장했습니다.
 
 [BNB 57cedd2e](https://github.com/YSL-RyuDo/BNB/commit/57cedd2e5c3b0dbbb7ea51b336602cc339630cea)
 
@@ -127,7 +123,7 @@ CSV 저장을 사용하는 서버의 계정, 방, 상점과 프로필 처리를 
 
 **장단점과 검증 범위**
 
-게임 전체를 서버 권위 시뮬레이션으로 설명하지 않습니다. 논문의 가상 실험 결과는 실제 이용자 행동 측정과 다르며 CNN 가격 모델을 BnBServer에 운영 배포했다는 근거도 아닙니다. 게임 구현과 연구 실험은 각각의 근거로 구분합니다.
+룸 리더 판정은 클라이언트를 신뢰하는 경계를 만들며 방장 이탈 처리도 필요합니다. 가격 연구에서는 가상 소비를 바탕으로 고정 가격과 수요 기반 정책을 비교했고, CNN 지표는 소비 패턴 분류 정확도입니다.
 
 [BNB 95b28f22](https://github.com/YSL-RyuDo/BNB/commit/95b28f22b7e88ed2c801e6d47a61ca573bcbc8a5), [BnBServer/ClientHandler.cpp](https://github.com/YSL-RyuDo/BnBServer/blob/5f5f067f7cdc6ef71ab11a4d869ad2e1b6fdc8a2/TeamOFYServer/ClientHandler.cpp), [BnBServer/StoreData.cpp](https://github.com/YSL-RyuDo/BnBServer/blob/5f5f067f7cdc6ef71ab11a4d869ad2e1b6fdc8a2/TeamOFYServer/StoreData.cpp)
 
@@ -146,10 +142,6 @@ Slap Squad의 경기 보상 대비 아이템 가격을 고민하면서 시작한
 Unity scene: [Assets/Scenes/LoginScene.unity](Assets/Scenes/LoginScene.unity)
 
 [BnBServer](https://github.com/YSL-RyuDo/BnBServer)
-
-## 개발, 검증 범위
-
-과거 구현을 정리한 프로젝트입니다. 일부 월드 결정에 룸 리더 클라이언트 입력이 사용되므로 완전한 서버 권위형 게임으로 소개하지 않습니다. 가격 연구는 가상 플레이어 실험이며, 분류 정확도가 최적 가격이나 실서비스 매출 개선을 뜻하지 않습니다. 연구 정책과 실제 서버 정책이 같다고 가정하지 않습니다.
 
 CNN 가격정책 연구를 「데이터로 설계하는 게임 경제」로 직접 발표했습니다. 교내 발표 이후 연구를 보완해 CISC-W 2025 학회 포스터로 발표했습니다.
 
