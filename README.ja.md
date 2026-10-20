@@ -1,44 +1,32 @@
-# Slap Squad — Multiplayer Game & Pricing Research
+# Slap Squad
 
 [English](README.md) · [Korean](README.ko.md) · [Japanese](README.ja.md)
 
-**C++ · Winsock · C# · Unity** · チーム開発
+水風船の戦闘、試合報酬、アイテムショップがつながるチーム制作のマルチプレイヤーゲームです。
 
-[開発事例を見る](https://ysl-ryudo.github.io/ja/work/bnb/) · [Portfolio](https://ysl-ryudo.github.io/ja/)
+**C++ · Winsock · C# · Unity** · チーム開発
 
 **2025.03 - 2026.02 · 8名：プログラマー2名、グラフィック6名**
 
 サーバー・ネットワーク連携・ショップとプロフィール実装
 
+[開発事例を見る](https://ysl-ryudo.github.io/ja/work/bnb/) · [Portfolio](https://ysl-ryudo.github.io/ja/)
 
-BnBServerと連携するチーム制作のUnityマルチプレイヤーゲームです。報酬・ショップの開発をきっかけに、アイテム価格の決め方を研究しました。
+[BNB](https://github.com/YSL-RyuDo/BNB) (公開リポジトリ) · [BnBServer](https://github.com/YSL-RyuDo/BnBServer) (公開リポジトリ)
 
-## 取り組んだ課題
+## システム別の担当内容
 
-ルーム、ゲーム内操作、報酬、購入をクライアント・サーバー間で連携させる必要がありました。その実装から、獲得報酬に対してアイテム価格をどう設定するかという疑問が生まれました。
+| 領域 | 実装 |
+|---|---|
+| クライアント | 水風船の更新・購入UI・結果と報酬の処理 |
+| 通信 | C++ Winsock・接続ごとのスレッド |
+| 状態・保存 | CSVデータによるアカウント・ルーム・ショップ・プロフィール |
+| 判定の境界 | 一部のワールド更新はルームリーダーから送信 |
 
-## 担当した実装と設計
-
-パケット・ゲーム連携、ルームリーダー・水風船更新、ショップ・プロフィール処理を担当しました。別のCISC-W研究では仮想プレイヤーの行動を用い、固定価格と需要連動政策を比較しました。
-
-### 実装概要 · 概念フロー
-
-```mermaid
-flowchart LR
-    N0["Unity / room"] --> N1
-    N1["Game packets"] --> N2
-    N2["C++ server"] --> N3
-    N3["Profile / shop / CSV"]
-```
-
-### 開発デモ動画
-
-[![Slap Squad — Slap Squad · OFY Studio](https://i.ytimg.com/vi/1LMGsY_qY_8/hqdefault.jpg)](https://www.youtube.com/watch?v=1LMGsY_qY_8)
+## 開発デモ動画
 
 - [Slap Squad · OFY Studio](https://www.youtube.com/watch?v=1LMGsY_qY_8)
 - [Early development demo](https://www.youtube.com/watch?v=MI5NtNU9eP8)
-
-撮影時点のプロジェクトデモです。ゲーム内での担当作業は以下の担当範囲で示します。
 
 ## 担当した内容
 
@@ -74,12 +62,8 @@ Slap Squadの試合報酬に対するアイテム価格を検討したことが�
 
 過去の実装を整理したプロジェクトです。一部のワールド判断にルームリーダー側の入力を使うため、完全なサーバー権威型とは説明しません。価格研究は仮想プレイヤーによる実験で、分類精度は最適価格や実サービス売上の改善を意味しません。研究上の政策と実際のサーバー政策を同一視しません。
 
-## 実装の確認方法
-
-クライアントとサーバーの本人作成コミットを確認し、論文は別の実験として読めます。サーバーは接続ごとのスレッドとCSVを使用し、一部のワールド判断はルームリーダーの入力を受け取ります。
-
-## 開発から研究・発表へ
+## ゲーム開発から研究へ
 
 CNN価格政策研究を「データで設計するゲーム経済」として発表。その後、研究を補完してCISC-W 2025のポスター発表につなげました。
 
-[2025 I2P-CON](https://www.youtube.com/watch?v=oq_e0TAwvJg)
+[CISC-W 2025](https://ysl-ryudo.github.io/ja/research/cisc/) · [I2P-CON](https://www.youtube.com/watch?v=oq_e0TAwvJg)
