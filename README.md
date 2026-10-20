@@ -2,7 +2,39 @@
 
 [English](README.md) · [Korean](README.ko.md) · [Japanese](README.ja.md)
 
+**C++ · Winsock · C# · Unity** · Team project
+
+[Explore the case](https://ysl-ryudo.github.io/en/work/bnb/) · [Portfolio](https://ysl-ryudo.github.io/en/)
+
+
 A team Unity multiplayer game connected to BnBServer. Building its rewards and shop led me to investigate how in-game item prices should be determined.
+
+## The engineering problem
+
+Rooms, in-game actions, rewards and purchases need a connected client/server flow. Building that loop raised a second question: how should item prices relate to the rewards players earn?
+
+## My implementation
+
+I implemented packet and game integration, room-leader/water-balloon updates, and shop/profile flows. The separate CISC-W study compares fixed and demand-adjusted pricing using simulated player behavior.
+
+### Implementation overview · conceptual flow
+
+```mermaid
+flowchart LR
+    N0["Unity / room"] --> N1
+    N1["Game packets"] --> N2
+    N2["C++ server"] --> N3
+    N3["Profile / shop / CSV"]
+```
+
+### Development videos
+
+[![BNB / BnBServer — BNB demo](https://i.ytimg.com/vi/MI5NtNU9eP8/hqdefault.jpg)](https://www.youtube.com/watch?v=MI5NtNU9eP8)
+
+- [BNB demo](https://www.youtube.com/watch?v=MI5NtNU9eP8)
+- [Slap Squad · OFY Studio](https://www.youtube.com/watch?v=1LMGsY_qY_8)
+
+Recorded project demonstrations; the contribution section below identifies my work within the game.
 
 ## My contribution
 
@@ -37,3 +69,7 @@ Open the project with the Unity version recorded in [ProjectVersion.txt](Project
 ## Development and verification scope
 
 Historical implementation. Some world decisions use room-leader client input, so the game is not described as fully server-authoritative. The pricing study uses simulated players; its classification accuracy does not establish an optimal price or a live-service revenue improvement. Research policies and deployed server policies are not assumed to be identical.
+
+## How to evaluate the work
+
+Follow the authored client and server commits, then read the paper as a separate experiment. The server uses connection threads and CSV-backed data; some world decisions come from the room leader.

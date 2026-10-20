@@ -2,7 +2,39 @@
 
 [English](README.md) · [Korean](README.ko.md) · [Japanese](README.ja.md)
 
+**C++ · Winsock · C# · Unity** · 팀 프로젝트
+
+[개발 사례 보기](https://ysl-ryudo.github.io/ko/work/bnb/) · [Portfolio](https://ysl-ryudo.github.io/ko/)
+
+
 BnBServer와 연동하는 팀 Unity 멀티플레이 게임입니다. 보상과 상점을 개발하면서 아이템 가격을 어떤 근거로 정할지 연구하게 되었습니다.
+
+## 해결하려던 문제
+
+방, 게임 내 행동, 보상과 구매를 클라이언트·서버 흐름으로 연결해야 했습니다. 이를 구현하면서 플레이어가 얻는 보상에 비해 아이템 가격을 어떻게 정해야 할지 고민하게 되었습니다.
+
+## 내 구현과 설계
+
+패킷·게임 연동, 룸 리더·물풍선 갱신, 상점·프로필 흐름을 작업했습니다. 별도의 CISC-W 연구에서는 가상 플레이어의 행동을 이용해 고정 가격과 수요 기반 조정 정책을 비교했습니다.
+
+### 구현 개요 · 개념 흐름도
+
+```mermaid
+flowchart LR
+    N0["Unity / room"] --> N1
+    N1["Game packets"] --> N2
+    N2["C++ server"] --> N3
+    N3["Profile / shop / CSV"]
+```
+
+### 개발 시연 영상
+
+[![BNB / BnBServer — BNB demo](https://i.ytimg.com/vi/MI5NtNU9eP8/hqdefault.jpg)](https://www.youtube.com/watch?v=MI5NtNU9eP8)
+
+- [BNB demo](https://www.youtube.com/watch?v=MI5NtNU9eP8)
+- [Slap Squad · OFY Studio](https://www.youtube.com/watch?v=1LMGsY_qY_8)
+
+촬영 당시의 프로젝트 시연입니다. 게임 안에서 제가 맡은 작업은 아래 기여 항목으로 구분합니다.
 
 ## 내 기여
 
@@ -37,3 +69,7 @@ BNB의 경기 보상 대비 아이템 가격을 고민하면서 시작한 연구
 ## 개발·검증 범위
 
 과거 구현을 정리한 프로젝트입니다. 일부 월드 결정에 룸 리더 클라이언트 입력이 사용되므로 완전한 서버 권위형 게임으로 소개하지 않습니다. 가격 연구는 가상 플레이어 실험이며, 분류 정확도가 최적 가격이나 실서비스 매출 개선을 뜻하지 않습니다. 연구 정책과 실제 서버 정책이 같다고 가정하지 않습니다.
+
+## 구현을 확인하는 방법
+
+클라이언트와 서버의 작성 커밋을 확인한 뒤 논문을 별도 실험으로 읽을 수 있습니다. 서버는 연결별 스레드와 CSV 저장을 사용하며 일부 월드 결정은 룸 리더 입력을 받습니다.
