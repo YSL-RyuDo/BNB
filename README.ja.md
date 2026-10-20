@@ -1,10 +1,14 @@
-# BNB — Multiplayer Game & Pricing Research
+# Slap Squad — Multiplayer Game & Pricing Research
 
 [English](README.md) · [Korean](README.ko.md) · [Japanese](README.ja.md)
 
 **C++ · Winsock · C# · Unity** · チーム開発
 
 [開発事例を見る](https://ysl-ryudo.github.io/ja/work/bnb/) · [Portfolio](https://ysl-ryudo.github.io/ja/)
+
+**2025.03 - 2026.02 · 8名：プログラマー2名、グラフィック6名**
+
+サーバー・ネットワーク連携・ショップとプロフィール実装
 
 
 BnBServerと連携するチーム制作のUnityマルチプレイヤーゲームです。報酬・ショップの開発をきっかけに、アイテム価格の決め方を研究しました。
@@ -29,10 +33,10 @@ flowchart LR
 
 ### 開発デモ動画
 
-[![BNB / BnBServer — BNB demo](https://i.ytimg.com/vi/MI5NtNU9eP8/hqdefault.jpg)](https://www.youtube.com/watch?v=MI5NtNU9eP8)
+[![Slap Squad — Slap Squad · OFY Studio](https://i.ytimg.com/vi/1LMGsY_qY_8/hqdefault.jpg)](https://www.youtube.com/watch?v=1LMGsY_qY_8)
 
-- [BNB demo](https://www.youtube.com/watch?v=MI5NtNU9eP8)
 - [Slap Squad · OFY Studio](https://www.youtube.com/watch?v=1LMGsY_qY_8)
+- [Early development demo](https://www.youtube.com/watch?v=MI5NtNU9eP8)
 
 撮影時点のプロジェクトデモです。ゲーム内での担当作業は以下の担当範囲で示します。
 
@@ -54,7 +58,7 @@ flowchart LR
 
 **CISC-W 2025 ポスター発表。** *Consumption Pattern Analysis of In-Game Pricing Policies Using Convolutional Neural Networks.* 筆頭著者・発表者：Young-Sang Lee。共著者：Ji-Uk Choi、Yun-Ho Kim、Myeong-Jae Lee、Hye-Young Kim。
 
-BNBの試合報酬に対するアイテム価格を検討したことが研究の出発点です。論文中のゲーム名は**SlapSquad**です。仮想プレイヤー400人・30日間のシミュレーションを20回繰り返し、固定価格と基準価格の70～130%に制限した需要連動価格を比較しました。報告されたCNN精度96%は、シミュレーション上の消費パターンを価格政策別に分類した性能であり、最適価格の精度や実測売上増加率ではありません。
+Slap Squadの試合報酬に対するアイテム価格を検討したことが研究の出発点です。論文中のゲーム名は**SlapSquad**です。仮想プレイヤー400人・30日間のシミュレーションを20回繰り返し、固定価格と基準価格の70～130%に制限した需要連動価格を比較しました。報告されたCNN精度96%は、シミュレーション上の消費パターンを価格政策別に分類した性能であり、最適価格の精度や実測売上増加率ではありません。
 
 [論文PDF](research/CISC-W_2025_paper.pdf)。本ゲームが研究の契機ですが、動的政策の実サーバーへの適用はここでは実証していません。
 
@@ -73,3 +77,9 @@ BNBの試合報酬に対するアイテム価格を検討したことが研究�
 ## 実装の確認方法
 
 クライアントとサーバーの本人作成コミットを確認し、論文は別の実験として読めます。サーバーは接続ごとのスレッドとCSVを使用し、一部のワールド判断はルームリーダーの入力を受け取ります。
+
+## 開発から研究・発表へ
+
+CNN価格政策研究を「データで設計するゲーム経済」として発表。その後、研究を補完してCISC-W 2025のポスター発表につなげました。
+
+[2025 I2P-CON](https://www.youtube.com/watch?v=oq_e0TAwvJg)

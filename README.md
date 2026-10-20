@@ -1,10 +1,14 @@
-# BNB — Multiplayer Game & Pricing Research
+# Slap Squad — Multiplayer Game & Pricing Research
 
 [English](README.md) · [Korean](README.ko.md) · [Japanese](README.ja.md)
 
 **C++ · Winsock · C# · Unity** · Team project
 
 [Explore the case](https://ysl-ryudo.github.io/en/work/bnb/) · [Portfolio](https://ysl-ryudo.github.io/en/)
+
+**Mar 2025 - Feb 2026 · 8 members: 2 programmers, 6 graphics**
+
+Server, network integration & shop/profile systems
 
 
 A team Unity multiplayer game connected to BnBServer. Building its rewards and shop led me to investigate how in-game item prices should be determined.
@@ -29,10 +33,10 @@ flowchart LR
 
 ### Development videos
 
-[![BNB / BnBServer — BNB demo](https://i.ytimg.com/vi/MI5NtNU9eP8/hqdefault.jpg)](https://www.youtube.com/watch?v=MI5NtNU9eP8)
+[![Slap Squad — Slap Squad · OFY Studio](https://i.ytimg.com/vi/1LMGsY_qY_8/hqdefault.jpg)](https://www.youtube.com/watch?v=1LMGsY_qY_8)
 
-- [BNB demo](https://www.youtube.com/watch?v=MI5NtNU9eP8)
 - [Slap Squad · OFY Studio](https://www.youtube.com/watch?v=1LMGsY_qY_8)
+- [Early development demo](https://www.youtube.com/watch?v=MI5NtNU9eP8)
 
 Recorded project demonstrations; the contribution section below identifies my work within the game.
 
@@ -54,7 +58,7 @@ Commits are evidence of the stated changes, not a percentage-of-authorship score
 
 **CISC-W 2025 — poster presentation.** *Consumption Pattern Analysis of In-Game Pricing Policies Using Convolutional Neural Networks.* First author and presenter: Young-Sang Lee; coauthors: Ji-Uk Choi, Yun-Ho Kim, Myeong-Jae Lee and Hye-Young Kim.
 
-The question arose while deciding BNB's item prices relative to match rewards. The paper refers to the game as **SlapSquad**. It simulates 400 players over 30 days, repeats the simulation 20 times, and compares fixed prices with demand-based adjustments bounded at 70–130% of the base price. The reported 96% CNN accuracy classifies simulated consumption patterns by pricing policy; it is not an optimal-price accuracy or measured revenue uplift.
+The question arose while deciding Slap Squad's item prices relative to match rewards. The paper refers to the game as **SlapSquad**. It simulates 400 players over 30 days, repeats the simulation 20 times, and compares fixed prices with demand-based adjustments bounded at 70–130% of the base price. The reported 96% CNN accuracy classifies simulated consumption patterns by pricing policy; it is not an optimal-price accuracy or measured revenue uplift.
 
 [Paper PDF](research/CISC-W_2025_paper.pdf). Research motivation is connected to this game; applying the dynamic policy to the running server has not been established here.
 
@@ -73,3 +77,9 @@ Historical implementation. Some world decisions use room-leader client input, so
 ## How to evaluate the work
 
 Follow the authored client and server commits, then read the paper as a separate experiment. The server uses connection threads and CSV-backed data; some world decisions come from the room leader.
+
+## From development to research
+
+Presented the CNN pricing-policy research in “Designing Game Economies with Data.” Subsequently refined the research for the CISC-W 2025 poster presentation.
+
+[2025 I2P-CON](https://www.youtube.com/watch?v=oq_e0TAwvJg)

@@ -1,10 +1,14 @@
-# BNB — Multiplayer Game & Pricing Research
+# Slap Squad — Multiplayer Game & Pricing Research
 
 [English](README.md) · [Korean](README.ko.md) · [Japanese](README.ja.md)
 
 **C++ · Winsock · C# · Unity** · 팀 프로젝트
 
 [개발 사례 보기](https://ysl-ryudo.github.io/ko/work/bnb/) · [Portfolio](https://ysl-ryudo.github.io/ko/)
+
+**2025.03 - 2026.02 · 8명 · 프로그래머 2명, 그래픽 6명**
+
+서버·네트워크 연동·상점 및 프로필 구현
 
 
 BnBServer와 연동하는 팀 Unity 멀티플레이 게임입니다. 보상과 상점을 개발하면서 아이템 가격을 어떤 근거로 정할지 연구하게 되었습니다.
@@ -29,10 +33,10 @@ flowchart LR
 
 ### 개발 시연 영상
 
-[![BNB / BnBServer — BNB demo](https://i.ytimg.com/vi/MI5NtNU9eP8/hqdefault.jpg)](https://www.youtube.com/watch?v=MI5NtNU9eP8)
+[![Slap Squad — Slap Squad · OFY Studio](https://i.ytimg.com/vi/1LMGsY_qY_8/hqdefault.jpg)](https://www.youtube.com/watch?v=1LMGsY_qY_8)
 
-- [BNB demo](https://www.youtube.com/watch?v=MI5NtNU9eP8)
 - [Slap Squad · OFY Studio](https://www.youtube.com/watch?v=1LMGsY_qY_8)
+- [Early development demo](https://www.youtube.com/watch?v=MI5NtNU9eP8)
 
 촬영 당시의 프로젝트 시연입니다. 게임 안에서 제가 맡은 작업은 아래 기여 항목으로 구분합니다.
 
@@ -54,7 +58,7 @@ flowchart LR
 
 **CISC-W 2025 포스터 발표.** 「CNN 기반 게임 내 가격정책별 소비패턴 분석」. 제1저자·발표자: 이영상. 공동저자: 최지욱, 김윤호, 이명재, 김혜영.
 
-BNB의 경기 보상 대비 아이템 가격을 고민하면서 시작한 연구입니다. 논문에서는 게임명을 **SlapSquad**로 표기합니다. 400명의 가상 플레이어를 30일간 시뮬레이션하고 20회 반복했으며, 고정 가격과 기본 가격의 70~130%로 제한된 수요 기반 가격 조정을 비교했습니다. 보고된 CNN 정확도 96%는 시뮬레이션 소비 패턴의 정책 분류 성능이며, 최적 가격 정확도나 실측 매출 증가율이 아닙니다.
+Slap Squad의 경기 보상 대비 아이템 가격을 고민하면서 시작한 연구입니다. 논문에서는 게임명을 **SlapSquad**로 표기합니다. 400명의 가상 플레이어를 30일간 시뮬레이션하고 20회 반복했으며, 고정 가격과 기본 가격의 70~130%로 제한된 수요 기반 가격 조정을 비교했습니다. 보고된 CNN 정확도 96%는 시뮬레이션 소비 패턴의 정책 분류 성능이며, 최적 가격 정확도나 실측 매출 증가율이 아닙니다.
 
 [논문 PDF](research/CISC-W_2025_paper.pdf). 연구의 출발점은 이 게임이지만, 동적 정책의 실제 서버 적용 여부는 여기서 입증하지 않았습니다.
 
@@ -73,3 +77,9 @@ BNB의 경기 보상 대비 아이템 가격을 고민하면서 시작한 연구
 ## 구현을 확인하는 방법
 
 클라이언트와 서버의 작성 커밋을 확인한 뒤 논문을 별도 실험으로 읽을 수 있습니다. 서버는 연결별 스레드와 CSV 저장을 사용하며 일부 월드 결정은 룸 리더 입력을 받습니다.
+
+## 개발에서 연구와 발표로
+
+CNN 가격정책 연구를 「데이터로 설계하는 게임 경제」로 직접 발표했습니다. 교내 발표 이후 연구를 보완해 CISC-W 2025 학회 포스터로 발표했습니다.
+
+[2025 I2P-CON](https://www.youtube.com/watch?v=oq_e0TAwvJg)
