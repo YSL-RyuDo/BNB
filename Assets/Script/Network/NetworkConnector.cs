@@ -166,32 +166,22 @@ public class NetworkConnector : MonoBehaviour
     private async void StartListening()
     {
         byte[] buffer = new byte[1024];
-        StringBuilder completeMessage = new StringBuilder();
-
-        while (_client.Connected)
+        var messages = new LineMessageBuffer();
+        var connection = _client;
+        var stream = _stream;
+        try
         {
-            int byteCount = await _stream.ReadAsync(buffer, 0, buffer.Length);
-            if (byteCount == 0)
-                break;
-
-            string chunk = Encoding.UTF8.GetString(buffer, 0, byteCount);
-            completeMessage.Append(chunk);
-
-            string messages = completeMessage.ToString();
-            string[] splitMessages = messages.Split('\n');
-
-            foreach (string msgRaw in splitMessages)
+            while (connection.Connected)
             {
-                string msg = msgRaw.Trim();
-                if (!string.IsNullOrEmpty(msg))
-                {
-                    Debug.Log("서버 메시지 처리: " + msg);
-                    HandleServerMessage(msg);
-                }
+                int byteCount = await stream.ReadAsync(buffer, 0, buffer.Length);
+                if (byteCount == 0) break;
+                messages.Append(buffer, byteCount, HandleServerMessage);
             }
-            completeMessage.Clear();
-            completeMessage.Append(splitMessages[splitMessages.Length - 1]);
         }
+        catch (IOException ex) { Debug.LogWarning("Server receive stopped: " + ex.Message); }
+        catch (ObjectDisposedException) { }
+        catch (DecoderFallbackException ex) { Debug.LogWarning("Invalid server text: " + ex.Message); }
+        finally { connection.Close(); }
     }
 
     private void HandleServerMessage(string message)

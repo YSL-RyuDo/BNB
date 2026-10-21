@@ -1,0 +1,23 @@
+name: Receive framing
+on:
+  push:
+    paths: ['Assets/Script/Network/**', 'tools/LineMessageBufferTests.cs', '.github/workflows/receive-framing.yml']
+  pull_request:
+    paths: ['Assets/Script/Network/**', 'tools/LineMessageBufferTests.cs', '.github/workflows/receive-framing.yml']
+permissions:
+  contents: read
+jobs:
+  parser:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            Assets/Script/Network
+            tools
+      - name: Compile parser without Unity dependencies
+        shell: pwsh
+        run: |
+          & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /codepage:65001 /out:ParserTests.exe .\Assets\Script\Network\LineMessageBuffer.cs .\tools\LineMessageBufferTests.cs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          .\ParserTests.exe
