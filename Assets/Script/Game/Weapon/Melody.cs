@@ -96,7 +96,7 @@ public class Melody : MonoBehaviour
             return;
 
         int weaponIndex = 4;
-        string attackMsg = $"HIT|{weaponIndex}|{attackerNick}|{hitPlayerName}\n";
+        string attackMsg = $"HIT|{weaponIndex}|{attackerNick}|{hitPlayerName}|{NetworkConnector.Instance.Combat.MatchId}\n";
         byte[] bytes = Encoding.UTF8.GetBytes(attackMsg);
         NetworkConnector.Instance.Stream.Write(bytes, 0, bytes.Length);
 

@@ -1,0 +1,31 @@
+name: Combat C# checks
+on:
+  push:
+    paths: ['Assets/Script/Game/**', 'Assets/Script/Network/**', 'tools/CombatTests.cs', 'tools/test_combat.py', '.github/workflows/combat.yml']
+  pull_request:
+    paths: ['Assets/Script/Game/**', 'Assets/Script/Network/**', 'tools/CombatTests.cs', 'tools/test_combat.py', '.github/workflows/combat.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  combat:
+    runs-on: windows-2022
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            Assets/Script/Network
+            tools
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - run: python tools/test_combat.py --out .combat-test-work
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: combat-csharp-results
+          path: .combat-test-work/results.txt

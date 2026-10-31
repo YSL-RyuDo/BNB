@@ -19,6 +19,7 @@ public class NetworkConnector : MonoBehaviour
     public NetworkStream Stream => _stream;
 
     public static NetworkConnector Instance { get; private set; }
+    public CombatState Combat { get; } = new CombatState();
     [Header("Room Info")]
     [SerializeField] private string userNickname;
     [SerializeField] private string selectedMap;
@@ -153,6 +154,7 @@ public class NetworkConnector : MonoBehaviour
         {
             await _client.ConnectAsync("127.0.0.1", 9000);
             _stream = _client.GetStream();
+            Combat.Reset();
             StartListening();
 
             Debug.Log("서버 연결 완료");
@@ -360,16 +362,14 @@ public class NetworkConnector : MonoBehaviour
                     break;
                 }
             case "START_GAME_SUCCESS":
-                Debug.Log("게임 시작 조건 충족! 씬 전환...");
-                PrepareNewRound();
-                CacheCharacterIndicesBeforeGame();
-                UnityEngine.SceneManagement.SceneManager.LoadScene("GameScene");
+                // GAME_START carries the match id and performs the single scene transition.
                 break;
             case "START_GAME_FAIL":
                 Debug.LogWarning("게임 시작 실패: " + message);
                 FindObjectOfType<RoomSender>()?.ResetStartGameLock();
                 break;
             case "GAME_START":
+                if (parts.Length != 3 || !Combat.Begin(parts[2])) break;
                 Debug.Log("게임 시작 메시지 수신, 씬 전환");
                 PrepareNewRound();
                 CacheCharacterIndicesBeforeGame();
@@ -630,10 +630,8 @@ public class NetworkConnector : MonoBehaviour
 
             case "DAMAGE":
                 {
-                    string targetNick = parts[1];
-                    int damage = int.Parse(parts[2]);
-
-                    GameSystem.Instance.DamagePlayer(targetNick, damage);
+                    if (Combat.Apply(message, out string target, out int hp) && GameSystem.Instance != null)
+                        GameSystem.Instance.ApplyServerHealth(target, hp);
                     break;
                 }
             case "MELODY_SPAWN":
@@ -772,32 +770,15 @@ public class NetworkConnector : MonoBehaviour
 
                 }
             case "PLAYER_HIT":
-                {
-                    // 예시 메시지: PLAYER_HIT|nickname|10
-                    string[] parts1 = message.Split('|');
-                    if (parts1.Length < 3)
-                    {
-                        Debug.LogWarning("[GameSystem] PLAYER_HIT 메시지 형식 오류");
-                        break;
-                    }
-
-                    string hitPlayer = parts1[1];
-                    if (!int.TryParse(parts1[2], out int damage))
-                    {
-                        Debug.LogWarning("[GameSystem] PLAYER_HIT 데미지 파싱 실패");
-                        break;
-                    }
-
-                    GameSystem.Instance.DamagePlayer(hitPlayer, damage);
-                    Debug.Log($"[GameSystem] {hitPlayer}가 {damage}만큼 피해를 입었습니다");
-                    break;
-                }
+                // Legacy delta-only damage cannot update authoritative health.
+                break;
             case "PLAYER_DEAD":
                 {
+                    if (parts.Length != 3 || !ulong.TryParse(parts[2], out ulong deathMatch) || deathMatch != Combat.MatchId) break;
                     string nickname = parts[1];
                     Debug.Log($"[Game] 플레이어 사망 처리: {nickname}");
 
-                    GameSystem.Instance.HandlePlayerDeath(nickname);
+                    if (GameSystem.Instance != null) GameSystem.Instance.HandlePlayerDeath(nickname);
                     break;
                 }
             case "WIN":

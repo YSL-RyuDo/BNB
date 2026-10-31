@@ -31,8 +31,6 @@ public class GameSystem : MonoBehaviour
     private string winnerNickname = "";
     private string winnerTeam = "";
     private Dictionary<string, RewardData> rewardMap = new Dictionary<string, RewardData>();
-    private Dictionary<string, float> lastHitTimes = new Dictionary<string, float>(); // 닉네임 → 마지막 피격 시간
-    private float hitCooldown = 1.0f; // 무적 시간 (초)
 
     private Color blueTeamColor = Color.blue;
     private Color redTeamColor = Color.red;
@@ -101,8 +99,29 @@ public class GameSystem : MonoBehaviour
         coopLobbyButton.onClick.AddListener(() => OnCoopLobbyButtonClicked(nickName));
     }
 
+    private float nextDeathReceipt;
+    private bool sendingDeathReceipt;
+
+    private async void AcknowledgeServerDeath()
+    {
+        var connection = NetworkConnector.Instance;
+        if (sendingDeathReceipt || connection == null || connection.Stream == null ||
+            !connection.Combat.TryGetHealth(connection.UserNickname, out int hp) || hp != 0) return;
+        sendingDeathReceipt = true;
+        try {
+            // A receipt permits retrying a failed reward save; server HP is checked again.
+            byte[] packet = Encoding.UTF8.GetBytes($"DEAD|{connection.UserNickname}\n");
+            await connection.Stream.WriteAsync(packet, 0, packet.Length);
+        } catch (System.Exception) { Debug.LogWarning("Death receipt could not be sent."); }
+        finally { sendingDeathReceipt = false; }
+    }
+
     void Update()
     {
+        if (Time.unscaledTime >= nextDeathReceipt) {
+            nextDeathReceipt = Time.unscaledTime + 2f;
+            AcknowledgeServerDeath();
+        }
         float now = Time.time;
 
         if (lastMoveRecvTime.Count == 0) return;
@@ -273,6 +292,8 @@ public class GameSystem : MonoBehaviour
                 Debug.LogWarning($"charIndex {charIndex} 가 aliveImages 범위를 벗어남");
             }
         }
+        if (NetworkConnector.Instance.Combat.TryGetHealth(playerId, out int authoritativeHealth))
+            ApplyServerHealth(playerId, authoritativeHealth);
     }
 
     public void ApplyTeamLayout()
@@ -317,62 +338,20 @@ public class GameSystem : MonoBehaviour
         }
     }
 
-    public void DamagePlayer(string nickname, int damage)
+    public void ApplyServerHealth(string nickname, int health)
     {
-        float now = Time.time;
-
-        // 최근 피격 시간 확인
-        if (lastHitTimes.TryGetValue(nickname, out float lastTime))
-        {
-            if (now - lastTime < hitCooldown)
-            {
-                Debug.Log($"[GameSystem] {nickname} 피격 쿨타임 중 (무시)");
-                return; // 쿨타임 동안은 무시
-            }
-        }
-
-        // 피격 시간 갱신
-        lastHitTimes[nickname] = now;
-
         GameObject uiObj = GameObject.Find($"UserInfo_{nickname}");
         if (uiObj == null) return;
-
-        TMPro.TextMeshProUGUI healthText = uiObj.transform.Find("UserHealthText")?.GetComponent<TMPro.TextMeshProUGUI>();
-        UnityEngine.UI.Slider healthBar = uiObj.transform.Find("UserHealthBar")?.GetComponent<UnityEngine.UI.Slider>();
-
-        if (healthText == null || healthBar == null) return;
-
-        int currentHp = Mathf.RoundToInt(healthBar.value);
-        int newHp = Mathf.Max(currentHp - damage, 0);
-        healthBar.value = newHp;
-        healthText.text = $"HP: {newHp}";
-
-        if (newHp <= 0)
-        {
-            Debug.Log($"[GameSystem] {nickname} 캐릭터 체력 0, 서버에 사망 패킷 전송");
-            SendDeathPacket(nickname);
-        }
-    }
-
-    private async void SendDeathPacket(string nickname)
-    {
-        string msg = $"DEAD|{nickname}\n";
-        byte[] bytes = Encoding.UTF8.GetBytes(msg);
-
-        try
-        {
-            await NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
-            Debug.Log($"[GameSystem] 사망 패킷 전송 완료: {msg.Trim()}");
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogError($"[GameSystem] 사망 패킷 전송 실패: {ex.Message}");
-        }
+        var healthText = uiObj.transform.Find("UserHealthText")?.GetComponent<TextMeshProUGUI>();
+        var healthBar = uiObj.transform.Find("UserHealthBar")?.GetComponent<Slider>();
+        if (healthBar != null) healthBar.value = health;
+        if (healthText != null) healthText.text = $"HP: {health}";
+        // PLAYER_DEAD is emitted by the server; the client never determines death.
     }
 
     public void HandlePlayerDeath(string nickname)
     {
-        deadPlayers.Add(nickname);
+        if (!deadPlayers.Add(nickname)) return;
 
         GameObject uiObj = GameObject.Find($"UserInfo_{nickname}");
         if (uiObj != null)
@@ -408,7 +387,7 @@ public class GameSystem : MonoBehaviour
 
         // 캐릭터 비활성화
         GameObject target = GameObject.Find($"Character_{nickname}");
-        Animator anim = target.GetComponent<Animator>();
+        Animator anim = target != null ? target.GetComponent<Animator>() : null;
         if (anim != null)
         {
             anim.SetTrigger("isDeath");

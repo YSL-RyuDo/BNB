@@ -551,7 +551,7 @@ public class LocalPlayerController : MonoBehaviour
                 hasSentWaterHit = true;
                 Debug.Log("[WaterHitDetector] 내 캐릭터가 물에 맞음! 패킷 전송");
                 
-                string msg = $"WATER_HIT|{myNick}|{waterDamage}\n";
+                string msg = $"WATER_HIT|{myNick}|{NetworkConnector.Instance.Combat.MatchId}\n";
                 byte[] bytes = Encoding.UTF8.GetBytes(msg);
                 await NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
 

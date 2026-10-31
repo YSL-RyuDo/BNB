@@ -44,7 +44,7 @@ public class Arrow : MonoBehaviour
             if (hitPlayerName != myNick)
             {
                 int weaponIndex = 1; // 화살 무기 인덱스
-                string attackMsg = $"HIT|{weaponIndex}|{myNick}|{hitPlayerName}\n";
+                string attackMsg = $"HIT|{weaponIndex}|{myNick}|{hitPlayerName}|{NetworkConnector.Instance.Combat.MatchId}\n";
                 byte[] bytes = Encoding.UTF8.GetBytes(attackMsg);
                 NetworkConnector.Instance.Stream.Write(bytes, 0, bytes.Length);
 
