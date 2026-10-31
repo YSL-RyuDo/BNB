@@ -180,7 +180,7 @@ public class NetworkConnector : MonoBehaviour
         }
         catch (IOException ex) { Debug.LogWarning("Server receive stopped: " + ex.Message); }
         catch (ObjectDisposedException) { }
-        catch (DecoderFallbackException ex) { Debug.LogWarning("Invalid server text: " + ex.Message); }
+        catch (DecoderFallbackException) { Debug.LogWarning("Invalid server text."); }
         finally { connection.Close(); }
     }
 
@@ -215,11 +215,18 @@ public class NetworkConnector : MonoBehaviour
             case "LOGIN_SUCCESS":
             case "WRONG_PASSWORD":
             case "ID_NOT_FOUND":
+            case "ALREADY_LOGGED_IN":
                 LoginSystem loginSystem = FindObjectOfType<LoginSystem>();
                 if (loginSystem != null)
                     loginSystem.HandleLoginMessage(message);
                 else
                     Debug.LogWarning("LoginSystem을 찾을 수 없습니다.");
+                break;
+            case "AUTH_ERROR":
+                LoginSystem authLogin = FindObjectOfType<LoginSystem>();
+                RegisterSystem authRegister = FindObjectOfType<RegisterSystem>();
+                if (authLogin != null) authLogin.HandleLoginMessage(message);
+                if (authRegister != null) authRegister.HandleRegisterMessage(message);
                 break;
             case "REGISTER_SUCCESS":
             case "DUPLICATE_ID":
@@ -864,7 +871,7 @@ public class NetworkConnector : MonoBehaviour
                     break;
                 }
             default:
-                Debug.LogWarning("알 수 없는 서버 명령: " + command);
+                Debug.LogWarning("Unknown server command.");
                 break;
         }
     }

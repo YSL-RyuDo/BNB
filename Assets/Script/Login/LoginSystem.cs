@@ -68,20 +68,18 @@ public class LoginSystem : MonoBehaviour
 
     public void HandleLoginMessage(string message)
     {
+        string command = AuthProtocol.Command(message);
         LoginSystem loginManager = GameObject.FindObjectOfType<LoginSystem>();
 
-        if (message.StartsWith("LOGIN_SUCCESS"))
+        if (command == "LOGIN_SUCCESS")
         {
             string[] parts = message.Split('|');
             if (parts.Length == 2)
             {
-                string[] userParts = parts[1].Split(',');
+                string userId, userNick;
 
-                if (userParts.Length == 3)
+                if (AuthProtocol.TryParseLoginSuccess(message, out userId, out userNick))
                 {
-                    string userId = userParts[0];
-                    string userPw = userParts[1];
-                    string userNick = userParts[2];
 
                     PlayerPrefs.SetString("nickname", userNick);
                     PlayerPrefs.Save();
@@ -89,7 +87,6 @@ public class LoginSystem : MonoBehaviour
                     if (!NetworkConnector.Instance.CurrentUserList.Contains(userNick))
                     {
                         NetworkConnector.Instance.CurrentUserList.Add(userNick);
-                        Debug.Log($"[로그인] 유저 추가됨: {userNick}");
                     }
                     SceneManager.LoadScene("LobbyScene");
                 }
@@ -107,13 +104,19 @@ public class LoginSystem : MonoBehaviour
                     loginManager.loginErrorText.text = "응답 형식 오류";
             }
         }
-        else if (message == "WRONG_PASSWORD")
+        else if (command == "ALREADY_LOGGED_IN" || command == "AUTH_ERROR")
+        {
+            if (loginManager != null)
+                loginManager.loginErrorText.text = command == "ALREADY_LOGGED_IN"
+                    ? "Already logged in." : "Authentication unavailable. Please retry.";
+        }
+        else if (command == "WRONG_PASSWORD")
         {
             Debug.Log("비밀번호 오류");
             if (loginManager != null)
                 loginManager.loginErrorText.text = "잘못된 비밀번호";
         }
-        else if (message == "ID_NOT_FOUND")
+        else if (command == "ID_NOT_FOUND")
         {
             Debug.Log("계정이 없음");
             if (loginManager != null)

@@ -511,7 +511,6 @@ public class LobbySystem : MonoBehaviour
             return;
         }
 
-        Debug.Log($"비밀번호 입력: {password}, 입장 시도할 방: {pendingRoomName}");
         SendEnterRoom(pendingRoomName, password);
     }
 

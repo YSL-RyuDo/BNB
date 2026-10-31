@@ -10,7 +10,7 @@ public class AuthReceiver : IMessageHandler
     private readonly RegisterUI registerUI;
 
     private readonly string[] commands = {
-        "LOGIN_SUCCESS", "WRONG_PASSWORD", "ID_NOT_FOUND",
+        "LOGIN_SUCCESS", "WRONG_PASSWORD", "ID_NOT_FOUND", "ALREADY_LOGGED_IN", "AUTH_ERROR",
         "REGISTER_SUCCESS", "EMPTY_PASSWORD", "DUPLICATE_ID",
         "DUPLICATE_NICK", "REGISTER_ERROR", "FILE_WRITE_ERROR"
     };
@@ -35,18 +35,16 @@ public class AuthReceiver : IMessageHandler
 
     public void HandleMessage(string message)
     {
-        if (message.StartsWith("LOGIN_SUCCESS"))
+        string command = AuthProtocol.Command(message);
+        if (command == "LOGIN_SUCCESS")
         {
             string[] parts = message.Split('|');
             if (parts.Length == 2)
             {
-                string[] userParts = parts[1].Split(',');
+                string userId, userNick;
 
-                if (userParts.Length == 3)
+                if (AuthProtocol.TryParseLoginSuccess(message, out userId, out userNick))
                 {
-                    string userId = userParts[0];
-                    string userPw = userParts[1];
-                    string userNick = userParts[2];
 
                     PlayerPrefs.SetString("nickname", userNick);
                     PlayerPrefs.Save();
@@ -54,7 +52,6 @@ public class AuthReceiver : IMessageHandler
                     if (!NetworkConnector.Instance.CurrentUserList.Contains(userNick))
                     {
                         NetworkConnector.Instance.CurrentUserList.Add(userNick);
-                        Debug.Log($"[로그인] 유저 추가됨: {userNick}");
                     }
                     SceneManager.LoadScene("LobbyScene");
                 }
@@ -72,46 +69,55 @@ public class AuthReceiver : IMessageHandler
                     loginUI.loginErrorText.text = "응답 형식 오류";
             }
         }
-        else if (message == "WRONG_PASSWORD")
+        else if (command == "ALREADY_LOGGED_IN" || command == "AUTH_ERROR")
+        {
+            if (loginUI != null)
+                loginUI.loginErrorText.text = command == "ALREADY_LOGGED_IN"
+                    ? "Already logged in." : "Authentication unavailable. Please retry.";
+        }
+        else if (command == "WRONG_PASSWORD")
         {
             Debug.Log("비밀번호 오류");
             if (loginUI != null)
                 loginUI.loginErrorText.text = "잘못된 비밀번호";
         }
-        else if (message == "ID_NOT_FOUND")
+        else if (command == "ID_NOT_FOUND")
         {
             Debug.Log("계정이 없음");
             if (loginUI != null)
                 loginUI.loginErrorText.text = "존재하지 않는 사용자";
         }
 
-        if (message == "REGISTER_SUCCESS")
+        if (command == "AUTH_ERROR" && registerUI != null)
+            registerUI.registerErrorText.text = "Authentication unavailable. Please retry.";
+
+        if (command == "REGISTER_SUCCESS")
         {
             Debug.Log("회원가입 성공");
             if (registerUI != null)
                 registerUI.registerErrorText.text = "회원가입 성공";
         }
-        else if (message == "EMPTY_PASSWORD")
+        else if (command == "EMPTY_PASSWORD")
         {
             if (registerUI != null)
                 registerUI.registerErrorText.text = "빈 비밀번호";
         }
-        else if (message == "DUPLICATE_ID")
+        else if (command == "DUPLICATE_ID")
         {
             if (registerUI != null)
                 registerUI.registerErrorText.text = "ID 중복";
         }
-        else if (message == "DUPLICATE_NICK")
+        else if (command == "DUPLICATE_NICK")
         {
             if (registerUI != null)
                 registerUI.registerErrorText.text = "닉네임 중복";
         }
-        else if (message == "REGISTER_ERROR")
+        else if (command == "REGISTER_ERROR")
         {
             if (registerUI != null)
                 registerUI.registerErrorText.text = "알 수 없는 에러";
         }
-        else if (message == "FILE_WRITE_ERROR")
+        else if (command == "FILE_WRITE_ERROR")
         {
             if (registerUI != null)
                 registerUI.registerErrorText.text = "파일 에러";
