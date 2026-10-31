@@ -51,6 +51,8 @@ Python 3.14, .NET SDK 9.0.318에서 exit 0, PASS 9개 그룹:
 
 실제 인증 C# 소스를 별도 UTF-8 빌드 디렉터리로 복사하여 테스트한다.
 테스트 UI 대체 객체는 `tools`에만 있으며 `Assets`나 플레이어 빌드에 포함되지 않는다.
+후속 리뷰 반영으로 `.github/workflows/authentication.yml`에도 이 명령을 등록했다.
+인증 소스 변경 시 기존 수신 프레이밍 검사와 별개로 인증 핸들러 검사를 자동 실행한다.
 이 검사는 실제 Unity 런타임/장면 실행을 대체하지 않는다. 수정한 전체 NetworkConnector 및
 게임 스크립트의 Unity 컴파일도 이 검사 범위에 포함되지 않는다.
 
