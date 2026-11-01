@@ -8111,7 +8111,7 @@ MonoBehaviour:
   m_CaretWidth: 1
   m_ReadOnly: 0
   m_RichText: 1
-  m_GlobalFontAsset: {fileID: 11400000, guid: f373c3e74af74bd4abde960f877c0bd8, type: 2}
+  m_GlobalFontAsset: {fileID: 11400000, guid: 4c4a5bb674f4cda4394bb34b4bd570a4, type: 2}
   m_OnFocusSelectAll: 1
   m_ResetOnDeActivation: 1
   m_RestoreOriginalTextOnEscape: 1

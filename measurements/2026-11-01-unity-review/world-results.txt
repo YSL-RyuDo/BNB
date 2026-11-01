@@ -1,0 +1,10 @@
+PASS culture-independent direction packet
+PASS attack carries intent and no victim or origin
+PASS invalid local inputs rejected
+PASS server position parsed independently of locale
+PASS registered weapon spawn
+PASS weapon pose
+PASS removal and readiness events
+PASS 12 malformed or stale events rejected
+PASS C# 9 syntax of 55 production scripts (not Unity type checking)
+9 groups passed

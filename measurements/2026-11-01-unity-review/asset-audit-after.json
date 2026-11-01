@@ -1,0 +1,663 @@
+{
+    "unityVersion": "2022.3.40f1",
+    "buildResult": "Succeeded",
+    "buildErrors": 0,
+    "buildWarnings": 7,
+    "buildBytes": 416140040,
+    "scenes": [
+        {
+            "path": "Assets/Scenes/LogoScene.unity",
+            "objects": 6,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Scenes/LoginScene.unity",
+            "objects": 45,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Scenes/RoomScene.unity",
+            "objects": 81,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Scenes/LobbyScene.unity",
+            "objects": 151,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Scenes/GameScene.unity",
+            "objects": 50,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Scenes/MyPageScene.unity",
+            "objects": 72,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Scenes/ShopScene.unity",
+            "objects": 54,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        }
+    ],
+    "prefabs": [
+        {
+            "path": "Assets/FBX/Character/Archer/Archer 1.prefab",
+            "objects": 47,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/FBX/Character/Archer/Archer.prefab",
+            "objects": 47,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/FBX/Character/Bard/Bard 1.prefab",
+            "objects": 45,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/FBX/Character/Bard/Bard.prefab",
+            "objects": 45,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/FBX/Character/Farmer/Farmer 1.prefab",
+            "objects": 45,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/FBX/Character/Farmer/Farmer.prefab",
+            "objects": 45,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/FBX/Character/King/King 1.prefab",
+            "objects": 41,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/FBX/Character/King/King.prefab",
+            "objects": 41,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/FBX/Character/Knight/Knight 1.prefab",
+            "objects": 45,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/FBX/Character/Knight/Knight.prefab",
+            "objects": 45,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/FBX/Character/Magica/Magica 1.prefab",
+            "objects": 51,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/FBX/Character/Magica/Magica.prefab",
+            "objects": 51,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/FBX/Character/Monk/Monk 1.prefab",
+            "objects": 45,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/FBX/Character/Monk/Monk.prefab",
+            "objects": 45,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/BalloonPrefab/Balloon0.prefab",
+            "objects": 4,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/BalloonPrefab/Balloon1.prefab",
+            "objects": 4,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/BalloonPrefab/Balloon2.prefab",
+            "objects": 4,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/BalloonPrefab/Balloon3.prefab",
+            "objects": 4,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/BalloonPrefab/Balloon4.prefab",
+            "objects": 4,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/BalloonPrefab/Balloon5.prefab",
+            "objects": 4,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/BalloonPrefab/Balloon6.prefab",
+            "objects": 4,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/BalloonPrefab/Balloon7.prefab",
+            "objects": 4,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/BalloonPrefab/Balloon8.prefab",
+            "objects": 4,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/BalloonPrefab/Balloon9.prefab",
+            "objects": 4,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/WaterPrefab/Water0.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/WaterPrefab/Water1.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/WaterPrefab/Water2.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/WaterPrefab/Water3.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/WaterPrefab/Water4.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/WaterPrefab/Water5.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/WaterPrefab/Water6.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/WaterPrefab/Water7.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/WaterPrefab/Water8.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Balloon/WaterPrefab/Water9.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Character/Model/Character0.prefab",
+            "objects": 58,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Character/Model/Character1.prefab",
+            "objects": 58,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Character/Model/Character2.prefab",
+            "objects": 58,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Character/Model/Character3.prefab",
+            "objects": 58,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Character/Model/Character4.prefab",
+            "objects": 58,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Character/Model/Character5.prefab",
+            "objects": 58,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Character/Model/Character6.prefab",
+            "objects": 58,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Game/GameChat.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Game/UserInfo.prefab",
+            "objects": 9,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Game/UserResult.prefab",
+            "objects": 11,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Lobby/CharacterWinningRateUI.prefab",
+            "objects": 4,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Lobby/LobbyChatText.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Lobby/RoomJoinButton.prefab",
+            "objects": 5,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Lobby/UserButton.prefab",
+            "objects": 3,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Map/Map1/Base3.prefab",
+            "objects": 6,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Map/Map1/Base4.prefab",
+            "objects": 5,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Map/Map1/Base5.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Map/Map1/Tile_0_low.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Map/Map1/Tile_1_low.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Map/Map1/Tile_2_low.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Map/Map2/Base3.prefab",
+            "objects": 19,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Map/Map2/Base4.prefab",
+            "objects": 86,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Map/Map2/Base5.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Map/Map2/Base6.prefab",
+            "objects": 9,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Map/Map2/Base7.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Map/Map2/Tile_0_low.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Map/Map2/Tile_1_low.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Map/Map2/Tile_2_low.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Map/Map2/Tile_6_Texture/Wall_low.prefab",
+            "objects": 8,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Map/Map2/WB_11.prefab",
+            "objects": 18,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/MyPage/BalloonSettingButton.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/MyPage/CharacterWinningRateUI.prefab",
+            "objects": 5,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/MyPage/EmoticonSettingButton.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/MyPage/IconSettingButton.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/MyPage/Modeling/Character0.prefab",
+            "objects": 58,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/MyPage/Modeling/Character1.prefab",
+            "objects": 58,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/MyPage/Modeling/Character2.prefab",
+            "objects": 58,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/MyPage/Modeling/Character3.prefab",
+            "objects": 58,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/MyPage/Modeling/Character4.prefab",
+            "objects": 58,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/MyPage/Modeling/Character5.prefab",
+            "objects": 58,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/MyPage/Modeling/Character6.prefab",
+            "objects": 58,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Room/CharacterButton.prefab",
+            "objects": 2,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Room/RoomChatText.prefab",
+            "objects": 1,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Room/RoomPlayerInfo.prefab",
+            "objects": 6,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Shop/Item.prefab",
+            "objects": 6,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Weapon/Arrow.prefab",
+            "objects": 2,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Weapon/Laser.prefab",
+            "objects": 2,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Weapon/Mace.prefab",
+            "objects": 2,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Weapon/Melody.prefab",
+            "objects": 2,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Weapon/Pitchfork.prefab",
+            "objects": 2,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Weapon/Spell.prefab",
+            "objects": 2,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        },
+        {
+            "path": "Assets/Prefab/Weapon/sword.prefab",
+            "objects": 2,
+            "missingScripts": 0,
+            "brokenReferences": 0,
+            "unreadableOutlineMeshes": 0
+        }
+    ],
+    "issues": []
+}

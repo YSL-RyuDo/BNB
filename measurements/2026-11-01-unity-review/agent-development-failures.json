@@ -1,0 +1,271 @@
+[
+  {
+    "attempt": "runtime-before",
+    "clients": [
+      {
+        "user": 0,
+        "weapon": 0,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "InvalidOperationException: Review failed: login UI references",
+          "Runtime review timeout"
+        ],
+        "process_exit": 2,
+        "passed_checks_before_failure": 0
+      },
+      {
+        "user": 1,
+        "weapon": 1,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "InvalidOperationException: Review failed: login UI references",
+          "Runtime review timeout"
+        ],
+        "process_exit": 2,
+        "passed_checks_before_failure": 0
+      },
+      {
+        "user": 2,
+        "weapon": 2,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "InvalidOperationException: Review failed: login UI references",
+          "Runtime review timeout"
+        ],
+        "process_exit": 2,
+        "passed_checks_before_failure": 0
+      },
+      {
+        "user": 3,
+        "weapon": 3,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "InvalidOperationException: Review failed: login UI references",
+          "Runtime review timeout"
+        ],
+        "process_exit": 2,
+        "passed_checks_before_failure": 0
+      }
+    ]
+  },
+  {
+    "attempt": "runtime-map1",
+    "clients": [
+      {
+        "user": 0,
+        "weapon": 0,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "InvalidOperationException: Review failed: server balloon event starts UI cooldown"
+        ],
+        "process_exit": 4294967295,
+        "passed_checks_before_failure": 13
+      },
+      {
+        "user": 1,
+        "weapon": 1,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "TimeoutException: all client assertions"
+        ],
+        "process_exit": 4294967295,
+        "passed_checks_before_failure": 15
+      },
+      {
+        "user": 2,
+        "weapon": 2,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "InvalidOperationException: Review failed: server balloon event starts UI cooldown"
+        ],
+        "process_exit": 4294967295,
+        "passed_checks_before_failure": 9
+      },
+      {
+        "user": 3,
+        "weapon": 3,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "TimeoutException: all client assertions"
+        ],
+        "process_exit": 4294967295,
+        "passed_checks_before_failure": 15
+      }
+    ]
+  },
+  {
+    "attempt": "map1-final",
+    "clients": [
+      {
+        "user": 0,
+        "weapon": 0,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "InvalidOperationException: Review failed: server water cells instantiate water prefabs"
+        ],
+        "process_exit": 4294967295,
+        "passed_checks_before_failure": 16
+      },
+      {
+        "user": 1,
+        "weapon": 1,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "TimeoutException: all client assertions"
+        ],
+        "process_exit": 4294967295,
+        "passed_checks_before_failure": 16
+      },
+      {
+        "user": 2,
+        "weapon": 2,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "TimeoutException: all client assertions"
+        ],
+        "process_exit": 4294967295,
+        "passed_checks_before_failure": 16
+      },
+      {
+        "user": 3,
+        "weapon": 3,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "TimeoutException: all client assertions"
+        ],
+        "process_exit": 4294967295,
+        "passed_checks_before_failure": 16
+      }
+    ]
+  },
+  {
+    "attempt": "map1-verified",
+    "clients": [
+      {
+        "user": 0,
+        "weapon": 0,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "TimeoutException: water event after damage"
+        ],
+        "process_exit": 4294967295,
+        "passed_checks_before_failure": 16
+      },
+      {
+        "user": 1,
+        "weapon": 1,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "TimeoutException: all client assertions"
+        ],
+        "process_exit": 4294967295,
+        "passed_checks_before_failure": 16
+      },
+      {
+        "user": 2,
+        "weapon": 2,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "TimeoutException: all client assertions"
+        ],
+        "process_exit": 4294967295,
+        "passed_checks_before_failure": 16
+      },
+      {
+        "user": 3,
+        "weapon": 3,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "TimeoutException: all client assertions"
+        ],
+        "process_exit": 4294967295,
+        "passed_checks_before_failure": 16
+      }
+    ]
+  },
+  {
+    "attempt": "map1-pass",
+    "clients": [
+      {
+        "user": 0,
+        "weapon": 0,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "TimeoutException: all client assertions"
+        ],
+        "process_exit": 4294967295,
+        "passed_checks_before_failure": 21
+      },
+      {
+        "user": 1,
+        "weapon": 1,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "InvalidOperationException: Review failed: health captured after weapon phase"
+        ],
+        "process_exit": 4294967295,
+        "passed_checks_before_failure": 9
+      },
+      {
+        "user": 2,
+        "weapon": 2,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "InvalidOperationException: Review failed: health captured after weapon phase"
+        ],
+        "process_exit": 4294967295,
+        "passed_checks_before_failure": 9
+      },
+      {
+        "user": 3,
+        "weapon": 3,
+        "map": "Map1",
+        "unityVersion": "2022.3.40f1",
+        "completed": false,
+        "errors": [
+          "InvalidOperationException: Review failed: health captured after weapon phase"
+        ],
+        "process_exit": 4294967295,
+        "passed_checks_before_failure": 9
+      }
+    ]
+  }
+]

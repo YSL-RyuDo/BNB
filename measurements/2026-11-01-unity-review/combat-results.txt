@@ -1,0 +1,12 @@
+PASS no match rejects damage
+PASS one scene transition per match
+PASS authoritative health applied
+PASS duplicate ignored
+PASS reordered delivery cannot restore old health
+PASS revisions tracked per player
+PASS damage cached before scene UI exists
+PASS lethal health comes from server
+PASS 12 malformed or legacy packets rejected
+PASS new match clears state and rejects replay
+PASS new connection resets match sequence
+11 groups passed
