@@ -50,6 +50,12 @@ python tools/test_auth.py --out <auth-results>
 빌드한 수신 프레이밍 4개 그룹도 통과했다. 실행 명령은 `.github/workflows/receive-framing.yml`과 같다.
 경로가 없는 결과 파일을 `measurements/2026-11-01-collision/`에 보관했다.
 
+첫 [GitHub 검사](https://github.com/YSL-RyuDo/BNB/actions/runs/41256607150)는 실패했다.
+CI에 미리 설치된 SDK 10의 Roslyn이 Runtime 10을 요구하여 net9.0 검사에서 CS1705가 발생했다.
+`test_world.py`가 설치된 정식 SDK 9를 선택하고 격리 출력 폴더의 global.json과 작업 디렉터리로
+선택을 고정하도록 수정했다. 로컬 재검증은 9개 그룹 통과했다. 이 실패를 게임 플레이 통과로
+해석하거나 숨기지 않는다.
+
 ## 호환성 영향과 미검증 범위
 
 - 실제 Unity 2022.3.40f1 Editor PlayMode/전체 빌드는 실행하지 못했다. 필요한 버전이 설치되어
