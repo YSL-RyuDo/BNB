@@ -1,9 +1,9 @@
 name: Combat C# checks
 on:
   push:
-    paths: ['Assets/Script/Game/**', 'Assets/Script/Network/**', 'tools/CombatTests.cs', 'tools/test_combat.py', '.github/workflows/combat.yml']
+    paths: ['Assets/Script/Game/**', 'Assets/Script/Network/**', 'tools/CombatTests.cs', 'tools/test_combat.py', 'tools/WorldProtocolTests.cs', 'tools/test_world.py', '.github/workflows/combat.yml']
   pull_request:
-    paths: ['Assets/Script/Game/**', 'Assets/Script/Network/**', 'tools/CombatTests.cs', 'tools/test_combat.py', '.github/workflows/combat.yml']
+    paths: ['Assets/Script/Game/**', 'Assets/Script/Network/**', 'tools/CombatTests.cs', 'tools/test_combat.py', 'tools/WorldProtocolTests.cs', 'tools/test_world.py', '.github/workflows/combat.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           sparse-checkout: |
-            Assets/Script/Network
+            Assets/Script
             tools
       - uses: actions/setup-python@v5
         with:
@@ -24,8 +24,11 @@ jobs:
         with:
           dotnet-version: '9.0.x'
       - run: python tools/test_combat.py --out .combat-test-work
+      - run: python tools/test_world.py --out .world-test-work
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: combat-csharp-results
-          path: .combat-test-work/results.txt
+          path: |
+            .combat-test-work/results.txt
+            .world-test-work/results.txt

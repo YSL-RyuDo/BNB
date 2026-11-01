@@ -20,6 +20,31 @@ public class NetworkConnector : MonoBehaviour
 
     public static NetworkConnector Instance { get; private set; }
     public CombatState Combat { get; } = new CombatState();
+    public bool WorldStarted { get; private set; }
+    private readonly System.Threading.SemaphoreSlim worldSendGate = new System.Threading.SemaphoreSlim(1, 1);
+    private int pendingWorldWrites;
+    public async void SendWorld(string packet)
+    {
+        var connectionStream = _stream;
+        if (packet == null || connectionStream == null) return;
+        if (System.Threading.Interlocked.Increment(ref pendingWorldWrites) > 32) {
+            System.Threading.Interlocked.Decrement(ref pendingWorldWrites);
+            return; // The server expires silent movement input after 250 ms.
+        }
+        bool entered = false;
+        try {
+            entered = await worldSendGate.WaitAsync(1000);
+            if (!entered || !ReferenceEquals(connectionStream, _stream)) return;
+            byte[] bytes = Encoding.UTF8.GetBytes(packet);
+            using (var timeout = new System.Threading.CancellationTokenSource(1000))
+                await connectionStream.WriteAsync(bytes, 0, bytes.Length, timeout.Token);
+        }
+        catch (System.Exception) { Debug.LogWarning("World connection send stopped."); }
+        finally {
+            if (entered) worldSendGate.Release();
+            System.Threading.Interlocked.Decrement(ref pendingWorldWrites);
+        }
+    }
     [Header("Room Info")]
     [SerializeField] private string userNickname;
     [SerializeField] private string selectedMap;
@@ -155,6 +180,7 @@ public class NetworkConnector : MonoBehaviour
             await _client.ConnectAsync("127.0.0.1", 9000);
             _stream = _client.GetStream();
             Combat.Reset();
+            WorldStarted = false;
             StartListening();
 
             Debug.Log("서버 연결 완료");
@@ -183,7 +209,7 @@ public class NetworkConnector : MonoBehaviour
         catch (IOException ex) { Debug.LogWarning("Server receive stopped: " + ex.Message); }
         catch (ObjectDisposedException) { }
         catch (DecoderFallbackException) { Debug.LogWarning("Invalid server text."); }
-        finally { connection.Close(); }
+        finally { WorldStarted = false; connection.Close(); }
     }
 
     private void HandleServerMessage(string message)
@@ -212,6 +238,11 @@ public class NetworkConnector : MonoBehaviour
             return;
         }
 
+        if (WorldProtocol.Parse(message, Combat.MatchId, out WorldPacket world)) {
+            if (world.Command == "COMBAT_BEGIN") WorldStarted = true;
+            else WorldView.Get().Receive(world);
+            return;
+        }
         switch (command)
         {
             case "LOGIN_SUCCESS":
@@ -370,6 +401,7 @@ public class NetworkConnector : MonoBehaviour
                 break;
             case "GAME_START":
                 if (parts.Length != 3 || !Combat.Begin(parts[2])) break;
+                WorldStarted = false;
                 Debug.Log("게임 시작 메시지 수신, 씬 전환");
                 PrepareNewRound();
                 CacheCharacterIndicesBeforeGame();
@@ -488,6 +520,7 @@ public class NetworkConnector : MonoBehaviour
                     }
 
                     GameSystem.Instance.ApplyTeamLayout();
+                    SendWorld($"MATCH_READY|{Combat.MatchId}\n");
                     break;
                 }
             case "BALLOON_LIST":

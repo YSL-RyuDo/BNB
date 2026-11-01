@@ -1,0 +1,4 @@
+PASS split, coalesced, retained tail, no premature dispatch
+PASS split UTF-8 at every byte
+PASS exact limit and oversized message
+PASS invalid UTF-8 rejected

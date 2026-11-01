@@ -76,7 +76,7 @@ public class GameSystem : MonoBehaviour
         string roomName = NetworkConnector.Instance.CurrentRoomName;
         string selectedMap = NetworkConnector.Instance.SelectedMap;
 
-        if (nickName == currentRoomLeader && !mapRequestedOnce)
+        if (!mapRequestedOnce)
         {
             mapRequestedOnce = true;
             string getMapMsg = $"GET_MAP|{roomName}|{selectedMap}\n";
@@ -165,7 +165,7 @@ public class GameSystem : MonoBehaviour
         }
 
         string username = subParts[0];
-        if (!float.TryParse(subParts[1], out float x) || !float.TryParse(subParts[2], out float z))
+        if (!float.TryParse(subParts[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float x) || !float.TryParse(subParts[2], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float z))
         {
             Debug.LogWarning("MOVE_RESULT ÁÂÇ¥ ÆÄ½Ì ½ÇÆÐ");
             return;

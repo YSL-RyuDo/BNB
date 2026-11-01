@@ -1,0 +1,9 @@
+PASS AuthReceiver success, malformed/old responses, error routing and nickname-only preferences
+PASS LoginSystem success, malformed/old responses and error routing
+PASS RegisterSystem delimited response handling
+PASS split UTF-8 authentication response
+PASS split, coalesced, retained tail, no premature dispatch
+PASS split UTF-8 at every byte
+PASS exact limit and oversized message
+PASS invalid UTF-8 rejected
+PASS authentication logs omit response bodies

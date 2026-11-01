@@ -1,5 +1,7 @@
 # 서버 권한 전투 상태 연동
 
+> 이 문서는 이전 HP/사망 처리 단계의 기록이다. 후속 공간 충돌 구현과 현재 제한은 [COLLISION_AUTHORITY.ko.md](COLLISION_AUTHORITY.ko.md)를 참조한다.
+
 `feature/auth-hardening`에서 분기한 `feature/server-authoritative-combat` 변경이다.
 서버의 동일 브랜치와 함께 배포한다. main 및 실제 계정 데이터는 변경하지 않는다.
 

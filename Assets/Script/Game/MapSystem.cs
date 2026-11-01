@@ -137,6 +137,19 @@ public class MapSystem : MonoBehaviour
     }
 
     // 메시지 처리에서 바로 호출
+    public void RemoveServerTile(int x, int z)
+    {
+        string suffix = $"_{x}_{z}";
+        var remove = new List<string>();
+        foreach (var entry in blocksDict) {
+            var obj = entry.Value;
+            if (obj != null && entry.Key.EndsWith(suffix, System.StringComparison.Ordinal) && (obj.CompareTag("Block") || obj.CompareTag("Wall"))) {
+                obj.SetActive(false); Destroy(obj); remove.Add(entry.Key);
+            }
+        }
+        foreach (string key in remove) blocksDict.Remove(key);
+    }
+
     public void HandleDestroyBlockMessage(string message)
     {
         string[] parts = message.Split('|');

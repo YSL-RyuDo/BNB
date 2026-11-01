@@ -133,7 +133,7 @@ public class BalloonSystem : MonoBehaviour
             }
         }
 
-        StartCoroutine(RemoveBalloonAfterDelay(balloon, spawnPos, username, 3f, type));
+        // The server owns the fuse and broadcasts removal and water cells.
     }
 
     private IEnumerator StartCooldown(float duration)
@@ -221,26 +221,6 @@ public class BalloonSystem : MonoBehaviour
             out Vector3 direction, out float distance);
     }
 
-    private IEnumerator RemoveBalloonAfterDelay(GameObject balloon, Vector3 pos, string username, float delay, int type)
-    {
-        yield return new WaitForSeconds(delay);
-        // 본인 풍선만 서버에 제거 요청 전송
-        if (NetworkConnector.Instance.CurrentRoomLeader == NetworkConnector.Instance.UserNickname)
-        {
-            string msg = $"REMOVE_BALLOON|{username}|{pos.x:F2},{pos.z:F2}|{type}\n";
-            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(msg);
-            try
-            {
-                NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
-                Debug.Log($"[BalloonSystem] 풍선 제거 패킷 전송됨: {msg.Trim()}");
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError($"[BalloonSystem] 풍선 제거 패킷 전송 실패: {e.Message}");
-            }
-        }
-    }
-
     public void HandleRemoveBalloon(string message)
     {
         // 예시 메시지: REMOVE_BALLOON|닉네임|x,z
@@ -280,156 +260,16 @@ public class BalloonSystem : MonoBehaviour
     public void HandleWaterSpread(string message)
     {
         string[] parts = message.Split('|');
-        if (parts.Length < 5)
-        {
-            Debug.LogWarning("[BalloonSystem] WATER_SPREAD 메시지 형식 오류");
-            return;
-        }
-
-        string nickname = parts[1];
-        string centerStr = parts[2];
-        string typeStr = parts[3];
-        string positionsStr = parts[4];
-
-        if (!int.TryParse(typeStr, out int waterType))
-        {
-            Debug.LogWarning("[BalloonSystem] 물 타입 파싱 실패");
-            return;
-        }
-
-        // 중심 좌표 파싱
-        string[] centerCoord = centerStr.Split(',');
-        if (centerCoord.Length != 2 ||
-            !int.TryParse(centerCoord[0], out int cx) ||
-            !int.TryParse(centerCoord[1], out int cz))
-        {
-            Debug.LogWarning("[BalloonSystem] 중심 좌표 파싱 실패");
-            return;
-        }
-
-        Vector2Int center = new Vector2Int(cx, cz);
-
-        // 방향별 리스트 초기화
-        Dictionary<Vector2Int, List<Vector2Int>> spreadByDir = new Dictionary<Vector2Int, List<Vector2Int>>()
-    {
-        { Vector2Int.left, new List<Vector2Int>() },
-        { Vector2Int.right, new List<Vector2Int>() },
-        { Vector2Int.up, new List<Vector2Int>() },
-        { Vector2Int.down, new List<Vector2Int>() },
-        { Vector2Int.zero, new List<Vector2Int>() }
-    };
-
-        // 좌표 파싱 및 방향 분류
-        string[] positions = positionsStr.Split(';');
-        foreach (var posStr in positions)
-        {
-            string[] coord = posStr.Split(',');
-            if (coord.Length != 2) continue;
-
-            if (int.TryParse(coord[0], out int x) && int.TryParse(coord[1], out int z))
-            {
-                Vector2Int pos = new Vector2Int(x, z);
-                Vector2Int dir = pos - center;
-
-                Vector2Int normDir = Vector2Int.zero;
-                if (dir == Vector2Int.zero)
-                    normDir = Vector2Int.zero;
-                else if (Mathf.Abs(dir.x) > 0 && dir.y == 0)
-                    normDir = dir.x > 0 ? Vector2Int.right : Vector2Int.left;
-                else if (Mathf.Abs(dir.y) > 0 && dir.x == 0)
-                    normDir = dir.y > 0 ? Vector2Int.up : Vector2Int.down;
-                else
-                    continue; // 대각선 무시
-
-                if (spreadByDir.ContainsKey(normDir))
-                    spreadByDir[normDir].Add(pos);
-            }
-        }
-
-        // 중복 제거 및 거리 기준 정렬
-        var directions = spreadByDir.Keys.ToList();
-        foreach (var direction in directions)
-        {
-            spreadByDir[direction] = spreadByDir[direction].Distinct().ToList();
-            spreadByDir[direction].Sort((a, b) => (a - center).sqrMagnitude.CompareTo((b - center).sqrMagnitude));
-        }
-
-        // 룸리더가 발견한 블록 이름 저장용 리스트
-        List<string> blocksToDestroy = new List<string>();
-
+        if (parts.Length != 5 || !int.TryParse(parts[3], out int type) || waterPrefabs == null || type < 0 || type >= waterPrefabs.Length) return;
         PlayingClip(poppingClip);
-
-        // 물 생성 및 충돌 검사
-        foreach (var direction in directions)
-        {
-            List<Vector2Int> dirPositions = spreadByDir[direction];
-            bool directionBlocked = false;
-
-            foreach (var pos in dirPositions)
-            {
-                if (directionBlocked)
-                    break;
-
-                int x = pos.x;
-                int z = pos.y;
-
-                if (x < 0 || x >= 15 || z < 0 || z >= 13)
-                {
-                    Debug.LogWarning($"[WATER] 범위 초과: ({x},{z})");
-                    directionBlocked = true;
-                    break;
-                }
-
-                Vector3 spawnPos = new Vector3(x, 1f, z);
-                int layerMask = LayerMask.GetMask("Block", "Wall");
-                Collider[] hits = Physics.OverlapBox(spawnPos, Vector3.one * 0.4f, Quaternion.identity, layerMask);
-
-                bool blocked = false;
-
-                foreach (var hit in hits)
-                {
-                    if (hit.CompareTag("Wall") || hit.CompareTag("Ground") ||
-                        hit.gameObject.layer == LayerMask.NameToLayer("Wall") ||
-                        hit.gameObject.layer == LayerMask.NameToLayer("Ground"))
-                    {
-                        blocked = true;
-                        break;
-                    }
-
-                    if (hit.CompareTag("Block") || hit.gameObject.layer == LayerMask.NameToLayer("Block"))
-                    {
-                        blocksToDestroy.Add(hit.name); // 블록 이름 저장
-                        blocked = true;
-                        break;
-                    }
-                }
-
-                if (blocked)
-                {
-                    directionBlocked = true;
-                    break;
-                }
-
-                // 물 생성
-                if (waterPrefabs != null && waterType >= 0 && waterType < waterPrefabs.Length)
-                {
-                    GameObject water = Instantiate(waterPrefabs[waterType], spawnPos, Quaternion.identity);
-                    Destroy(water, 2f);
-                }
-            }
-        }
-
-        // 룸리더가 발견한 블록을 한 번에 서버로 전송
-        if (NetworkConnector.Instance.UserNickname == NetworkConnector.Instance.CurrentRoomLeader &&
-            blocksToDestroy.Count > 0)
-        {
-            string destroyMsg = $"DESTROY_BLOCK|{string.Join(",", blocksToDestroy)}\n";
-            byte[] bytes = Encoding.UTF8.GetBytes(destroyMsg);
-            NetworkConnector.Instance.Stream.Write(bytes, 0, bytes.Length);
-            Debug.Log($"[WATER] 룸리더가 블록 제거 요청 전송: {destroyMsg}");
+        // Cells were clipped against the authoritative map before the server sent this event.
+        foreach (string cell in parts[4].Split(';')) {
+            string[] xy = cell.Split(',');
+            if (xy.Length != 2 || !int.TryParse(xy[0], out int x) || !int.TryParse(xy[1], out int z) || x < 0 || x >= 15 || z < 0 || z >= 13) continue;
+            GameObject water = Instantiate(waterPrefabs[type], new Vector3(x, 1f, z), Quaternion.identity);
+            Destroy(water, 2f);
         }
     }
-
 
     private void PlayingClip(AudioClip clip)
     {

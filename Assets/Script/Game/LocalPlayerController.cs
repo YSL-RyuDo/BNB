@@ -13,6 +13,8 @@ public class LocalPlayerController : MonoBehaviour
 
     private Vector3 lastSentPosition;
     private float moveSpeed = 3.0f;
+    private ulong moveSequence, attackSequence, balloonSequence;
+    private float nextInputSend;
 
     private string myNick;
     private bool hasSentWaterHit = false;
@@ -93,7 +95,7 @@ public class LocalPlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (localCharacter == null || rb == null)
+        if (localCharacter == null || rb == null || !NetworkConnector.Instance.WorldStarted || isDead)
             return;
 
         if (inputDirection.magnitude > 0.1f)
@@ -105,8 +107,10 @@ public class LocalPlayerController : MonoBehaviour
             Quaternion targetRot = Quaternion.LookRotation(inputDirection);
             rb.MoveRotation(targetRot);
 
-            TrySendPosition();
+
         }
+
+        TrySendPosition(); // Includes zero direction so releasing input stops server movement.
 
         if(anim != null)
         {
@@ -188,88 +192,14 @@ public class LocalPlayerController : MonoBehaviour
 
     private void HandleAttackOrBalloonInput()
     {
-        if (isWeaponMode)
-        {
-            if (WeaponSystem.Instance.isCooldown)
-                return;
-
-            if (!NetworkConnector.Instance.CurrentUserCharacterIndices
-                .TryGetValue(myNick, out int idx))
-                return;
-
-            // WeaponSystem.Instance.StartCooldown(2.0f);           
-
-            //anim?.SetTrigger("isAttack");
-            //spawnInvoked = false;
-            //Invoke(nameof(FallbackSpawnWeapon), 0.15f);
-
-            Vector3 attackPos =
-                transform.position + transform.forward * 0.8f + Vector3.up * 0.5f;
-            float rotY = transform.eulerAngles.y;
-
-            // ===== 멜로디 전용 처리 =====
-            //if (idx == 4)
-            //{
-            //    string msg =
-            //        $"MELODY_SPAWN|{myNick}|{attackPos.x:F2},{attackPos.y:F2},{attackPos.z:F2}|{rotY:F2}\n";
-
-            //    byte[] bytes = Encoding.UTF8.GetBytes(msg);
-            //    NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
-            //    return;
-            //}
-
-            // ===== 레이저 =====
-            if (idx == 6)
-            {
-                float maxLength = 15f;
-                float laserLength = maxLength;
-
-                RaycastHit[] hits = Physics.RaycastAll(
-                    attackPos,
-                    transform.forward,
-                    maxLength
-                );
-
-                foreach (var hit in hits)
-                {
-                    if (hit.collider.CompareTag("Player"))
-                        continue;
-
-                    if (hit.collider.CompareTag("Wall") ||
-                        hit.collider.CompareTag("Block") ||
-                        hit.collider.CompareTag("Ground"))
-                    {
-                        laserLength = Mathf.Min(laserLength, hit.distance);
-                    }
-                }
-
-                SendWeaponAttackPacket(idx, attackPos, rotY, laserLength);
-            }
-            else
-            {
-                // ===== 일반 무기 =====
-                SendWeaponAttackPacket(idx, attackPos, rotY);
-            }
-        }
-        else
-        {
-            // ===== 물풍선 =====
-            if (!BalloonSystem.Instance.CanPlaceBalloon())
-                return;
-
-            Vector3 pos = localCharacter.transform.position;
-            float cellSize = 1.0f;
-
-            float snappedX = Mathf.Round(pos.x / cellSize) * cellSize;
-            float snappedZ = Mathf.Round(pos.z / cellSize) * cellSize;
-
-            int balloonType = BalloonSystem.Instance.GetCurrentBalloonType();
-
-            string balloonMsg =
-                $"PLACE_BALLOON|{myNick}|{snappedX:F2},{snappedZ:F2}|{balloonType}\n";
-
-            byte[] bytes = Encoding.UTF8.GetBytes(balloonMsg);
-            NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
+        var network = NetworkConnector.Instance;
+        if (!network.WorldStarted || localCharacter == null || isDead) return;
+        if (isWeaponMode) {
+            if (WeaponSystem.Instance.isCooldown) return;
+            network.SendWorld(WorldProtocol.Attack(network.Combat.MatchId, ++attackSequence, transform.eulerAngles.y));
+        } else {
+            if (!BalloonSystem.Instance.CanPlaceBalloon()) return;
+            network.SendWorld($"BALLOON|{network.Combat.MatchId}|{++balloonSequence}\n");
         }
     }
 
@@ -486,87 +416,23 @@ public class LocalPlayerController : MonoBehaviour
     //}
 
 
-    private async void SendWeaponAttackPacket(int idx, Vector3 pos, float rotationY, float? extraValue = null)
+    private void TrySendPosition()
     {
-        string msg;
-
-        if (extraValue.HasValue)
-        {
-            // 레이저용 등 추가 데이터 포함
-            msg = $"WEAPON_ATTACK|{myNick}|{idx}|{pos.x:F2},{pos.y:F2},{pos.z:F2}|{rotationY:F2}|{extraValue.Value:F2}\n";
-        }
-        else
-        {
-            // 일반 무기 공격
-            msg = $"WEAPON_ATTACK|{myNick}|{idx}|{pos.x:F2},{pos.y:F2},{pos.z:F2}|{rotationY:F2}\n";
-        }
-
-        byte[] bytes = Encoding.UTF8.GetBytes(msg);
-
-        try
-        {
-            await NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
-            Debug.Log($"[Send] 공격 패킷 전송: {msg.Trim()}");
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogError($"[Send] 공격 패킷 전송 실패: {ex.Message}");
-        }
+        var network = NetworkConnector.Instance;
+        if (Time.unscaledTime < nextInputSend || !network.WorldStarted) return;
+        nextInputSend = Time.unscaledTime + .05f;
+        network.SendWorld(WorldProtocol.Move(network.Combat.MatchId, ++moveSequence, inputDirection.x, inputDirection.z));
     }
 
-    private async void TrySendPosition()
+    public void Reconcile(Vector3 authoritative)
     {
-        Vector3 currentPos = localCharacter.transform.position;
-
-        lastSentPosition = currentPos;
-
-        string posStr = $"{currentPos.x:F2},{currentPos.z:F2}";
-        string msg = $"MOVE|{myNick}|{posStr}\n";
-
-        byte[] bytes = Encoding.UTF8.GetBytes(msg);
-
-        try
-        {
-            var stream = NetworkConnector.Instance.Stream;
-            if (stream != null && stream.CanWrite)
-            {
-                await stream.WriteAsync(bytes, 0, bytes.Length);
-            }
+        if (rb == null) return;
+        authoritative.y = rb.position.y;
+        // Local prediction keeps controls responsive. Large drift is corrected from server state.
+        if ((rb.position - authoritative).sqrMagnitude > .0625f) {
+            rb.position = authoritative;
+            transform.position = authoritative;
         }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"위치 전송 실패: {e.Message}");
-        }
-    }
-
-    private async void OnTriggerEnter(Collider other)
-    {
-        if (localCharacter == null || hasSentWaterHit)
-            return;
-
-        if (other.gameObject.CompareTag("Water"))
-        {
-            if (this.gameObject == localCharacter)
-            {
-                hasSentWaterHit = true;
-                Debug.Log("[WaterHitDetector] 내 캐릭터가 물에 맞음! 패킷 전송");
-                
-                string msg = $"WATER_HIT|{myNick}|{NetworkConnector.Instance.Combat.MatchId}\n";
-                byte[] bytes = Encoding.UTF8.GetBytes(msg);
-                await NetworkConnector.Instance.Stream.WriteAsync(bytes, 0, bytes.Length);
-
-                Debug.Log("[WaterHitDetector] WATER_HIT 패킷 전송 완료");
-
-                ResetHitFlagAfterDelay(2f);
-            }
-        }
-    }
-
-    private async void ResetHitFlagAfterDelay(float delaySeconds)
-    {
-        await Task.Delay((int)(delaySeconds * 1000));
-        hasSentWaterHit = false;
-        Debug.Log("[WaterHitDetector] hasSentWaterHit 플래그 초기화됨");
     }
 
     private void UpdateButtonVisuals()
